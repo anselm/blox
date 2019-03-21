@@ -1,3 +1,7 @@
+# EXAMPLE
+
+https://anselm.github.io/threejsfx/
+
 # USAGE
 
 Install your own node server such as
