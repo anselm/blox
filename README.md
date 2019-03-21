@@ -6,6 +6,8 @@ Install your own node server such as
 
 And then run this...
 
+  http-server -c 0
+
 The script that drives this has a couple of simple examples.
 
 # ABOUT

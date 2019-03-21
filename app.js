@@ -9,16 +9,28 @@ let render_callback = 0
 
 function threedee(USE_PHYSICS=1) {
 
+	if ( WEBGL.isWebGLAvailable() === false ) {
+		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		return
+	}
+
 	let scene = 0
 
 	if(USE_PHYSICS) {
-		Physijs.scripts.worker = 'physijs_worker.js'
-		Physijs.scripts.ammo = 'ammo.js'
+		Physijs.scripts.worker = '/js/physijs_worker.js'
+		Physijs.scripts.ammo = '/js/ammo.js'
 		scene = new Physijs.Scene
 	} else {
 		scene = new THREE.Scene()
 		scene.simulate = function() {}
 	}
+
+	// Renderer
+
+	let renderer = new THREE.WebGLRenderer({antialias:true})
+	renderer.setClearColor("#000000")
+	renderer.setSize( window.innerWidth, window.innerHeight )
+	document.body.appendChild( renderer.domElement )
 
 	// A camera
 
@@ -27,20 +39,11 @@ function threedee(USE_PHYSICS=1) {
 	camera.lookAt(0,0,0)
 	scene.add(camera)
 
-	// A light
 
-	light = new THREE.DirectionalLight( 0xFFFFFF );
-	light.position.set( 20, 40, 15 );
-	light.target.position.copy( scene.position );
-	light.castShadow = true;
-	scene.add( light );
-
-	// Renderer
-
-	let renderer = new THREE.WebGLRenderer({antialias:true})
-	renderer.setClearColor("#000000")
-	renderer.setSize( window.innerWidth, window.innerHeight )
-	document.body.appendChild( renderer.domElement )
+	// some controls
+	let controls = new THREE.OrbitControls( camera, renderer.domElement );
+	controls.minDistance = 10;
+	controls.maxDistance = 500;
 
 	// update
 
@@ -177,21 +180,88 @@ class ComponentArt {
 
 }
 
-
-class ComponentPosition {
+class ComponentLight extends THREE.DirectionalLight {
 	constructor(obj,args) {
-		obj.mesh.position.set(args.x,args.y,args.z)
-		obj.position = obj.mesh.position
+		super(args)
+		this.position.set( 20, 40, 15 )
+		this.target.position.copy( scene.position )
+		this.castShadow = true
+		scene.add(this)
+	}
+}
+
+class ComponentLine extends THREE.Line2 {
+	constructor(obj,args) {
+		let geometry = new THREE.LineGeometry()
+		let matLine = new THREE.LineMaterial( {
+			color: 0xffffff,
+			linewidth: 5, // in pixels
+			vertexColors: THREE.VertexColors,
+			dashed: false
+		} );
+		matLine.resolution.set( window.innerWidth, window.innerHeight )
+		let line = super(geometry,matLine)
+		scene.add(line)
+		this.myGeometry = geometry
+		this.args = args
+	}
+
+	tick(interval,obj,objects) {
+
+		let first = objects[this.args.source]
+		let second = objects[this.args.target]
+		if(!first || !second) return
+		let a = first.mesh.position
+		let b = second.mesh.position
+
+		let geometry = this.myGeometry
+		let positions = [];
+		let colors = [];
+		//let points = hilbert3D( new THREE.Vector3( 0, 0, 0 ), 20.0, 1, 0, 1, 2, 3, 4, 5, 6, 7 );
+		let points = [ a, b ]
+		let spline = new THREE.CatmullRomCurve3( points );
+		let divisions = Math.round( 12 * points.length );
+		let color = new THREE.Color();
+		for ( let i = 0, l = divisions; i < l; i ++ ) {
+			let point = spline.getPoint( i / l );
+			positions.push( point.x, point.y, point.z );
+			color.setHSL( i / l, 1.0, 0.5 );
+			colors.push( color.r, color.g, color.b );
+		}
+		geometry.setPositions( positions );
+		geometry.setColors( colors );
+		let line = this
+		line.computeLineDistances()
+		geometry.verticesNeedUpdate = true;
+	}
+
+
+}
+
+class ComponentPosition extends THREE.Vector3 {
+	constructor(obj,args) {
+		super()
+		this.set(args.x,args.y,args.z)
+	}
+}
+
+class ComponentForce extends THREE.Vector3 {
+	constructor(obj,args) {
+		super()
+		this.set(args.x,args.y,args.z)
+	}
+}
+
+class ComponentThrust extends THREE.Vector3 {
+	constructor(obj,args) {
+		super()
+		this.set(args.x,args.y,args.z)
 	}
 }
 
 class ComponentBounce {
 	constructor(obj,args) {
 		this.args = args
-		// TODO arg checking
-		obj.position = obj.mesh.position
-		obj.force = new THREE.Vector3(args.force.x,args.force.y,args.force.z)
-		obj.thrust = new THREE.Vector3(args.thrust.x,args.thrust.y,args.thrust.z)
 	}
 	tick(interval,obj) {
 		obj.force.add(obj.thrust)
@@ -207,9 +277,6 @@ class ComponentBounce {
 class ComponentWander {
 	constructor(obj,args) {
 		this.args = args
-		obj.position = obj.mesh.position
-		obj.force = new THREE.Vector3(0,0,0)
-		obj.thrust = new THREE.Vector3(0,0,0)
 	}
 	tick(interval,obj) {
 		// pick somewhere occasionally
@@ -254,12 +321,15 @@ class ComponentManager {
 			// visit each property of each object
 			let obj = {}
 			Object.entries(_obj).forEach(([key,value])=>{
+				let className = "Component"+key.charAt(0).toUpperCase() + key.slice(1)
 				// attempt to make a component for each property of each object
 				try {
-					let className = "Component"+key.charAt(0).toUpperCase() + key.slice(1)
+					console.log("making " + className)
 					let component = eval(className)
 					obj[key] = new component(obj,value)
 				} catch(e) {
+					console.error(e)
+					console.log("did not find " + className)
 					obj[key] = value
 				}
 			})
@@ -287,11 +357,31 @@ class ComponentManager {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let my_example_document = {
-	"flat" : { physical:"ground" },
-	"boxy" : { physical:"box" },
-	//"bob"  : { kinematic:"box", position:{x:0,y:0,z:10}, bounce: {force:{x:0,y:0.5,z:0}, thrust:{x:0,y:-0.05,z:0}} },
-	"buzz" : { art:"art/hornet", position:{x:0,y:10,z:0}, wander: {force:{x:0,y:0.5,z:0}, thrust:{x:0,y:-0.05,z:0}} },
-	"i" : { art:"art/eyeball", position:{x:0,y:10,z:10}, stare: "buzz", bounce: {force:{x:0,y:0.5,z:0},thrust:{x:0,y:-0.05,z:0}} }
+	"sun": {light:{color:0xFFFFFF}},
+	"flat" : {
+		physical:"ground"
+	},
+	"boxy" : {
+		physical:"box"
+	},
+	"buzz" : {
+		art:"art/hornet",
+		position:{x:0,y:10,z:0},
+		force:{x:0,y:0.5,z:0},
+		thrust:{x:0,y:-0.05,z:0},
+		wander:"far"
+	},
+	"eye" : {
+		art:"art/eyeball",
+		position:{x:0,y:10,z:10},
+		force:{x:0,y:0.5,z:0},
+		thrust:{x:0,y:-0.05,z:0},
+		stare: "buzz",
+		bounce: "high"
+	},
+	"wire": {
+		line:{source:"eye",target:"buzz"}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -302,6 +392,32 @@ let m = new ComponentManager(my_example_document)
 
 render_callback = m.tick.bind(m)
 
+// - timing??? how will we do it
+// - cards
+// - button
+// - leap hands, a keyboard, a piano etc
+
+/*
+
+// timing - what is the approach?
 
 
+
+
+// scripting - one goal is make it easy to script stuff globally. Here are some options I can support:
+
+node("thing").position.slerp("target")   // <- i could decorate the hash with methods
+
+slerp("thing","target")
+
+this.thing.position.slerp(this.target)
+
+node("thing").tick = function() {
+	this.moveto("target")
+}
+
+// some lightweight interpretation could also reduce the syntax
+
+
+*/
 
