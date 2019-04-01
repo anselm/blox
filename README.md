@@ -16,7 +16,7 @@ The script that drives this has a couple of simple examples.
 
 # ABOUT
 
-I'm interested in a rich 3d world of working virtual objects where you can move your virtual fingers around and interact with useful, fun and interesting objects that have all kinds of rich behaviors. Basically that you can have a compositional work environment that isn't fully pre-programmed but rather something that you yourself have put together as suits your own personal needs. Just like a real desktop, workbench or traditional desktop operating system display - except in virtual reality.
+I'm interested in a rich 3d world of working virtual objects that you can interact with. I imagine a scenario where you can move your virtual fingers around and toggle, move, adjust and do other operations to objects that can respond intelligently and in a fashion similar to the real world. Ideally you would have a compositional work environment that isn't fully pre-programmed but rather something that you yourself have put together as suits your own personal needs. Just like a real desktop, workbench or traditional desktop operating system display - except in virtual reality.
 
 This of course is a multi-stage goal; at first I just want to do the simplest possible thing - like have a single button that you can click that turns on a single virtual light.
 
