@@ -11,22 +11,25 @@
 
 let my_scene = {
 
-	// a renderer - it will not be active until a scene and camera and children show up
+	// a renderer behavior - it will not be active until a scene and camera and children show up
 	renderer: 0,
 
-	// a scene - has a listener that watches for any children being attached
+	// a scene behavior - has a listener that watches for any children being attached
 	scene: 0,
 
-	// a camera  with no args - because it is here it has to manually attach to the scene; it could also be in children below
-	camera: 0,
-
-	// an orbit control - needs the camera and the renderer domElement - it could also search for them dynamically but does not
-	orbit: 0,
-
-	// a collection of children <- TODO this could become a behavior too
+	// a collection of children (itself a behavior)
 	children: [
+
+		// a camera blob with a camera behavior and an orbit control behavior
+		{
+			name:"camera",
+			camera:0,
+			orbit:0,
+		},
+
 		// an example blob - only one light is allowed since this is a hash - TODO it is possible to generalize
 		{
+			name:"mylight",
 			// a behavior on the blob; in this case a 3js light - maps to a class named BehaviorLight
 			light:{
 				// a property of the behavior - simply used by the behavior at will or thrown away
@@ -34,7 +37,7 @@ let my_scene = {
 				position:{x:-15,y:15,z:15},
 			}
 		},
-/*
+
 		// here is another example blob - includes one mesh - only one is allowed since this is a hash...
 		{
 			name:"buzz",
@@ -67,7 +70,7 @@ let my_scene = {
 			name:"line",
 			line:{first:"eye",second:"buzz"}
 		},
-*/
+
 		{
 			name:"ground",
 			mesh: {

@@ -14,23 +14,51 @@
 
 let UUID = 0
 
+class BehaviorChildren {
+	constructor(_children,parent) {
+		this.children = []
+		parent.children = this // slight hack, make sure this property is set early so that subsequent children below have lineage
+		for(let i = 0; i < _children.length; i++) {
+			let details = _children[i]
+			let name = details.name || ++UUID
+			let child = new Blob(details,parent)
+			child.name = name
+			console.log("BlobChildren: adding child named " + name )
+			this.children.push(child)
+			// tell listeners if any
+			for(let i = 0; parent._observe_handlers && i < parent._observe_handlers.length;i++) {
+				let handler = parent._observe_handlers[i]
+				handler(child)
+			}
+		}
+	}
+	find(name) {
+		for(let i = 0; i < this.children.length; i++) {
+			if(this.children[i].name == name) return this.children[i]
+		}
+		return 0
+	}
+	tick(interval=0.01) {
+		for(let i = 0; i < this.children.length; i++) {
+			let blob = this.children[i]
+			blob._tick_behaviors(interval)
+		}
+	}
+}
+
 class Blob {
 	constructor(details={},parent=0) {
 		try {
-			this.children = []
 			this.parent = parent
 			if(!details) return
 			// attach behaviors - behaviors are hashed directly into the blob class not as a .behaviors property
 			this._attach_behaviors(details)
-			// children blobs if any - this is a reserved term
-			this._attach_children(details.children)
 		} catch(e){
 			console.error(e)
 		}
 	}
 	_attach_behaviors(_behaviors={}) {
 		Object.entries(_behaviors).forEach(([key,value])=>{
-			if(key == "children") return
 			// evaluate each keypair - a keypair is either a name+class behavior, or a name + literal value
 			this._attach_behavior(key,value)
 		})
@@ -48,28 +76,15 @@ class Blob {
 			behavior.blob = blob
 			// in this instance - append new behavior to list of behaviors associated with this bucket
 			blob[key] = behavior
+			console.log("Blob: made " + className )
 		} catch(e) {
-			if(key == "name" || key == "children" || key=="parent" || key=="find") { // TODO mark out reserved by a search instead
-				console.error("Hit a reserved term " + key)
+			if(key == "name" || key=="parent") { // TODO mark out reserved by a search instead
+				//console.error("Blob: hit a reserved term : " + key + "=" + props)
 			} else {
 				console.error(e)
-				//console.error("Blob::load: did not find " + className + " for " + name)
+				// console.error("Blob::load: did not find " + className + " for " + name)
 				// store the value as a literal if no class contructor found
 				blob[key] = props
-			}
-		}
-	}
-	_attach_children(_children=[]) {
-		for(let i = 0; i < _children.length; i++) {
-			let details = _children[i]
-			let name = details.name || ++UUID
-			let child = new Blob(details,this)
-			child.name = name
-			this.children.push(child)
-			// tell listeners if any
-			for(let i = 0; this._observe_handlers && i < this._observe_handlers.length;i++) {
-				let handler = this._observe_handlers[i]
-				handler(child)
 			}
 		}
 	}
@@ -77,29 +92,15 @@ class Blob {
 		if(!this._observe_handlers) this._observe_handlers = []
 		this._observe_handlers.push(handler)
 	}
-	_tick_children(interval=0.01) {
+	_tick_behaviors(interval) {
+		// a blob has a collection of properties, some of which may be behaviors
 		try {
-			Object.entries(this.children).forEach(([name,blob])=>{
-				blob._tick_children(interval)
-				blob._tick_behaviors(interval)
+			Object.entries(this).forEach(([key,value])=>{
+				if(!value.tick) return
+				value.tick(interval,this)
 			})
 		} catch(e) {
 			console.error(e)
 		}
-	}
-	_tick_behaviors(interval) {
-		Object.entries(this).forEach(([key,value])=>{
-			// all properties that have tick get some cpu time
-			if(!value.tick) return
-			value.tick(interval,this)
-		})
-	}
-	find(name) {
-		if(this.parent && this.parent.children) {
-			for(let i = 0; i < this.parent.children.length; i++) {
-				if(this.parent.children[i].name == name) return this.parent.children[i]
-			}
-		}
-		return 0
 	}
 }

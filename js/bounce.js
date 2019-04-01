@@ -11,8 +11,8 @@ class BehaviorLine extends THREE.Line2 {
 		matLine.resolution.set( window.innerWidth, window.innerHeight )
 		super(geometry,matLine)
 		this.myGeometry = geometry
-		this.first = blob.find(props.first)
-		this.second = blob.find(props.second)
+		this.first = blob.parent.children.find(props.first)
+		this.second = blob.parent.children.find(props.second)
 	}
 
 	tick(interval,blob) {
@@ -101,7 +101,7 @@ class BehaviorStare {
 		this.props = props
 	}
 	tick(interval,blob) {
-		let focus = blob.find(this.props)
+		let focus = blob.parent.children.find(this.props)
 		if(focus && focus.mesh) {
 			blob.mesh.lookAt(focus.mesh.position)
 		}
