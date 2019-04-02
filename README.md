@@ -38,11 +38,27 @@ Overall I see a "vocabulary". We have "nouns" (objects that you can see) and "ve
 
 # USE CASES - ongoing
 
-- [x] Formalize a component/ECS friendly portable file format that can fully describe a scene, camera, controls, lights etc
-- [x] Load a gltf into the scene
+- [x] Invent some kind of component model; ECS like, below threejs, allow behaviors to decorate generic neutral nodes
+- [x] Invent a user friendly declarative file format that can fully describe a scene, camera, controls, lights etc
+- [x] Make an example document that can load up various objects, scene, lights, cameras, gltfs as a nice scene graph
+
 - [x] Attach kinematic behaviors, bounce, stare, a line etcetera, continue to build out tweening and other behaviors
-- [x] Attach physics
-- [x] Attach physics based joints and constraints
+- [x] Attach physics behaviors
+- [x] Attach physics based joints and constraint behaviors; test basic button like functionality
+
+- [ ] A button - define a button as raw physics pieces; then try package up a button as a single reuable component
+- [ ] A sensor that sends an event when hit - needs to support kinetic fingers, and audio etc
+- [ ] A lever
+- [ ] A dial
+- [ ] A slider
+- [ ] A carousel
+- [ ] A globe
+- [ ] A deck cards
+- [ ] A text string
+- [ ] A nice card like layout of some information as a composable panel
+- [ ] A piano key behavior
+- [ ] A piano, route the events to an audio thing
+- [ ] A wire to wire things together in a dataflow model visually corresponding to internal event relationships
 
 - [ ] Some bare bones particle effects
 - [ ] Refine and test a collision and event and scripting system to propagate events and actions
@@ -52,16 +68,10 @@ Overall I see a "vocabulary". We have "nouns" (objects that you can see) and "ve
 - [ ] Leap motion fingers
 - [ ] ARKit augmented reality style pose tracking with a 6dof puck as the hmd
 
-- [ ] Invent more css like kinematic behaviors; shrink, grow, spin, stretch, wobble, pulse colors
-- [ ] Invent even more behaviors, stick to wall, stick to floor, billboard, eyelevel, always be visible, always be readable etc
+- [ ] Invent css like kinematic behaviors; shrink, grow, spin, stretch, wobble, pulse colors
+- [ ] Invent more behaviors, stick to wall, stick to floor, billboard, eyelevel, always be visible, always be readable etc
 
-- [ ] Widgets - button that sends an event when hit, and has a nice physical feel; needs to support kinetic fingers, and audio
-- [ ] A piano key
-- [ ] A wire to wire things together in a dataflow model
-- [ ] A text string
-- [ ] A nice card like layout of some information as a composable panel
-
-- [ ] Multiple instancing in the grammar for ease of use
+- [ ] Multiple instancing in the grammar for ease of use - extend the grammar
 - [ ] Constructive solid geometry
 - [ ] A property sheet editor
 - [ ] Networking / Multiplayer with session management and login
