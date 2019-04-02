@@ -68,9 +68,6 @@ let my_scene = {
 				thrust:{x:0,y:-0.05,z:0},
 				limit:-1 // TODO most things could have a count or -1
 			},
-			fade: {
-				active:0, // TODO most behaviors could have 'active' on by default
-			},
 		},
 
 		// a smart line

@@ -53,7 +53,7 @@ Overall I see a "vocabulary". We have "nouns" (objects that you can see) and "ve
 - [ ] A slider
 - [ ] A carousel
 - [ ] A globe
-- [ ] A deck cards
+- [ ] A deck of cards
 - [ ] A text string
 - [ ] A nice card like layout of some information as a composable panel
 - [ ] A piano key behavior

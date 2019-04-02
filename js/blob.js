@@ -14,7 +14,9 @@
 let UUID = 0
 
 class BehaviorChildren {
-	constructor(_children,parent) {
+	constructor(props,blob) {
+		let _children = props
+		let parent = blob
 		this.children = []
 		parent.children = this // slight hack, make sure this property is set early so that subsequent children below have lineage
 		for(let i = 0; i < _children.length; i++) {
@@ -40,7 +42,7 @@ class BehaviorChildren {
 	tick(interval=0.01) {
 		for(let i = 0; i < this.children.length; i++) {
 			let blob = this.children[i]
-			blob._tick_behaviors(interval)
+			blob._tick(interval)
 		}
 	}
 }
@@ -91,7 +93,7 @@ class Blob {
 		if(!this._observe_handlers) this._observe_handlers = []
 		this._observe_handlers.push(handler)
 	}
-	_tick_behaviors(interval) {
+	_tick(interval) {
 		// a blob has a collection of properties, some of which may be behaviors
 		try {
 			Object.entries(this).forEach(([key,value])=>{

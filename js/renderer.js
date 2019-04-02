@@ -1,23 +1,54 @@
+
+console.log(XRSupport)
+
 class BehaviorRenderer extends THREE.WebGLRenderer {
 	constructor(props,blob) {
-		if ( WEBGL.isWebGLAvailable() === false ) {
-			document.body.appendChild( WEBGL.getWebGLErrorMessage() );
-			return
-		}
-		let renderer = super({antialias:true})
-		renderer.setClearColor("#000000")
-		renderer.setSize( window.innerWidth, window.innerHeight )
+		super({antialias:true,alpha:true})
+		this.setSize( window.innerWidth, window.innerHeight )
+		this.props = props
+		this.blob = blob
+		this.clock = new THREE.Clock()
 		this.scene = 0
 		this.camera = 0
-		document.body.appendChild( renderer.domElement )
-		let render = () => {
-			requestAnimationFrame( render )
-			if(!this.scene || !this.camera) return
-			blob._tick_behaviors()
-			renderer.render(this.scene,this.camera)
-		}
-		render()		
+		this.PASSTHROUGH = XRSupport.supportsARKit()
 	}
+
+	updateScene() {
+		if(!this.scene || !this.camera) return
+		this.blob._tick(this.clock.getElapsedTime())
+	}
+
+	renderScene() {
+		if(!this.scene || !this.camera) return
+		this.render(this.scene,this.camera)			
+	}
+
+	render3() {
+		if(!this.scene || !this.camera) return
+		this.updateScene()
+		this.renderScene()
+	}
+
+	start() {
+		console.log("starting render")
+		if(!this.PASSTHROUGH) {
+			document.body.appendChild( this.domElement )
+			this.setAnimationLoop( this.render3.bind(this) )
+		} else {
+			this.xr = new XRSupport({
+				camera:this.camera,
+				renderer:this,
+				updateScene:this.updateScene.bind(this),
+				renderScene:this.renderScene.bind(this),
+				createVirtualReality:false,
+				shouldStartPresenting:true,
+				useComputervision:false,
+				worldSensing:true,
+				alignEUS:true
+			})
+		}
+	}
+
 }
 
 class BehaviorScene extends THREE.Scene {
@@ -29,6 +60,7 @@ class BehaviorScene extends THREE.Scene {
 					console.log("Scene: noticed a camera being added")
 					blob.renderer.camera = value // slight hack, tell the renderer where useful details are
 					blob.renderer.scene = this
+					blob.renderer.start()
 				}
 				if(value instanceof THREE.Object3D) {
 					console.log("Scene: adding object " + value.constructor.name )
@@ -48,16 +80,6 @@ class BehaviorCamera extends THREE.PerspectiveCamera {
 		camera.add(light)
 	}
 }
-
-class BehaviorOrbit {
-	constructor(props,blob) {
-		// right now the camera is attached to the scene blob, it could be a child TODO
-		let controls = this.controls = new THREE.OrbitControls( blob.camera, blob.parent.renderer.domElement )
-		controls.minDistance = 10
-		controls.maxDistance = 500
-	}
-}
-
 
 class BehaviorLight extends THREE.DirectionalLight {
 	constructor(props,blob) {
@@ -79,3 +101,11 @@ class BehaviorLight extends THREE.DirectionalLight {
 	}
 }
 
+class BehaviorOrbit {
+	constructor(props,blob) {
+		// right now the camera is attached to the scene blob, it could be a child TODO
+		let controls = this.controls = new THREE.OrbitControls( blob.camera, blob.parent.renderer.domElement )
+		controls.minDistance = 10
+		controls.maxDistance = 500
+	}
+}
