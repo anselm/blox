@@ -1,0 +1,16 @@
+{
+  "name": "threejsfx",
+  "version": "1.0.1",
+  "description": "an effects library with a component document model",
+  "main": "needs_a_server.js",
+  "scripts": {
+    "start": "http-server -c 0"
+  },
+  "author": "me",
+  "license": "BSD",
+  "devDependencies": {
+    "express": "^4.16.3"
+  },
+  "dependencies": {
+  }
+}
