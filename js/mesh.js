@@ -8,6 +8,9 @@ class BehaviorMesh extends THREE.Mesh {
 		let is_gltf = 0
 		let geometry = 0
 		switch(props.art) {
+			case "group":
+				geometry = null
+				break
 			case "box":
 				geometry = new THREE.BoxBufferGeometry(1,1,1,16,16,16)
 				break

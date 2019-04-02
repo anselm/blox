@@ -1,16 +1,15 @@
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-/// Blob acts a bucket to hold a collection of named behaviors - one behavior of a blob is typically a THREE.Mesh
+/// Blob acts a bucket to hold a collection of named behaviors
+///
+/// BlobChildren is a behavior that implements hierarchical support
 ///
 /// Behaviors in a blob have a back reference to the blob
 ///
-/// TODO would be nice to load hierarchies
 /// TODO it would be nice to allow multiple instances of a given Behavior in some cases
 /// TODO interval for timing stability at various frame rates
 /// TODO remove having to pass blobs in tick
 ///
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let UUID = 0
 
