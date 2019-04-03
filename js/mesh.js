@@ -46,6 +46,9 @@ class BehaviorMesh extends THREE.Mesh {
 			return
 		}
 
+		// actually i don't want to see it
+		material.visible = false
+
 		// load the gltf
 		let url = props.art + "/scene.gltf"
 		let loader = new THREE.GLTFLoader()

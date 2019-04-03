@@ -1,16 +1,14 @@
 
-console.log(XRSupport)
 
 class BehaviorRenderer extends THREE.WebGLRenderer {
 	constructor(props,blob) {
-		super({antialias:true,alpha:true})
+		super({antialias:true,alpha:XRSupport.supportsARKit()})
 		this.setSize( window.innerWidth, window.innerHeight )
 		this.props = props
 		this.blob = blob
 		this.clock = new THREE.Clock()
 		this.scene = 0
 		this.camera = 0
-		this.PASSTHROUGH = XRSupport.supportsARKit()
 	}
 
 	updateScene() {
@@ -29,8 +27,10 @@ class BehaviorRenderer extends THREE.WebGLRenderer {
 		this.renderScene()
 	}
 
-	start() {
-		console.log("starting render")
+	start(scene,camera) {
+		this.scene = scene
+		this.camera = camera
+		this.PASSTHROUGH = XRSupport.supportsARKit()
 		if(!this.PASSTHROUGH) {
 			document.body.appendChild( this.domElement )
 			this.setAnimationLoop( this.render3.bind(this) )
@@ -58,9 +58,10 @@ class BehaviorScene extends THREE.Scene {
 			Object.entries(childBlob).forEach(([key,value])=>{
 				if(value instanceof THREE.PerspectiveCamera) {
 					console.log("Scene: noticed a camera being added")
-					blob.renderer.camera = value // slight hack, tell the renderer where useful details are
-					blob.renderer.scene = this
-					blob.renderer.start()
+					// add renderer if none
+					if(!blob.renderer) blob.renderer = new BehaviorRenderer(0,blob)
+					// slight hack - tell renderer about scene and camera
+					blob.renderer.start(this,value)
 				}
 				if(value instanceof THREE.Object3D) {
 					console.log("Scene: adding object " + value.constructor.name )
@@ -74,9 +75,11 @@ class BehaviorScene extends THREE.Scene {
 class BehaviorCamera extends THREE.PerspectiveCamera {
 	constructor(props,blob) {
 		let camera = super( 45, window.innerWidth/window.innerHeight, 0.1, 1000 )
-		camera.position.set( 20, 5, 10 )
-		camera.lookAt(0,0,0)
-		var light = new THREE.PointLight( 0xff0000, 1, 100 )
+		let position = props.position || {x:0,y:1,z:10}
+		let lookat = props.lookat || {x:0,y:1,z:0}
+		camera.position.set(position.x,position.y,position.z)
+		camera.lookAt(lookat.x,lookat.y,lookat.z)
+		var light = new THREE.PointLight( 0xffffff, 1, 100 )
 		camera.add(light)
 	}
 }
@@ -94,18 +97,21 @@ class BehaviorLight extends THREE.DirectionalLight {
 		this.castShadow = true
 
 		// debug - make a visible representation
+		let color = props.color || 0xFFFF00
 		let geometry = new THREE.SphereGeometry( 3, 16, 16 )
-		let material = new THREE.MeshBasicMaterial( {color: 0xffff00 } )
+		let material = new THREE.MeshBasicMaterial( {color: color } )
 		let mesh = new THREE.Mesh(geometry,material)
 		this.add(mesh)
 	}
 }
 
-class BehaviorOrbit {
+class BehaviorOrbit extends THREE.OrbitControls{
 	constructor(props,blob) {
-		// right now the camera is attached to the scene blob, it could be a child TODO
-		let controls = this.controls = new THREE.OrbitControls( blob.camera, blob.parent.renderer.domElement )
-		controls.minDistance = 10
-		controls.maxDistance = 500
+		super(blob.camera)
+		let lookat = props.lookat || {x:0,y:1,z:0}
+		this.target = new THREE.Vector3(lookat.x,lookat.y,lookat.z)
+		this.minDistance = 50
+		this.maxDistance = 500
+		this.update()
 	}
 }

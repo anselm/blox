@@ -11,7 +11,7 @@
 
 let my_scene = {
 
-	// a renderer behavior - it will not be active until a scene and camera and children show up
+	// a renderer - scene will make if not found
 	renderer: 0,
 
 	// a scene behavior - has a listener that watches for any children being attached
@@ -23,8 +23,13 @@ let my_scene = {
 		// a camera blob with a camera behavior and an orbit control behavior
 		{
 			name:"camera",
-			camera:0,
-			orbit:0,
+			camera:{
+				position:{x:-50,y:-10,z:50},
+				lookat:{x:0,y:10,z:0},
+			},
+			orbit:{
+				lookat:{x:0,y:10,z:0},
+			}
 		},
 
 		// a light
@@ -34,10 +39,10 @@ let my_scene = {
 			light:{
 				// a property of the behavior - simply used by the behavior at will or thrown away
 				color:0xFFFFFF,
-				position:{x:-15,y:15,z:15},
+				position:{x:-30,y:40,z:-50},
 			}
 		},
-
+/*
 		// a test of a mesh that flies around in a circle
 		{
 			name:"buzz",
@@ -75,30 +80,62 @@ let my_scene = {
 			name:"line",
 			line:{first:"eye",second:"buzz"},
 		},
+*/
 
-/*
+		{
+			name:"effect",
+			mesh:{
+				art:"art/cherry_tree",
+				color:0xff0000,
+				scale:{x:5,y:5,z:5},
+				position:{x:20,y:10,z:10},
+			},
+		},
+
+		{
+			name:"effect",
+			mesh:{
+				art:"art/cherry_tree",
+				color:0xff0000,
+				scale:{x:5,y:5,z:5},
+				position:{x:-30,y:10,z:-15},
+			},
+		},
+
+		{
+			name:"effect",
+			mesh:{
+				art:"art/cherry_tree",
+				color:0xff0000,
+				scale:{x:5,y:5,z:5},
+				position:{x:30,y:10,z:40},
+			},
+		},
+
+
 		// an idea of a particle effects engine for simple particles - triggered by proximity
 		{
 			name:"effect",
 			mesh:{
-				art:"art/an_image.jpg",
+				art:"art/cherry_tree",
 				color:0xff0000,
-				scale:{x:1,y:1,z:1},
-				position:{x:0,y:3,z:0},
+				scale:{x:5,y:5,z:5},
+				position:{x:0,y:10,z:0},
 			},
 			// todo - maybe all meshes could be groups for consistency so that particles could be groups too
 			// anyway this particle would act on the mesh/group above
-			effect: {
+			particles: {
 				active:0,
-				color:{0x00ff0000,0x00ff0000,0x00000000}, // minimum color, maximum color, end color
-				size:{1,1,0}, // minimum size, maximum size, ending size
-				speed:{1,1,-1}, // minimum start speed, maximum start speed, ending speed if any }
+				color:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
+				size:{min:1,max:1,end:0}, // minimum size, maximum size, ending size
+				speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
 				radius:1, // starting radius
-				direction:{0,0,0,360,360,360}, // starting yaw1,pitch1,roll1,yaw2,pitch2,roll2 in degrees
-				gravity:{x:0,y:-1,z:-1},
-				longevity:{50,100}, // minimum and maximum lifespan
+				nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
+				gravity:{x:0,y:-8,z:0},
+				friction:{x:0.95,y:0.95,z:0.95},
+				longevity:{min:100,max:110}, // minimum and maximum lifespan
 				quantity:1000,
-				rate:10,
+				rate:0.1,
 				billboard:1,
 				effect:"waft" // most effects are simple but some might require some special hints
 			},
@@ -114,14 +151,14 @@ let my_scene = {
 			//		and to custom behaviors "self.mybehavior.dosomething args"
 			//
 			// i may as well allow code too - i could even allow eval i guess...
-			proximity: {
-				radius:10,
-				event: function(event) { event.blob.effect.activate(1) } // { event.blob, event.other, event.args }
-			}
+//			proximity: {
+//				radius:10,
+//				event: function(event) { event.blob.effect.activate(1) } // { event.blob, event.other, event.args }
+//			}
 
 		},
-*/
 
+/*
 		// a ground mesh with physics
 		{
 			name:"ground",
@@ -181,6 +218,8 @@ let my_scene = {
 				force:{x:100,y:0,z:0},
 			},
 		}
+*/
 	]
 }
+
 
