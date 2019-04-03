@@ -115,3 +115,21 @@ class BehaviorOrbit extends THREE.OrbitControls{
 		this.update()
 	}
 }
+
+class BehaviorSky extends THREE.Mesh {
+	constructor() {
+		var geometry = new THREE.SphereGeometry(-500, 60, 40);  
+		var uniforms = {  
+		  texture: { type: 't', value: THREE.ImageUtils.loadTexture('/art/eso0932a.jpg') }
+		}
+		var material = new THREE.ShaderMaterial( {  
+		  uniforms:       uniforms,
+		  vertexShader:   document.getElementById('sky-vertex').textContent,
+		  fragmentShader: document.getElementById('sky-fragment').textContent
+		})
+		let skyBox = super(geometry, material)
+//		skyBox.scale.set(-1, 1, 1)
+		skyBox.renderDepth = 1000.0
+	}
+}
+

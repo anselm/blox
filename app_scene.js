@@ -20,11 +20,30 @@ let my_scene = {
 	// a collection of children (itself a behavior)
 	children: [
 
+		// a skybox
+		{
+			name:"sky",
+			sky:{
+				art:"/art/eso0932a.jpg"
+			}
+		},
+
+		// some ground
+		{
+			name:"ground",
+			mesh:{
+				art:"sphere",
+				position:{x:0,y:-8,z:0},
+				scale:{x:300,y:1,z:300},
+				color:0x270212,
+			}
+		},
+
 		// a camera blob with a camera behavior and an orbit control behavior
 		{
 			name:"camera",
 			camera:{
-				position:{x:-50,y:-10,z:50},
+				position:{x:20,y:5,z:50},
 				lookat:{x:0,y:10,z:0},
 			},
 			orbit:{
