@@ -4,51 +4,44 @@ https://anselm.github.io/threejsfx/
 
 # USAGE
 
-Install your own node server such as
+Install and run any small http server and then visit the URL such as http://localhost:3000
 
   npm install http-server -g
-
-And then run this...
-
   http-server -c 0
 
-The script that drives this has a couple of simple examples.
+# USE CASE 1: TELLING STORIES
 
-# USE CASE : TELLING STORIES
+One use case is to allow 'storytellers' to easily tell 'stories'.
 
-A key use case is to allow storytellers to easily tell stories.
+A storyteller is a person or group of people who may be novice designers, artists, writers. They may have very little technical expertise.
 
-A storyteller is a person or group of people who may be novice designers, artists, writers. They may have very little technical expertise between themselves or they may have a lot.
+I imagine a storyteller needs to be able to use a 3d editor with property sheets similar to Unity3D, or at the very least edit a text file that describes their story, and beyond this have some ability to use a computer, to load, refresh, interact with a fairly modern circa 2019 graphics enabled 3d desktop, mobile phone and interactive HMD. They'll probably be leveraging tools like Glitch as well.
 
-I imagine a storyteller needs to be able to edit a text file, or use a 3d editor with property sheets similar to Unity3D and beyond this have some ability to use a computer, to load, refresh, interact with a fairly modern circa 2019 graphics enabled 3d desktop, mobile phone and interactive HMD.
+A story for our purposes is an immersive 3d 'thing' that has actions and behaviors that change over time. This can be games, narratives, vignettes, experiences, emotionally saturated fables, dreams, fantasies, visual ideas - anything they think is important and has meaning. We are surrounded by stories, from the people we see on the bus, to the music we listen to, to advertising, to our own experiences.
 
-A story is an immersive 3d vignette that has actions and behaviors that change over time. This can be vignettes, experiences, emotions, dreams, fantasies, ideas - anything they think is important and has meaning. We are surrounded by stories, from the people we see on the bus, to the music we listen to, to advertising, to our own experiences. Non-programmer storytellers would be restricted to using existing behaviors.
+# USE CASE 2: COLLECTIONS OF WIDGETS
 
-# USE CASE: COLLECTIONS OF WIDGETS
+Another use case is that I want to build up a collection of reusable behaviors that are more complex that boxes, spheres or gltfs. My own interest is in being able to define objects with behaviors, that can be shared between applications, over a network or between programmers. In particular I would like to have collections of 3d clickable buttons, virtual pianos, cards with text layouts in 3d and other fancy interactions. I've been collecting examples of the kinds of widgets I'd like to be able to have here: [https://medium.com/@anselm/laundry-list-of-ux-patterns-in-vr-ar-24dae1e56c0a]
 
-Another use case is to build up a collection of reusable behaviors that are more complex that boxes, spheres or gltfs. My own interest is in being able to define objects with behaviors, that can be shared between applications, over a network or between programmers. In particular I would like to have collections of 3d clickable buttons, virtual pianos, cards with text layouts in 3d and other fancy interactions. I've been collecting examples of the kinds of widgets I'd like to be able to have here:
+# USE CASE 3: SEMANTIC BEHAVIORS
 
-[https://medium.com/@anselm/laundry-list-of-ux-patterns-in-vr-ar-24dae1e56c0a]
-
-# USE CASE: CSS LIKE ANIMATION EFFECTS
-
-Below the level of entire objects there's a world of simpler basic animations and effects that we somewhat take for granted. We're pretty used to bouncing, color changing, animated effects in 2D (CSS has many of these). And VRML used to have these kinds of effects too. Also we often see them in TV shows and in other media. How can we make it very easy for people to express these kinds of effects? How can other objects be easily decorated with these small effects?
+Another use case is that I want to formally collect a world of basic animations, effects, policies or 'intent' that we somewhat take for granted but which do not actually exist in any 3d toolkit right now. We're pretty used to bouncing, color changing, animated effects in 2D (CSS has many of these). And intuitively we have a human conception of 'stand near that other thing'. Older tools such as VRML used to have some of these behaviors but no tool today seems to collect them. We often see effects like this laboriously programmed into in video games, TV shows and in other media and I'd like to collect these kinds of rules as a library.
 
 In a full 3d "vocabulary" we have "nouns" (objects that you can see) and "verbs" (actions that act on those objects). Most users, storytellers or otherwise, will want to be able to easily decorate objects with reasonably intelligent animations or behaviors that we normally take for granted and are otherwise tedious to implement.
 
-# ECS MODEL
+# ARCHITECTURE: COMPONENT MODEL
 
-The core of this implementation is a minimalist (100 lines of code) "Entity Component System". The ECS philosophy allows multiple independant programmers to decorate an object (such as a 3d scene graph object) with their own behaviors without having to think very much about the system as a whole or each others work. Internally the scene, all objects and all behaviors are all represented as decorations on bare objects, and all the objects are arranged to form the scene graph that threejs renders. The approach is lower level than AFrame, and the ECS model is independent of threejs.
+This app is based around a minimalist (100 lines of code) "Entity Component System". The ECS philosophy allows multiple independant programmers to decorate an object (such as a 3d scene graph object) with their own behaviors without having to think very much about the system as a whole or each others work. Internally the scene, all objects and all behaviors are all represented as decorations on bare objects, and all the objects are arranged to form the scene graph that threejs renders. The approach is lower level than AFrame, and the ECS model is independent of threejs.
 
-# DOCUMENT DRIVEN
+# ARCHITECTURE: DOCUMENT DRIVEN
 
 A document driven approach acts as the glue between three parties 1) a storyteller, 2) a programmer, and 3) a player. A storyteller describes a scenario using an text editor or a fancy property sheet editor in an authoring tool. A programmer writes code to implement new behaviors if needed. The playback engine loads up the document, instances the behaviors, and produces and animates the story for the player.
 
 A storyteller scripts entire stories in a declarative format - 3d scenes and scenarios, with 3d objects, proximity based events, triggers and behaviors. A storyteller can make high level statements about characters and actors in their stories. They can place them based on semantic rules, having that placement be reasonably intelligent such as "be on the ground!" or "be near this telephone pole" and express high level intention on actor behavior such as "go stand near that other actor" or "bounce for a moment" or "look at the telephone".
 
-Note that although the system is document driven we will expose programmatic or procedural behavior to the storytellers as well.
+Note that we will also expose programmatic or procedural behavior to the storytellers.
 
-# PARTS LIST
+# COMPONENT LIST
 
 Foundations
 
@@ -103,7 +96,7 @@ Events, Collision
 - [ ] Active and inactive on most things; objects and behaviors; proximity based activity or inactivity; hiding and showing
 - [ ] Multiple instancing in the grammar for ease of use - extend the grammar
 
-Make several small fun animated CSS like effects that can be used to draw attention to objects or to enhance realism
+Fancier Semantics - Make several small fun animated CSS like effects that can be used to draw attention to objects or to enhance realism
 
 - [ ] Bounce
 - [ ] Wobble

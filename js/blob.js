@@ -14,21 +14,23 @@
 let UUID = 0
 
 class BehaviorChildren {
-	constructor(props,blob) {
-		let _children = props
-		let parent = blob
+	constructor(props=0,blob=0) {
+		_load_children(props,blob)
+	}
+	_load_children(props,blob) {
+		if(!props || !blob) return
+		blob.children = this // slight hack, this would normally be set when the constructor returns, set it early so that find() works earlier
 		this.children = []
-		parent.children = this // slight hack, make sure this property is set early so that subsequent children below have lineage
-		for(let i = 0; i < _children.length; i++) {
-			let details = _children[i]
+		for(let i = 0; i < props.length; i++) {
+			let details = props[i]
 			let name = details.name || ++UUID
-			let child = new Blob(details,parent)
+			let child = new Blob(details,blob)
 			child.name = name
 			console.log("BlobChildren: adding child named " + name )
 			this.children.push(child)
 			// tell listeners if any
-			for(let i = 0; parent._observe_handlers && i < parent._observe_handlers.length;i++) {
-				let handler = parent._observe_handlers[i]
+			for(let i = 0; blob._observe_handlers && i < blob._observe_handlers.length;i++) {
+				let handler = blob._observe_handlers[i]
 				handler(child)
 			}
 		}
@@ -64,28 +66,38 @@ class Blob {
 			this._attach_behavior(key,value)
 		})
 	}
-	_attach_behavior(key,props) {
+	_attach_behavior(name,props) {
 		let blob = this
-		let className = "Behavior"+key.charAt(0).toUpperCase() + key.slice(1)
-		// attempt to make a specified behavior for each property of each object
 		try {
-			// find the class
-			let classRef = eval(className)
-			// instance a behavior passing it the bucket itself and the properties for the field
-			let behavior = new classRef(props,blob)
-			// in each new behavior - keep a reference to this bucket
-			behavior.blob = blob
-			// in this instance - append new behavior to list of behaviors associated with this bucket
-			blob[key] = behavior
-			console.log("Blob: made " + className )
+			// skip past existing instances of behavior on object
+			let behavior = null
+			let savename = name
+			for(let count = 0;;count++) {
+				savename = name + (count ? count : "")
+				behavior = blob[savename]
+				if(!behavior) break
+			}
+			// instance behavior
+			if(true) {
+				let className = "Behavior"+name.charAt(0).toUpperCase() + name.slice(1)
+				// find the class
+				let classRef = eval(className)
+				// instance a behavior passing it the bucket itself and the properties for the field
+				let behavior = new classRef(props,blob)
+				// in each new behavior - keep a reference to this bucket
+				behavior.blob = blob
+				// in this instance - append new behavior to list of behaviors associated with this bucket
+				blob[savename] = behavior
+				console.log("Blob: added new instance of behavior " + savename + " " + className )
+			}
 		} catch(e) {
-			if(key == "name" || key=="parent") { // TODO mark out reserved by a search instead
+			if(name == "name" || name=="parent") { // TODO mark out reserved by a search instead
 				//console.error("Blob: hit a reserved term : " + key + "=" + props)
 			} else {
 				console.error(e)
 				// console.error("Blob::load: did not find " + className + " for " + name)
 				// store the value as a literal if no class contructor found
-				blob[key] = props
+				blob[name] = props
 			}
 		}
 	}
@@ -103,5 +115,11 @@ class Blob {
 		} catch(e) {
 			console.error(e)
 		}
+	}
+	_load_module(filename) {
+		import(filename).then((module) => {
+			console.log(module)
+			this.attach_behaviors(module.default_export)
+		})
 	}
 }
