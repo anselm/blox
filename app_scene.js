@@ -11,7 +11,7 @@
 
 let my_scene = {
 
-	// a renderer - scene will make if not found
+	// a renderer behavior - TODO arguably this should be outside the graph...
 	renderer: 0,
 
 	// a scene behavior - has a listener that watches for any children being attached
