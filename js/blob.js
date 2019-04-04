@@ -1,21 +1,23 @@
 
+
+import {BehaviorRenderer, BehaviorScene, BehaviorCamera, BehaviorLight} from './BehaviorRenderer.js'
+import {BehaviorMesh} from './BehaviorMesh.js'
+import {BehaviorSky} from './BehaviorSky.js'
+import {BehaviorOrbit} from './BehaviorOrbit.js'
+import {BehaviorParticles} from './BehaviorParticles.js'
+import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
+import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
+
+
 ///
-/// Blob acts a bucket to hold a collection of named behaviors
-///
-/// BlobChildren is a behavior that implements hierarchical support
-///
-/// Behaviors in a blob have a back reference to the blob
-///
-/// TODO it would be nice to allow multiple instances of a given Behavior in some cases
-/// TODO interval for timing stability at various frame rates
-/// TODO remove having to pass blobs in tick
+/// BlobChildren
 ///
 
 let UUID = 0
 
-class BehaviorChildren {
+export class BehaviorChildren {
 	constructor(props=0,blob=0) {
-		_load_children(props,blob)
+		this._load_children(props,blob)
 	}
 	_load_children(props,blob) {
 		if(!props || !blob) return
@@ -49,13 +51,28 @@ class BehaviorChildren {
 	}
 }
 
-class Blob {
-	constructor(details={},parent=0) {
+///
+/// Blob acts a bucket to hold a collection of named behaviors
+///
+/// Behaviors in a blob have a back reference to the blob
+///
+/// TODO it would be nice to allow multiple instances of a given Behavior in some cases
+/// TODO interval for timing stability at various frame rates
+/// TODO remove having to pass blobs in tick
+///
+
+export class Blob {
+	constructor(details=0,parent=0) {
+		this.parent = parent
 		try {
-			this.parent = parent
-			if(!details) return
-			// attach behaviors - behaviors are hashed directly into the blob class not as a .behaviors property
-			this._attach_behaviors(details)
+			if(!details) details = {}
+			if(typeof details == 'string') {
+				// load from a file
+				this._load_module(details)
+			} else {
+				// attach behaviors - behaviors are hashed directly into the blob class not as a .behaviors property
+				this._attach_behaviors(details)
+			}
 		} catch(e){
 			console.error(e)
 		}
@@ -117,9 +134,16 @@ class Blob {
 		}
 	}
 	_load_module(filename) {
+		let scope = this
 		import(filename).then((module) => {
-			console.log(module)
-			this.attach_behaviors(module.default_export)
+			let keys = Object.keys(module)
+			let json = module[keys[0]]
+			console.log(json)
+			scope._attach_behaviors(json)
 		})
 	}
 }
+
+// This is a helper to expose being able to make scenes to ordinary javascript in normal namespace
+window.BlobLoadHelper = (args) => { document.body.innerHTML = ""; return new Blob(args) }
+

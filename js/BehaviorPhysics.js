@@ -8,7 +8,7 @@ let globalDynamics = 0
 let bigworld = 0
 let allbodies = 0
 
-class BehaviorPhysics {
+export class BehaviorPhysics {
 
 	constructor(props,blob) {
 
@@ -95,8 +95,7 @@ https://github.com/kripken/ammo.js/blob/master/examples/webgl_demo_terrain/index
 /// TODO it could search the parent for a mesh, and or let a region be specified...
 ///
 
-
-class BehaviorPhysical {
+export class BehaviorPhysical {
 	constructor(props,blob) {
 
 		this.props = props

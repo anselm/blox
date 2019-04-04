@@ -1,4 +1,4 @@
-class BehaviorLine extends THREE.Line2 {
+export class BehaviorLine extends THREE.Line2 {
 
 	constructor(props,blob) {
 		let geometry = new THREE.LineGeometry()
@@ -45,7 +45,7 @@ class BehaviorLine extends THREE.Line2 {
 
 }
 
-class BehaviorBounce {
+export class BehaviorBounce {
 	constructor(props) {
 		this.thrust = props.thrust ? new THREE.Vector3(props.thrust.x,props.thrust.y,props.thrust.z) : new THREE.Vector3()
 		this.force = props.force ? new THREE.Vector3(props.force.x,props.force.y,props.force.z) : new THREE.Vector3()
@@ -64,7 +64,7 @@ class BehaviorBounce {
 	}
 }
 
-class BehaviorOscillate {
+export class BehaviorOscillate {
 	constructor() {
 		this.angle = 0
 	}
@@ -76,7 +76,7 @@ class BehaviorOscillate {
 	}
 }
 
-class BehaviorWander {
+export class BehaviorWander {
 	constructor(props) {
 		this.thrust = props.thrust ? new THREE.Vector3(props.thrust.x,props.thrust.y,props.thrust.z) : new THREE.Vector3()
 		this.force = props.force ? new THREE.Vector3(props.force.x,props.force.y,props.force.z) : new THREE.Vector3()
@@ -96,7 +96,7 @@ class BehaviorWander {
 	}
 }
 
-class BehaviorStare {
+export class BehaviorStare {
 	constructor(props) {
 		this.props = props
 	}

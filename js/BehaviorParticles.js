@@ -1,36 +1,5 @@
 
-
-let petal_geometry = 0
-let petal_material = 0
-function make_petal() {
-	// TODO improve geometry - probably use a texture
-	if(!petal_geometry) {
-		var x = 0, y = 0;
-		var shape = new THREE.Shape();
-		shape.moveTo( x + 5, y + 5 );
-		shape.bezierCurveTo( x + 5, y + 5, x + 4, y, x, y );
-		shape.bezierCurveTo( x - 6, y, x - 6, y + 7,x - 6, y + 7 );
-		shape.bezierCurveTo( x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19 );
-		shape.bezierCurveTo( x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7 );
-		shape.bezierCurveTo( x + 16, y + 7, x + 16, y, x + 10, y );
-		shape.bezierCurveTo( x + 7, y, x + 5, y + 5, x + 5, y + 5 );
-		var extrudeSettings = { depth: 1, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 }
-		//petal_geometry = new THREE.ExtrudeBufferGeometry( shape, extrudeSettings );
-		//petal_geometry = new THREE.ShapeGeometry( shape );
-		petal_geometry = new THREE.ShapeBufferGeometry( shape );
-	}
-	// TODO improve colors
-	let r = Math.floor(Math.random()*100 + 135)
-	let g = Math.floor(Math.random()*100 + 19)
-	let b = Math.floor(Math.random()*100 + 101)
-	let c = r *65536 + g * 256 + b
-	petal_material = new THREE.MeshPhongMaterial( { transparent: true, side: THREE.DoubleSide, color: c } )
-
-	// TODO expensive to make a mesh
-	var mesh = new THREE.Mesh( petal_geometry, petal_material )
-	mesh.scale.set(0.1,0.1,0.1)
-	return mesh
-}
+import {BehaviorHeart} from './BehaviorHeart.js'
 
 class Particle {
 
@@ -78,11 +47,13 @@ class Particle {
 		this.tumbleTime = 0
 
 		// add mesh
+		// TODO may want to supply color and hints here
 
 		if(!this.mesh) {
 			this.parent = parent
-			this.mesh = make_petal()
+			this.mesh = props.make_particle()
 			this.parent.add(this.mesh)
+			this.tick(0)
 		}
 	}
 
@@ -129,7 +100,7 @@ class Particle {
 
 }
 
-class BehaviorParticles {
+export class BehaviorParticles {
 	constructor(props,blob) {
 		this.props = props
 		this.particles = []
@@ -174,6 +145,7 @@ class BehaviorParticles {
 			} else {
 				if(this.particles.length >= this.props.quantity) return
 				let particle = new Particle()
+				this.props.make_particle = function(args) { return new BehaviorHeart(args) } // TODO this should not be hardcoded...
 				particle.reset(this.props,parent)
 				this.particles.push(particle)
 			}

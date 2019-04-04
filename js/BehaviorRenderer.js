@@ -1,6 +1,6 @@
 
 
-class BehaviorRenderer extends THREE.WebGLRenderer {
+export class BehaviorRenderer extends THREE.WebGLRenderer {
 	constructor(props,blob) {
 		super({antialias:true,alpha:XRSupport.supportsARKit()})
 		this.setSize( window.innerWidth, window.innerHeight )
@@ -51,15 +51,15 @@ class BehaviorRenderer extends THREE.WebGLRenderer {
 
 }
 
-class BehaviorScene extends THREE.Scene {
+export class BehaviorScene extends THREE.Scene {
 	constructor(props,blob) {
 		let scene = super()
 		blob._observe_attach(childBlob => {
 			Object.entries(childBlob).forEach(([key,value])=>{
 				if(value instanceof THREE.PerspectiveCamera) {
 					console.log("Scene: noticed a camera being added")
-					// add renderer if none
-					if(!blob.renderer) blob.renderer = new BehaviorRenderer(0,blob)
+					// add renderer if none - actually avoid this because i'd prefer to not have race conditions with xrsupport
+					//if(!blob.renderer) blob.renderer = new BehaviorRenderer(0,blob)
 					// slight hack - tell renderer about scene and camera
 					blob.renderer.start(this,value)
 				}
@@ -72,7 +72,7 @@ class BehaviorScene extends THREE.Scene {
 	}
 }
 
-class BehaviorCamera extends THREE.PerspectiveCamera {
+export class BehaviorCamera extends THREE.PerspectiveCamera {
 	constructor(props,blob) {
 		let camera = super( 45, window.innerWidth/window.innerHeight, 0.1, 1000 )
 		let position = props.position || {x:0,y:1,z:10}
@@ -84,7 +84,7 @@ class BehaviorCamera extends THREE.PerspectiveCamera {
 	}
 }
 
-class BehaviorLight extends THREE.DirectionalLight {
+export class BehaviorLight extends THREE.DirectionalLight {
 	constructor(props,blob) {
 
 		// instance directional light
@@ -104,32 +104,3 @@ class BehaviorLight extends THREE.DirectionalLight {
 		this.add(mesh)
 	}
 }
-
-class BehaviorOrbit extends THREE.OrbitControls{
-	constructor(props,blob) {
-		super(blob.camera)
-		let lookat = props.lookat || {x:0,y:1,z:0}
-		this.target = new THREE.Vector3(lookat.x,lookat.y,lookat.z)
-		this.minDistance = 50
-		this.maxDistance = 500
-		this.update()
-	}
-}
-
-class BehaviorSky extends THREE.Mesh {
-	constructor() {
-		var geometry = new THREE.SphereGeometry(-500, 60, 40);  
-		var uniforms = {  
-		  texture: { type: 't', value: THREE.ImageUtils.loadTexture('/art/eso0932a.jpg') }
-		}
-		var material = new THREE.ShaderMaterial( {  
-		  uniforms:       uniforms,
-		  vertexShader:   document.getElementById('sky-vertex').textContent,
-		  fragmentShader: document.getElementById('sky-fragment').textContent
-		})
-		let skyBox = super(geometry, material)
-//		skyBox.scale.set(-1, 1, 1)
-		skyBox.renderDepth = 1000.0
-	}
-}
-

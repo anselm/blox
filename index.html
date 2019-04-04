@@ -22,41 +22,37 @@ canvas { width: 100%; height: 100% }
 <script src='lib/Wireframe.js'></script>
 <script src="lib/three-gltf-loader.js"></script>
 <script src="lib/ammo.js"></script>
-<script src="lib/webxr-polyfill.js"></script>
 <script src="lib/XRSupport.js"></script>
 
+<script src="js/Blob.js" type="module"></script>
+
+<style>
+
+h1 { font-family: Verdana, Geneva, sans-serif; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: Verdana, Geneva, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: Verdana, Geneva, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: Verdana, Geneva, sans-serif; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: Verdana, Geneva, sans-serif; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5714px; }
+
+span {
+	width:100px;
+	height:100px;
+	border:5px solid grey;
+	 display: block;
+	 float:left;
+	 padding:4px;
+	 margin:4px;
+	 border-radius:7px;
+}
+</style>
 </head>
 <body>
 </body>
+<h1>ThreeJSFX</h1>
 
-<script type="application/x-glsl" id="sky-vertex">  
-varying vec2 vUV;
+A collection of effects and a declarative grammar. See <a href="https://github.com/anselm/threejsfx">github.com/anselm/threejsfx</a>
 
-void main() {  
-  vUV = uv;
-  vec4 pos = vec4(position, 1.0);
-  gl_Position = projectionMatrix * modelViewMatrix * pos;
-}
-</script>
+<h1>Examples</h1>
 
-<script type="application/x-glsl" id="sky-fragment">  
-uniform sampler2D texture;  
-varying vec2 vUV;
-
-void main() {  
-  vec4 sample = texture2D(texture, vUV);
-  gl_FragColor = vec4(sample.xyz, sample.w);
-}
-</script>  
-
-<script src="js/renderer.js"></script>
-<script src="js/mesh.js"></script>
-<script src="js/bounce.js"></script>
-<script src="js/physics.js"></script>
-<script src="js/particles.js"></script>
-<script src="js/blob.js"></script>
-
-<script src="app_scene.js"></script>
-<script src="app.js"></script>
+<span onclick="BlobLoadHelper('/examples/hello_world.js')">Hello World</span>
+<span onclick="BlobLoadHelper('/examples/cherry_blossoms.js')">Cherry Blossoms</span>
+<span onclick="BlobLoadHelper('/examples/physics_button.js')">Physics Button</span>
+<span onclick="BlobLoadHelper('/examples/bouncing_scene.js')">Bouncing Scene</span>
 
 </html>

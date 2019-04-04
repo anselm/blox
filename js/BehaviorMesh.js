@@ -1,5 +1,5 @@
 
-class BehaviorMesh extends THREE.Mesh {
+export class BehaviorMesh extends THREE.Mesh {
 
 	constructor(props,blob) {
 
