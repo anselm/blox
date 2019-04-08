@@ -11,7 +11,7 @@ export let cherry_blossoms = {
 		{
 			name:"sky",
 			sky:{
-				art:"/art/eso0932a.jpg"
+				art:"art/eso0932a.jpg"
 			}
 		},
 
