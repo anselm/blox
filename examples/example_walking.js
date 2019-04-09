@@ -83,7 +83,6 @@ export let mything = {
 			}
 		},
 
-		// art
 		{
 			name:"eye",
 			mesh:{
@@ -92,6 +91,7 @@ export let mything = {
 	 			scale:{x:1,y:1,z:1},
 				color:0xff0000,
 			},
+			walk:{},
 		},
 	]
 }

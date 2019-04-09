@@ -13,6 +13,9 @@ export class BehaviorMesh extends THREE.Mesh {
 		// TODO I would prefer to instance and set properties in one step rather than deleting and resetting properties
 		super()
 
+		// reset physics
+		this.physicsReset()
+
 		// set or reset various properties from params
 		this.reset(props)
 
@@ -157,4 +160,77 @@ export class BehaviorMesh extends THREE.Mesh {
 		throw new Error('You have to implement the method setCustomGeometry!')
 	}
 
+	tick(interval,blob) {
+		if(!this.physical) return
+
+		// dampen linear movement by friction
+		this.linear.x = this.linear.x * this.friction
+		this.linear.y = this.linear.y * this.friction
+		this.linear.z = this.linear.z * this.friction
+
+		// apply force to object
+		this.position.add(this.linear)
+
+// rudimentary test of having the system camera move to follow a mesh
+//	- this could be a standalone helper
+//	- it could have modes to just watch a mesh, rather than move to a mesh
+//	- if actually moving it could be adjusted where and how close
+//	- and it could be adjusted if it hides the mesh if close
+//	- these powers could be in the camera itself, or augmented as a behavior
+//  - there are two opposite goals
+//			- follow a mesh - which is useful in vr
+//			- have a mesh follow it - which is useful in xr... but maybe not the right way to do things
+//
+
+		// test - set camera
+		// later this could be a separate thing or an option, i can imagine multiple cameras, and also telescoped points of view
+		let camera = blob.parent.children.find("camera")
+		if(camera) {
+//			this.material.visible = false
+//			this.visible = false
+			// find a position behind the object
+			let v = new THREE.Vector3(0,3,-10)
+			v.applyMatrix4(this.matrixWorld)
+			camera.camera.position.set(v.x,v.y,v.z)
+			// look at the target
+			camera.camera.lookAt(this.position)
+		}
+
+	}
+
+	physicsReset() {
+		this.physical = 0
+		this.friction = 0.9
+		this.linear = new THREE.Vector3()
+	}
+
+	///
+	/// Apply a linear force to an object, or an angular force, which dampen over time
+	///
+
+	physicsForce(linear=0,angular=0) {
+		this.physical = 1
+		if(linear) {
+			// rotate force to current heading and apply it to forces on object
+			//let scratch = new THREE.Vector3(this.linear.x,this.linear.y,this.linear.z)
+			let scratch = new THREE.Vector3(linear.x,linear.y,linear.z) //this.linear.x,this.linear.y,this.linear.z)
+			scratch.applyQuaternion( this.quaternion )
+			this.linear.add(scratch)
+		}
+		if(angular) {
+			// get angular force as a quaternion
+			let q = new THREE.Quaternion() ; q.setFromEuler(angular)
+			// apply to current orientation immediately
+			this.quaternion.multiply(q)
+			// debug
+			let e = new THREE.Euler()
+			e.setFromQuaternion(this.quaternion)
+			let x = e.x * 180 / Math.PI
+			let y = e.y * 180 / Math.PI
+			let z = e.z * 180 / Math.PI
+			console.log("x="+x+" y="+y+" z="+z)
+		}
+	}
 }
+
+

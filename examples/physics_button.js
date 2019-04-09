@@ -4,6 +4,8 @@ export let mything = {
 
 	scene: 0,
 
+	physics: 0,
+
 	children: [
 
 		{
@@ -34,7 +36,6 @@ export let mything = {
 				scale:{x:20,y:0.1,z:20},
 				color:0xff00ff,
 			},
-			physics: {},
 			physical: {
 				mass:0
 			},

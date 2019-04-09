@@ -59,7 +59,7 @@ Basic 3d Objects - that can be produced from a text file similar to AFrame with 
 - [x] Demonstrate loading, placing, orienting and setting color and texture of basic primitives, sphere, cube etc
 - [x] Demonstrate an arbitrary 3d gltf - that is produced into the scene and is document driven from a formal schema
 - [x] Demonstrate primitives, spheres, boxes, planes and the like with textures; demonstrate a photograph attached to a plane.
-- [ ] Demonstrate text in world
+- [x] Demonstrate text in world
 
 - [ ] Demonstrate an animated gif
 - [ ] Demonstrate a movie

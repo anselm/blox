@@ -49,7 +49,7 @@ export let cherry_blossoms = {
 			textPanel:{
 				color:0x00FFFF,
 				scale:{x:10,y:10,z:1},
-				say:"I’m Nobody! Who are you? Are you — Nobody — Too? Then there’s a pair of us! Don’t tell! They’d banish us — you know! How dreary — to be — Somebody! How public — like a Frog — To tell one’s name — the livelong June — To an admiring Bog!"
+				say:"I have eaten the plums that were in the icebox and which you were probably saving for breakfast. Forgive me they were delicious, so sweet, and so cold"
 			}
 		}
 

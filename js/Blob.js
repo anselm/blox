@@ -12,6 +12,7 @@ import {BehaviorHeart} from './BehaviorHeart.js'
 import {BehaviorProton} from './BehaviorProton.js'
 import {BehaviorText} from './BehaviorText.js'
 import {BehaviorTextPanel} from './BehaviorTextPanel.js'
+import {BehaviorWalk} from './BehaviorWalk.js'
 
 ///
 /// BlobChildren
@@ -153,7 +154,6 @@ export class Blob {
 		import(filename).then((module) => {
 			let keys = Object.keys(module)
 			let json = module[keys[0]]
-			console.log(json)
 			scope._attach_behaviors(json)
 		})
 	}
