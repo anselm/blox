@@ -8,6 +8,10 @@ import {BehaviorParticles} from './BehaviorParticles.js'
 import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
 import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
 
+import {BehaviorHeart} from './BehaviorHeart.js'
+import {BehaviorProton} from './BehaviorProton.js'
+import {BehaviorText} from './BehaviorText.js'
+import {BehaviorTextPanel} from './BehaviorTextPanel.js'
 
 ///
 /// BlobChildren
@@ -121,6 +125,17 @@ export class Blob {
 	_observe_attach(handler) {
 		if(!this._observe_handlers) this._observe_handlers = []
 		this._observe_handlers.push(handler)
+	}
+	/// look at children properties and find one that has a sub-field
+	_findByProperty(field) {
+		let keys = Object.keys(this)
+		for(let i = 0 ; i < keys.length; i++) {
+			let value = this[keys[i]]
+			if(typeof value  === "object" && value[field]) {
+				return value
+			}
+		}
+		return 0
 	}
 	_tick(interval) {
 		// a blob has a collection of properties, some of which may be behaviors

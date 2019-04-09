@@ -1,13 +1,92 @@
 
+///
+/// A mesh manager
+///
+/// TODO support active or inactive
+/// TODO should material properties be more detailed?
+///
+
 export class BehaviorMesh extends THREE.Mesh {
 
-	constructor(props,blob) {
+	constructor(props={},blob=0) {
 
-		// TODO have a separate richer function that produces fancy objects from a string
+		// TODO I would prefer to instance and set properties in one step rather than deleting and resetting properties
+		super()
+
+		// set or reset various properties from params
+		this.reset(props)
+
+		// observe children attach events on the parent object that is this behaviors owner; ie that this behavior is associated with
+		if(blob) {
+			blob._observe_attach(childBlob => {
+				Object.entries(childBlob).forEach(([key,value])=>{
+					if(value instanceof THREE.Object3D) {
+						mesh.add(value)
+					}
+				})
+			})
+		}
+	}
+
+	/// set or reset qualities of this mesh
+	reset(props) {
+
+		if(!props) return
+
+		// set or reset material from params - do this before the geom in case I later want to try scavenge material into gltf
+		{
+			let c = props.color || 0xff00ff
+			let s = props.doublesided ? THREE.DoubleSide : 0
+			let t = props.transparent ? 0 : 0
+			let m = new THREE.MeshPhongMaterial( {color: c, transparent: t, side: s } )
+			if(this.material) this.material.dispose()
+			this.material = m
+		}
+
+		// set or reset geometry
+		if(!this.props || this.props.art != props.art) {
+			this.setGeometryFromString(props.art)
+		}
+
+		let mesh = this
+
+		if(props.scale) {
+			mesh.scale.set(props.scale.x,props.scale.y,props.scale.z)
+		}
+
+		if(props.position) {
+			mesh.position.set(props.position.x,props.position.y,props.position.z)
+		}
+
+		if(props.orientation) {
+			mesh.rotation.x = props.orientation.x * Math.PI/180.0
+			mesh.rotation.y = props.orientation.y * Math.PI/180.0
+			mesh.rotation.z = props.orientation.z * Math.PI/180.0
+		}
+
+		if(typeof props.visible !== 'undefined') {
+			mesh.visible = props.visible ? true : false
+		}
+
+		// save for future reference on changes
+		this.props = props
+	}
+
+	/// set or reset geometry from a string description with special rules
+	setGeometryFromString(str) {
+
+		// TODO must write remove if already exists in scene
 
 		let is_gltf = 0
 		let geometry = 0
-		switch(props.art) {
+
+		switch(str) {
+			case undefined:
+			case 0:
+			case null:
+				// TODO the semantics here could use thought - perhaps a default shape is best if nothing is supplied
+				geometry = this.setCustomGeometry()
+				break
 			case "group":
 				geometry = null
 				break
@@ -23,23 +102,8 @@ export class BehaviorMesh extends THREE.Mesh {
 				break
 		}
 
-		// instance this mesh
-		let color = props.color || 0xff00ff
-		let material = new THREE.MeshPhongMaterial( {color: color } )
-		let mesh = super(geometry,material)
-
-		// adjust scale and position
-		if(props.scale) mesh.scale.set(props.scale.x,props.scale.y,props.scale.z)
-		if(props.position) mesh.position.set(props.position.x,props.position.y,props.position.z)
-
-		// observe children attach
-		blob._observe_attach(childBlob => {
-			Object.entries(childBlob).forEach(([key,value])=>{
-				if(value instanceof THREE.Object3D) {
-					mesh.add(value)
-				}
-			})
-		})
+		if(this.geometry) this.geometry.dispose()
+		this.geometry = geometry
 
 		// was a simple geometry
 		if(!is_gltf) {
@@ -47,11 +111,12 @@ export class BehaviorMesh extends THREE.Mesh {
 		}
 
 		// actually i don't want to see it
-		material.visible = false
+		if(this.material) this.material.visible = false
 
 		// load the gltf
-		let url = props.art + "/scene.gltf"
+		let url = str + "/scene.gltf"
 		let loader = new THREE.GLTFLoader()
+	    let mesh = this
 
 		loader.load(url, (gltf) => {
 
@@ -79,8 +144,17 @@ export class BehaviorMesh extends THREE.Mesh {
 			mesh.add(gltf.scene)
 
 			// turn the top level material invisible to reveal the gltf only
-			material.visible = false
+			// TODO later use the top level material here
+			if(this.material) this.material.visible = false
 		})
+	}
+
+	///
+	/// may be subclassed
+	///
+	setCustomGeometry() {
+		console.error(this)
+		throw new Error('You have to implement the method setCustomGeometry!')
 	}
 
 }

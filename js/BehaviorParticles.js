@@ -1,9 +1,37 @@
 
-import {BehaviorHeart} from './BehaviorHeart.js'
+///
+/// A rudimentary particle effects engine that acts on 3d geometries
+///
+/// There are other engines which act on points and exploit shaders - it may be worth migrating to one of those
+///
+/// https://github.com/a-jie/three.proton
+/// https://tympanus.net/codrops/2019/01/17/interactive-particles-with-three-js/
+///
+///
+
+///
+/// Particle state tracking
+/// TODO arguably could sublcass BehaviorMesh and then would not have to track some facts... but may use shaders eventually
+///
 
 class Particle {
 
-	reset(props,parent=0) {
+	constructor(props,parentMesh) {
+
+		if(!parentMesh) {
+			console.error("Needs a hint about what kind of mesh to use - and needs a parent object to attach to")
+			return
+		}
+
+		// use the parent mesh and parent hints as a starting point for what to build
+
+		this.mesh = new parentMesh.constructor(parentMesh.props)
+		parentMesh.add(this.mesh)
+
+		this.reset(props,parentMesh)
+	}
+
+	reset(props,parentMesh=0) {
 		// lifespan
 
 		let longevity = props.longevity || { min:50, max:100 }
@@ -46,15 +74,27 @@ class Particle {
 
 		this.tumbleTime = 0
 
-		// add mesh
-		// TODO may want to supply color and hints here
-
-		if(!this.mesh) {
-			this.parent = parent
-			this.mesh = props.make_particle()
-			this.parent.add(this.mesh)
-			this.tick(0)
+		// fiddle with scale and color - TODO later get from params
+		{
+			let r = Math.floor(Math.random()*100 + 135)
+			let g = Math.floor(Math.random()*100 + 19)
+			let b = Math.floor(Math.random()*100 + 101)
+			let c = r *65536 + g * 256 + b
+			let s = Math.random() + 1
+			// build up properties to write
+			let modifiers = {
+				color:c,
+				scale:{ x:s, y:s, z:s },
+				doublesided:1,
+				transparent:1,
+			}
+			// modify the mesh
+			this.mesh.reset(modifiers)
 		}
+
+
+		// force tick it ahead to get the properties into the next refresh
+		this.tick(0)
 	}
 
 	tick(interval) {
@@ -100,11 +140,17 @@ class Particle {
 
 }
 
+///
+/// A behavior that adds particles
+///
+
 export class BehaviorParticles {
 	constructor(props,blob) {
 		this.props = props
 		this.particles = []
 		this.rateCount = 0
+		this.parentMesh = blob._findByProperty("isObject3D")
+		this.parentMesh.material.visible = false
 	}
 	tick(interval,blob) {
 
@@ -129,9 +175,6 @@ export class BehaviorParticles {
 			active++
 		}
 
-		// get parent mesh
-		let parent = blob.mesh
-
 		// accumulate rate
 		this.rateCount += this.props.rate
 
@@ -141,12 +184,10 @@ export class BehaviorParticles {
 		for(let i = 0; i < count; i++) {
 			if(reusable.length) {
 				let particle = reusable.shift()
-				particle.reset(this.props,parent)
+				particle.reset(this.props)
 			} else {
 				if(this.particles.length >= this.props.quantity) return
-				let particle = new Particle()
-				this.props.make_particle = function(args) { return new BehaviorHeart(args) } // TODO this should not be hardcoded...
-				particle.reset(this.props,parent)
+				let particle = new Particle(this.props,this.parentMesh)
 				this.particles.push(particle)
 			}
 			this.rateCount -=1

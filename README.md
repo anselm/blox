@@ -50,15 +50,17 @@ Foundations
 - [x] Formalize an in-code component model that lets me load up a document into memory. It probably needs an ECS philosophy.
 - [x] Demonstrate decorating an object with multiple components or behaviors that can run and act on it simultaneously
 - [x] Demostrate loading a document into memory and producing an entire 3d scene with behaviors from that document
+- [x] Support Desktop flat panel display
 - [x] Support WebXR for Mozilla WebXR iOS
 - [ ] Support WebVR for HMD's like Oculus Rift etcetera
-- [x] Support Desktop flat panel display
 
 Basic 3d Objects - that can be produced from a text file similar to AFrame with a similar ECS behavior decorator model
 
-- [x] Demonstrate loading, placing, orienting and setting color and texture of a cube
+- [x] Demonstrate loading, placing, orienting and setting color and texture of basic primitives, sphere, cube etc
 - [x] Demonstrate an arbitrary 3d gltf - that is produced into the scene and is document driven from a formal schema
 - [x] Demonstrate primitives, spheres, boxes, planes and the like with textures; demonstrate a photograph attached to a plane.
+- [ ] Demonstrate text in world
+
 - [ ] Demonstrate an animated gif
 - [ ] Demonstrate a movie
 - [ ] Demonstrate a sound
@@ -66,7 +68,6 @@ Basic 3d Objects - that can be produced from a text file similar to AFrame with 
 - [ ] Demonstrate Partial Hemisphere 360 panos
 - [ ] Demonstrate an idea of virtual occlusion to allow holes in walls and other similar VR effects
 - [ ] Autoload from sketchfab and other sources using the Hubs proxy support
-- [ ] Demonstrate text in world
 - [ ] Flip book style animated image textures
 - [ ] Constructive Solid Geometry
 
@@ -75,6 +76,12 @@ Basic Behaviors on Objects
 - [ ] Hideable and showable
 - [ ] Start stop video and audio
 - [ ] Events that can trigger actions such as hide, show scenes, clumps of objects or individual objects based on event
+
+Events, Collision
+
+- [ ] Refine and test a collision and event and scripting system to propagate events and actions; test proximity
+- [ ] Active and inactive on most things; objects and behaviors; proximity based activity or inactivity; hiding and showing
+- [ ] Multiple instancing in the grammar for ease of use - extend the grammar
 
 Invent some kind of Smart Position / Orientation Concept
 
@@ -90,15 +97,9 @@ Invent some kind of Smart Position / Orientation Concept
 - [ ] Demonstrate always be a reasonable size (ie; could decorate text with this so that it was always readable)
 - [ ] Demonstrate smart arrow that points at something else
 
-Events, Collision
-
-- [ ] Refine and test a collision and event and scripting system to propagate events and actions; test proximity
-- [ ] Active and inactive on most things; objects and behaviors; proximity based activity or inactivity; hiding and showing
-- [ ] Multiple instancing in the grammar for ease of use - extend the grammar
-
 Fancier Semantics - Make several small fun animated CSS like effects that can be used to draw attention to objects or to enhance realism
 
-- [ ] Bounce
+- [ ] Bounce -> add more parameters
 - [ ] Wobble
 - [ ] Pulse colors
 - [ ] Shrink
@@ -111,21 +112,18 @@ Fancier Semantics - Make several small fun animated CSS like effects that can be
 - [ ] Go near player or object
 - [ ] Tweening
 
-Basic Particle effect
+Partices
 
-- [x] 3d object fountain
-- [ ] Shader 2d particles
-- [ ] Perhaps even allow emitting of full objects ( like say balloons that have their own full behaviors or any other object )
+- [x] Object based particle effects; expose object selection to the caller
+- [ ] Proton; demonstrate snow, fire and a few other basic effects
+- [ ] Other particles? A shader based? (proton and mine are both fairly mediocre)
 
 Physics
 
-- [x] Attach kinematic behaviors, bounce, stare, a line etcetera, continue to build out tweening and other behaviors
-- [x] Attach physics behaviors
-- [x] Attach physics based joints and constraint behaviors; test basic button like functionality
-- [ ] Make a physical ground plane
-- [ ] Make a basic physics falling capability
-- [ ] Make a slider joint
-- [ ] Make a hinge joint
+- [x] An example of a ground object bound to a mesh (something with gravity set to zero that acts as a collidable ground surface)
+- [x] An example of a falling object, again bound to a mesh, something with gravity set to non zero.
+- [ ] An example of a hinge joint with proper constraints
+- [ ] An example of a slider joint with proper constraints
 
 Widgets
 

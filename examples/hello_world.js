@@ -23,18 +23,7 @@ export let mything = {
 		{
 			name:"sky",
 			sky:{
-				art:"/art/eso0932a.jpg"
-			}
-		},
-
-		// some ground
-		{
-			name:"ground",
-			mesh:{
-				art:"sphere",
-				position:{x:0,y:-8,z:0},
-				scale:{x:300,y:1,z:300},
-				color:0x270212,
+				art:"art/eso0932a.jpg"
 			}
 		},
 
@@ -56,8 +45,19 @@ export let mything = {
 			// a behavior on the blob; in this case a 3js light - maps to a class named BehaviorLight
 			light:{
 				// a property of the behavior - simply used by the behavior at will or thrown away
-				color:0xFFFFFF,
 				position:{x:-30,y:40,z:-50},
+				color:0xFFFFFF,
+			}
+		},
+
+		// some ground
+		{
+			name:"ground",
+			mesh:{
+				art:"sphere",
+				position:{x:0,y:-8,z:0},
+				scale:{x:300,y:1,z:300},
+				color:0x270212,
 			}
 		},
 
@@ -65,9 +65,9 @@ export let mything = {
 			name:"eye",
 			mesh:{
 				art:"art/eyeball",
-				color:0xff0000,
-	 			scale:{x:1,y:1,z:1},
 				position:{x:0,y:3,z:0},
+	 			scale:{x:1,y:1,z:1},
+				color:0xff0000,
 			},
 		},
 	]
