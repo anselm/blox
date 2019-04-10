@@ -19,16 +19,18 @@ export class BehaviorMesh extends THREE.Mesh {
 		// set or reset various properties from params
 		this.reset(props)
 
-		// observe children attach events on the parent object that is this behaviors owner; ie that this behavior is associated with
-		if(blob) {
-			blob._observe_attach(childBlob => {
-				Object.entries(childBlob).forEach(([key,value])=>{
-					if(value instanceof THREE.Object3D) {
-						mesh.add(value)
-					}
-				})
-			})
-		}
+		// listen to events and attach any children that show up
+		if(blob) blob._listen("child_added",this.on_child_added.bind(this))
+	}
+
+	on_child_added(args) {
+		if(args.name != "child_added") return
+		let mesh = this
+		Object.entries(args.child).forEach(([key,value])=>{
+			if(value instanceof THREE.Object3D) {
+				mesh.add(value)
+			}
+		})
 	}
 
 	/// set or reset qualities of this mesh
@@ -170,32 +172,6 @@ export class BehaviorMesh extends THREE.Mesh {
 
 		// apply force to object
 		this.position.add(this.linear)
-
-// rudimentary test of having the system camera move to follow a mesh
-//	- this could be a standalone helper
-//	- it could have modes to just watch a mesh, rather than move to a mesh
-//	- if actually moving it could be adjusted where and how close
-//	- and it could be adjusted if it hides the mesh if close
-//	- these powers could be in the camera itself, or augmented as a behavior
-//  - there are two opposite goals
-//			- follow a mesh - which is useful in vr
-//			- have a mesh follow it - which is useful in xr... but maybe not the right way to do things
-//
-
-		// test - set camera
-		// later this could be a separate thing or an option, i can imagine multiple cameras, and also telescoped points of view
-		let camera = blob.parent.children.find("camera")
-		if(camera) {
-//			this.material.visible = false
-//			this.visible = false
-			// find a position behind the object
-			let v = new THREE.Vector3(0,3,-10)
-			v.applyMatrix4(this.matrixWorld)
-			camera.camera.position.set(v.x,v.y,v.z)
-			// look at the target
-			camera.camera.lookAt(this.position)
-		}
-
 	}
 
 	physicsReset() {
@@ -206,7 +182,7 @@ export class BehaviorMesh extends THREE.Mesh {
 
 	///
 	/// Apply a linear force to an object, or an angular force, which dampen over time
-	///
+	/// TODO use time interval TODO parameterize
 
 	physicsForce(linear=0,angular=0) {
 		this.physical = 1
@@ -228,7 +204,6 @@ export class BehaviorMesh extends THREE.Mesh {
 			let x = e.x * 180 / Math.PI
 			let y = e.y * 180 / Math.PI
 			let z = e.z * 180 / Math.PI
-			console.log("x="+x+" y="+y+" z="+z)
 		}
 	}
 }

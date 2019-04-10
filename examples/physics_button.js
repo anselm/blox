@@ -1,7 +1,5 @@
 export let mything = {
 
-	renderer: 0,
-
 	scene: 0,
 
 	physics: 0,

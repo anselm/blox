@@ -1,15 +1,76 @@
-			// test idea - watch for proximity events on self, and broadcast
-			// this could be a brute force observer for now, later a broadphase system
-			// on criteria being met (gazed at, proximity collision, even a mouse pick - it would fire)
-			//		i think i will have a mini grammar, events are always going to use that grammar
-			//			"thingname.behaviorname.methodname arguments"
-			//		this lets me send messages to the world as "* arguments" -> which goes to a special listener
-			//		and to an object "buzz.mesh.activate 1" -> make the buzz object mesh visible
-			//		and to self "self.effect.activate 1" -> start own effect behavior
-			//		and to custom behaviors "self.mybehavior.dosomething args"
-			//
-			// i may as well allow code too - i could even allow eval i guess...
-//			proximity: {
-//				radius:10,
-//				event: function(event) { event.blob.effect.activate(1) } // { event.blob, event.other, event.args }
-//			}
+
+
+export let mything = {
+
+	scene: 0,
+
+	children: [
+
+		{
+			name:"mylight",
+			// a behavior on the blob; in this case a 3js light - maps to a class named BehaviorLight
+			light:{
+				// a property of the behavior - simply used by the behavior at will or thrown away
+				position:{x:-30,y:40,z:-50},
+				color:0xFFFFFF,
+			}
+		},
+
+		{
+			name:"ground",
+			mesh:{
+				art:"sphere",
+				position:{x:0,y:-8,z:0},
+				scale:{x:300,y:1,z:300},
+				color:0x270212,
+			}
+		},
+
+		{
+			name:"thing",
+			mesh:{
+				art:"sphere",
+				position:{x:2,y:2,z:2},
+				scale:{x:1,y:1,z:1},
+				color:0x27ff12,
+			}
+		},
+
+		{
+			name:"thing",
+			mesh:{
+				art:"box",
+				position:{x:-2,y:2,z:-2},
+				scale:{x:1,y:1,z:1},
+				color:0xff0212,
+			},
+			tick: function(interval,parent) {
+				parent.mesh.rotateX(0.1)
+			},
+			sense: {
+				layer: 1,
+				action: function(interval,parent,target) { parent.mesh.rotateY(0.3) }
+			},
+		},
+
+		{
+			name:"party",
+			mesh:{
+				art:"art/eyeball",
+				position:{x:0,y:2,z:0},
+	 			scale:{x:1,y:1,z:1},
+				color:0xff0000,
+			},
+			camera:{},
+			walk:{},
+			sense: {
+				gaze: true,
+				click: true,
+				proximity:10,
+				layer:1,
+				action: function(interval,parent,target) { console.log("hello") } //e.source.bounce.start(); e.target.mesh.hide() }
+			}
+
+		},
+	]
+}

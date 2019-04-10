@@ -1,4 +1,4 @@
-export let scene = {
+export let cherry_blossoms = {
 
 	scene: 0,
 
@@ -38,18 +38,11 @@ export let scene = {
 				color:0x00FFFF,
 				scale:{x:10,y:10,z:1},
 				say:"hello"
+			},
+			tick: function(interval,parent) {
+				parent.text.rotateX(0.1)
 			}
 		},
-
-		// text panel
-		{
-			name:"mytext",
-			textPanel:{
-				color:0x00FFFF,
-				scale:{x:10,y:10,z:1},
-				say:"I have eaten the plums that were in the icebox and which you were probably saving for breakfast. Forgive me they were delicious, so sweet, and so cold"
-			}
-		}
 
 	]
 }

@@ -11,27 +11,25 @@
 
 ///
 /// Particle state tracking
-/// TODO arguably could sublcass BehaviorMesh and then would not have to track some facts... but may use shaders eventually
 ///
 
 class Particle {
 
-	constructor(props,parentMesh) {
+	constructor(props,parentBehavior) {
 
-		if(!parentMesh) {
+		if(!parentBehavior) {
 			console.error("Needs a hint about what kind of mesh to use - and needs a parent object to attach to")
 			return
 		}
 
-		// use the parent mesh and parent hints as a starting point for what to build
+		// re-instance and then somewhat manually associate the behavior with the threejs scene graph
+		this.mesh = new parentBehavior.constructor(parentBehavior.props,0)
+		parentBehavior.add(this.mesh)
 
-		this.mesh = new parentMesh.constructor(parentMesh.props)
-		parentMesh.add(this.mesh)
-
-		this.reset(props,parentMesh)
+		this.reset(props,parentBehavior)
 	}
 
-	reset(props,parentMesh=0) {
+	reset(props,parentBehavior=0) {
 		// lifespan
 
 		let longevity = props.longevity || { min:50, max:100 }
@@ -143,16 +141,22 @@ class Particle {
 ///
 /// A behavior that adds particles
 ///
+///
 
 export class BehaviorParticles {
 	constructor(props,blob) {
 		this.props = props
 		this.particles = []
 		this.rateCount = 0
-		this.parentMesh = blob._findByProperty("isObject3D")
-		this.parentMesh.material.visible = false
+		this.parentBehavior = blob._findByProperty("isObject3D")
+		if(!this.parentBehavior) {
+			console.error("Particles need to act on a 3d example object")
+			return
+		}
+		this.parentBehavior.material.visible = false
 	}
 	tick(interval,blob) {
+		if(!this.parentBehavior) return
 
 		// visit all particles
 		let reusable = []
@@ -187,7 +191,7 @@ export class BehaviorParticles {
 				particle.reset(this.props)
 			} else {
 				if(this.particles.length >= this.props.quantity) return
-				let particle = new Particle(this.props,this.parentMesh)
+				let particle = new Particle(this.props,this.parentBehavior)
 				this.particles.push(particle)
 			}
 			this.rateCount -=1

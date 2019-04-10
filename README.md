@@ -41,7 +41,7 @@ A storyteller scripts entire stories in a declarative format - 3d scenes and sce
 
 Note that we will also expose programmatic or procedural behavior to the storytellers.
 
-# COMPONENT LIST
+# COMPONENTS
 
 Foundations
 
@@ -60,11 +60,12 @@ Basic 3d Objects - that can be produced from a text file similar to AFrame with 
 - [x] Demonstrate an arbitrary 3d gltf - that is produced into the scene and is document driven from a formal schema
 - [x] Demonstrate primitives, spheres, boxes, planes and the like with textures; demonstrate a photograph attached to a plane.
 - [x] Demonstrate text in world
+- [x] Demonstrate 360 pano static
+- [ ] 360 Pano animated
 
 - [ ] Demonstrate an animated gif
 - [ ] Demonstrate a movie
 - [ ] Demonstrate a sound
-- [ ] Demonstrate 360 images covering screen
 - [ ] Demonstrate Partial Hemisphere 360 panos
 - [ ] Demonstrate an idea of virtual occlusion to allow holes in walls and other similar VR effects
 - [ ] Autoload from sketchfab and other sources using the Hubs proxy support

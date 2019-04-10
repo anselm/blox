@@ -9,6 +9,38 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 		this.clock = new THREE.Clock()
 		this.scene = 0
 		this.camera = 0
+		this.pov = 0
+
+		this.PASSTHROUGH = XRSupport.supportsARKit()
+		if(!this.PASSTHROUGH) {
+			document.body.appendChild( this.domElement )
+			this.setAnimationLoop( this.render3.bind(this) )
+		} else {
+			this.xr = new XRSupport({
+				renderer:this,
+				updatePOV:this.updatePOV.bind(this),
+				updateCamera:this.updateCamera.bind(this),
+				updateScene:this.updateScene.bind(this),
+				renderScene:this.renderScene.bind(this),
+				createVirtualReality:false,
+				shouldStartPresenting:true,
+				useComputervision:false,
+				worldSensing:true,
+				alignEUS:true
+			})
+		}
+	}
+
+	updatePOV(viewMatrix) {
+		if(!this.pov) return
+		this.pov.matrixAutoUpdate = false
+		this.pov.matrix.fromArray(viewMatrix)
+		this.pov.updateMatrixWorld()
+	}
+
+	updateCamera(projectionMatrix) {
+		if(!this.camera) return
+		this.camera.projectionMatrix.fromArray(projectionMatrix)
 	}
 
 	updateScene() {
@@ -27,49 +59,12 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 		this.renderScene()
 	}
 
-	start(scene,camera) {
+	reset(scene,camera,pov) {
 		this.scene = scene
 		this.camera = camera
-		this.PASSTHROUGH = XRSupport.supportsARKit()
-		if(!this.PASSTHROUGH) {
-			document.body.appendChild( this.domElement )
-			this.setAnimationLoop( this.render3.bind(this) )
-		} else {
-			this.xr = new XRSupport({
-				camera:this.camera,
-				renderer:this,
-				updateScene:this.updateScene.bind(this),
-				renderScene:this.renderScene.bind(this),
-				createVirtualReality:false,
-				shouldStartPresenting:true,
-				useComputervision:false,
-				worldSensing:true,
-				alignEUS:true
-			})
-		}
+		this.pov = camera
 	}
 
-}
-
-export class BehaviorScene extends THREE.Scene {
-	constructor(props,blob) {
-		let scene = super()
-		blob._observe_attach(childBlob => {
-			Object.entries(childBlob).forEach(([key,value])=>{
-				if(value instanceof THREE.PerspectiveCamera) {
-					console.log("Scene: noticed a camera being added")
-					// add renderer if none - actually avoid this because i'd prefer to not have race conditions with xrsupport
-					//if(!blob.renderer) blob.renderer = new BehaviorRenderer(0,blob)
-					// slight hack - tell renderer about scene and camera
-					blob.renderer.start(this,value)
-				}
-				if(value instanceof THREE.Object3D) {
-					console.log("Scene: adding object " + value.constructor.name )
-					scene.add(value)
-				}
-			})
-		})
-	}
 }
 
 export class BehaviorCamera extends THREE.PerspectiveCamera {
@@ -84,23 +79,36 @@ export class BehaviorCamera extends THREE.PerspectiveCamera {
 	}
 }
 
-export class BehaviorLight extends THREE.DirectionalLight {
+export class BehaviorScene extends THREE.Scene {
 	constructor(props,blob) {
-
-		// instance directional light
-		super(props)
-
-		// adjust scale and position
-		if(props.position) this.position.set(props.position.x,props.position.y,props.position.z)
-
-		this.target.position.set(0,0,0)
-		this.castShadow = true
-
-		// debug - make a visible representation
-		let color = props.color || 0xFFFF00
-		let geometry = new THREE.SphereGeometry( 3, 16, 16 )
-		let material = new THREE.MeshBasicMaterial( {color: color } )
-		let mesh = new THREE.Mesh(geometry,material)
-		this.add(mesh)
+		super()
+		blob._listen("child_added",this.on_child_added.bind(this))
+		// add renderer by hand
+		this.renderer = blob.renderer = new BehaviorRenderer({},blob)
+		// add a default camera by hand - can be overridden
+		this.camera = blob.camera = new BehaviorCamera({},blob)
+		// set renderer to use this scene and default camera for now
+		this.renderer.reset(this,this.camera,this.camera)
+	}
+	on_child_added(args) {
+		if(args.name != "child_added") return // TODO could look to see if a behavior_added was a camera also
+		let scene = this
+		let blob = args.parent
+		Object.entries(args.child).forEach(([key,value])=>{
+			if(value instanceof THREE.Object3D) {
+				console.log("Scene: adding object " + value.constructor.name )
+				scene.add(value)
+			}
+			if(value instanceof THREE.PerspectiveCamera) {
+				// TODO note that this does not notice cameras coming in as children of children etc - need a more global event system
+				console.log("Scene: noticed another camera being added - using that instead")
+				// tell renderer about new camera
+				blob.renderer.reset(this,value,value)
+			}
+		})
+	}
+	setCamera(camera) {
+		this.renderer.camera = camera
 	}
 }
+

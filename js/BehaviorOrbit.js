@@ -1,6 +1,6 @@
 export class BehaviorOrbit extends THREE.OrbitControls{
 	constructor(props,blob) {
-		// TODO it's a bit of a hack that this component knows or expects to find a camera
+		// TODO it's a bit of a hack that this component knows or expects to find a camera in its own scope
 		if(!blob.camera) {
 			console.error("BehaviorOrbit requires a camera to be attached to the same group already")
 		}

@@ -1,21 +1,37 @@
 
-
-import {BehaviorRenderer, BehaviorScene, BehaviorCamera, BehaviorLight} from './BehaviorRenderer.js'
+// Basic
+import {BehaviorRenderer, BehaviorScene, BehaviorCamera} from './BehaviorRenderer.js'
+import {BehaviorLight} from './BehaviorLight.js'
 import {BehaviorMesh} from './BehaviorMesh.js'
-import {BehaviorSky} from './BehaviorSky.js'
-import {BehaviorOrbit} from './BehaviorOrbit.js'
-import {BehaviorParticles} from './BehaviorParticles.js'
-import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
-import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
 
+// Some fancy objects
+import {BehaviorSky} from './BehaviorSky.js'
 import {BehaviorHeart} from './BehaviorHeart.js'
-import {BehaviorProton} from './BehaviorProton.js'
 import {BehaviorText} from './BehaviorText.js'
 import {BehaviorTextPanel} from './BehaviorTextPanel.js'
+import {BehaviorParticles} from './BehaviorParticles.js'
+import {BehaviorProton} from './BehaviorProton.js'
+
+// Motion models for player mostly
+import {BehaviorOrbit} from './BehaviorOrbit.js'
 import {BehaviorWalk} from './BehaviorWalk.js'
 
+// A tick behavior - exposing cpu to userland
+import {BehaviorTick} from './BehaviorTick.js'
+
+// A collision behavior
+import {BehaviorSense} from './BehaviorSense.js'
+
+// Some simple behaviors
+import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
+
+// Physics
+import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
+
+
+
 ///
-/// BlobChildren
+/// BlobChildren - a behavior similar to the above but supports nested children
 ///
 
 let UUID = 0
@@ -25,7 +41,10 @@ export class BehaviorChildren {
 		this._load_children(props,blob)
 	}
 	_load_children(props,blob) {
-		if(!props || !blob) return
+		if(!props || !blob) {
+			console.error("Children must be attached to a parent")
+			return
+		}
 		blob.children = this // slight hack, this would normally be set when the constructor returns, set it early so that find() works earlier
 		this.children = []
 		for(let i = 0; i < props.length; i++) {
@@ -35,11 +54,7 @@ export class BehaviorChildren {
 			child.name = name
 			console.log("BlobChildren: adding child named " + name )
 			this.children.push(child)
-			// tell listeners if any
-			for(let i = 0; blob._observe_handlers && i < blob._observe_handlers.length;i++) {
-				let handler = blob._observe_handlers[i]
-				handler(child)
-			}
+			blob._speak({ name:"child_added", child:child, parent:blob })
 		}
 	}
 	find(name) {
@@ -111,6 +126,7 @@ export class Blob {
 				// in this instance - append new behavior to list of behaviors associated with this bucket
 				blob[savename] = behavior
 				console.log("Blob: added new instance of behavior " + savename + " " + className )
+				blob._speak({name:"behavior_added",behavior:behavior,parent:blob})
 			}
 		} catch(e) {
 			if(name == "name" || name=="parent") { // TODO mark out reserved by a search instead
@@ -123,20 +139,17 @@ export class Blob {
 			}
 		}
 	}
-	_observe_attach(handler) {
-		if(!this._observe_handlers) this._observe_handlers = []
-		this._observe_handlers.push(handler)
+	/// listen for events on this blob with a filter - filter is ignored right now, no percolation of events
+	_listen(filter,listener) {
+		if(!this._listeners) this._listeners = []
+		this._listeners.push(listener)
 	}
-	/// look at children properties and find one that has a sub-field
-	_findByProperty(field) {
-		let keys = Object.keys(this)
-		for(let i = 0 ; i < keys.length; i++) {
-			let value = this[keys[i]]
-			if(typeof value  === "object" && value[field]) {
-				return value
-			}
+	/// send event to all listeners - no filtering right now
+	_speak(args) {
+		for(let i = 0; this._listeners && i < this._listeners.length;i++) {
+			let listener = this._listeners[i]
+			listener(args)
 		}
-		return 0
 	}
 	_tick(interval) {
 		// a blob has a collection of properties, some of which may be behaviors
@@ -156,6 +169,22 @@ export class Blob {
 			let json = module[keys[0]]
 			scope._attach_behaviors(json)
 		})
+	}
+	/// find a child in children - only searches first collection of children - and only if user named it
+	_findChildByName(name) {
+		if(!this.parent || !this.parent.children) return 0
+		return this.parent.children.find(name)
+	}
+	/// look at children properties and find first one that has a certain attribute
+	_findByProperty(field) {
+		let keys = Object.keys(this)
+		for(let i = 0 ; i < keys.length; i++) {
+			let value = this[keys[i]]
+			if(typeof value  === "object" && value[field]) {
+				return value
+			}
+		}
+		return 0
 	}
 }
 

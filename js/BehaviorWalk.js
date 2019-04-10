@@ -1,19 +1,29 @@
 
 ///
-/// Navigating a point of view
+/// Associates keyboard control with a mesh
 ///
-///		- keyboard to move and rotate
-///		- you could attach camera to this (we need to make sure that concepts like camera can be found in general)
-///		- or this can talk to the camera and just move it (although in xr mode it doesn't have to do it)
-///
-///		- later - a physics based 'chaser' (can't really force or limit movement physically)
-///		- later - nav meshes
-///		- later - teleport
+/// Typically I expect the user to add a camera nearby
 ///
 
 export class BehaviorWalk {
 
 	constructor(props,blob) {
+
+		this.parentBehavior = blob._findByProperty("isObject3D")
+		if(!this.parentBehavior) {
+			console.error("There needs to be some mesh associated with this behavior")
+			return
+		}
+
+		// look around for a camera - TODO maybe user should pass a camera name if not making a camera?
+		this.camera = blob._findByProperty("isPerspectiveCamera")
+		if(!this.camera && blob._findChildByName("camera")) {
+			this.camera = blob._findChildByName("camera")._findByProperty("isPerspectiveCamera")
+		}
+		if(!this.camera) {
+			console.error("No camera found")
+		}
+
 		this.props = props
 		this.blob = blob
 		this.forward = new THREE.Vector3(0,0,0.1)
@@ -24,11 +34,11 @@ export class BehaviorWalk {
 	}
 
 	onKeyDown(event) {
-		if(!this.blob || !this.blob.mesh) {
+		if(!this.blob || !this.parentBehavior) {
 			console.error("Needs a mesh")
 			return
 		}
-		let mesh = this.blob.mesh
+		let mesh = this.parentBehavior
 	    switch(event.key) {
 	    	case 'w': // up
 	    		mesh.physicsForce(this.forward,0)
@@ -47,6 +57,27 @@ export class BehaviorWalk {
 	    		break
 	    }
 	}
-}
 
+	tick(interval,blob) {
+
+		if(!this.camera) return
+
+		let xrmode = typeof window.webkit !== 'undefined'
+
+		// if in vr mode then move camera to us
+		if(!xrmode) {
+			let mesh = this.parentBehavior
+//			this.material.visible = false
+//			this.visible = false
+			// find a position behind the object
+			let v = new THREE.Vector3(0,3,-10)
+			v.applyMatrix4(mesh.matrixWorld)
+			this.camera.position.set(v.x,v.y,v.z)
+			// look at the target
+			this.camera.lookAt(mesh.position)
+		} else {
+			// move this to the camera TODO TBD
+		}
+	}
+}
 

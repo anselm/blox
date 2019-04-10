@@ -1,8 +1,6 @@
 
 export let ascene = {
 
-	renderer: 0,
-
 	scene: 0,
 
 	children: [

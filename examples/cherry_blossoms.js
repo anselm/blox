@@ -1,8 +1,6 @@
 
 export let cherry_blossoms = {
 
-	renderer: 0,
-
 	scene: 0,
 
 	children: [

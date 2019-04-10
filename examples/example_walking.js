@@ -1,45 +1,10 @@
 
-///
-/// A json graph with some objects in it.
-/// In this example I exported it as a module
-///
-/// The root is an object, and it will be instanced as decorated with a couple of behaviors, notably a renderer and a scene
-/// Then it also has children with other behaviors such as 3d objects
-///
-
-// This will get instanced as the root of the scene
 export let mything = {
 
-	// a renderer behavior - TODO arguably this should be outside the graph...
-	renderer: 0,
-
-	// a scene behavior - has a listener that watches for any children being attached
 	scene: 0,
 
-	// a collection of children (itself a behavior)
 	children: [
 
-		// a skybox
-		{
-			name:"sky",
-			sky:{
-				art:"art/eso0932a.jpg"
-			}
-		},
-
-		// a camera blob with a camera behavior and an orbit control behavior
-		{
-			name:"camera",
-			camera:{
-				position:{x:20,y:5,z:50},
-				lookat:{x:0,y:10,z:0},
-			},
-			orbit:{
-				lookat:{x:0,y:10,z:0},
-			}
-		},
-
-		// a light
 		{
 			name:"mylight",
 			// a behavior on the blob; in this case a 3js light - maps to a class named BehaviorLight
@@ -50,7 +15,6 @@ export let mything = {
 			}
 		},
 
-		// some ground
 		{
 			name:"ground",
 			mesh:{
@@ -61,7 +25,6 @@ export let mything = {
 			}
 		},
 
-		// art
 		{
 			name:"thing",
 			mesh:{
@@ -72,7 +35,6 @@ export let mything = {
 			}
 		},
 
-		// art
 		{
 			name:"thing",
 			mesh:{
@@ -84,13 +46,14 @@ export let mything = {
 		},
 
 		{
-			name:"eye",
+			name:"party",
 			mesh:{
 				art:"art/eyeball",
 				position:{x:0,y:3,z:0},
 	 			scale:{x:1,y:1,z:1},
 				color:0xff0000,
 			},
+			camera:{},
 			walk:{},
 		},
 	]
