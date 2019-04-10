@@ -16,6 +16,9 @@ export class BehaviorMesh extends THREE.Mesh {
 		// reset physics
 		this.physicsReset()
 
+		// publish an event that properties are about to be set
+		if(blob) blob._speak({ name:"behavior_initialization", behavior:this, parent:blob, props:props })
+
 		// set or reset various properties from params
 		this.reset(props)
 

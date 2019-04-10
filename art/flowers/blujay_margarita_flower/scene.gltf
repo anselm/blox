@@ -1,0 +1,377 @@
+{
+  "accessors": [
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 310,
+      "max": [
+        0.50630408525466919,
+        0.28836134076118469,
+        1.6800189018249512
+      ],
+      "min": [
+        -0.34409895539283752,
+        -0.39825311303138733,
+        0.0089317942038178444
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 3720,
+      "componentType": 5126,
+      "count": 310,
+      "max": [
+        0.99999988079071045,
+        0.87814456224441528,
+        1
+      ],
+      "min": [
+        -0.99745124578475952,
+        -0.87814342975616455,
+        -0.99772852659225464
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 474,
+      "max": [
+        309
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 7440,
+      "componentType": 5126,
+      "count": 224,
+      "max": [
+        0.71199244260787964,
+        0.45289814472198486,
+        1.7721406221389771
+      ],
+      "min": [
+        -0.2477661520242691,
+        -0.50675982236862183,
+        1.6160904169082642
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 10128,
+      "componentType": 5126,
+      "count": 224,
+      "max": [
+        0.57582390308380127,
+        0.58111280202865601,
+        0.98308467864990234
+      ],
+      "min": [
+        -0.569754958152771,
+        -0.56141066551208496,
+        0.80072623491287231
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 1896,
+      "componentType": 5125,
+      "count": 288,
+      "max": [
+        223
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 12816,
+      "componentType": 5126,
+      "count": 60,
+      "max": [
+        0.33854490518569946,
+        0.066007643938064575,
+        1.7236511707305908
+      ],
+      "min": [
+        0.13356693089008331,
+        -0.12893594801425934,
+        1.6390178203582764
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 13536,
+      "componentType": 5126,
+      "count": 60,
+      "max": [
+        0.93656909465789795,
+        0.89073365926742554,
+        0.92078673839569092
+      ],
+      "min": [
+        -0.93656867742538452,
+        -0.89073359966278076,
+        -0.93169289827346802
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 3048,
+      "componentType": 5125,
+      "count": 60,
+      "max": [
+        59
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "blujay (https://sketchfab.com/blujay)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/models/58ce34c65642408cb92eab784af2bd6c",
+      "title": "Margarita flower"
+    },
+    "generator": "Sketchfab-3.18.6",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 3288,
+      "byteOffset": 0,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 14256,
+      "byteOffset": 3288,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 17544,
+      "uri": "scene.bin"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "name": "green",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.18782099999999999,
+          0.258183,
+          0.042311399999999999,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.82394172570000002
+      }
+    },
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "name": "white",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.95317200000000002,
+          0.94424300000000005,
+          0.99110200000000004,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.82394172570000002
+      }
+    },
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "name": "yellow",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.95597299999999996,
+          0.45078600000000002,
+          0.00030352599999999998,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 1
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "margarita flower_green_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0
+          },
+          "indices": 2,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "margarita flower_white_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 4,
+            "POSITION": 3
+          },
+          "indices": 5,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "margarita flower_yellow_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 7,
+            "POSITION": 6
+          },
+          "indices": 8,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "name": "RootNode (gltf orientation matrix)",
+      "rotation": [
+        -0.70710678118654746,
+        -0,
+        -0,
+        0.70710678118654757
+      ]
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "RootNode (model correction matrix)"
+    },
+    {
+      "children": [
+        3
+      ],
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "name": "70a2c3421ef44078bd1af9c61ce435f6.fbx"
+    },
+    {
+      "children": [
+        4
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        5,
+        6,
+        7
+      ],
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        -1.6292067939183141e-07,
+        -0.99999999999998679,
+        0,
+        0,
+        0.99999999999998679,
+        -1.6292067939183141e-07,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "name": "margarita flower"
+    },
+    {
+      "mesh": 0,
+      "name": "margarita flower_green_0"
+    },
+    {
+      "mesh": 1,
+      "name": "margarita flower_white_0"
+    },
+    {
+      "mesh": 2,
+      "name": "margarita flower_yellow_0"
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "OSG_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ]
+}
+

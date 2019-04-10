@@ -6,13 +6,6 @@ export let cherry_blossoms = {
 	children: [
 
 		{
-			name:"sky",
-			sky:{
-				art:"art/eso0932a.jpg"
-			}
-		},
-
-		{
 			name:"camera",
 			camera:{
 				position:{x:20,y:5,z:50},
@@ -29,6 +22,14 @@ export let cherry_blossoms = {
 			light:{
 				position:{x:-30,y:40,z:-50},
 				color:0xFFFFFF,
+			}
+		},
+
+		// a skybox
+		{
+			name:"sky",
+			sky:{
+				art:"art/eso0932a.jpg"
 			}
 		},
 

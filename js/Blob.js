@@ -9,25 +9,24 @@ import {BehaviorSky} from './BehaviorSky.js'
 import {BehaviorHeart} from './BehaviorHeart.js'
 import {BehaviorText} from './BehaviorText.js'
 import {BehaviorTextPanel} from './BehaviorTextPanel.js'
-import {BehaviorParticles} from './BehaviorParticles.js'
-import {BehaviorProton} from './BehaviorProton.js'
 
-// Motion models for player mostly
+// Motion models for player
 import {BehaviorOrbit} from './BehaviorOrbit.js'
 import {BehaviorWalk} from './BehaviorWalk.js'
 
-// A tick behavior - exposing cpu to userland
-import {BehaviorTick} from './BehaviorTick.js'
-
-// A collision behavior
-import {BehaviorSense} from './BehaviorSense.js'
-
 // Some simple behaviors
 import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
+import {BehaviorParticles} from './BehaviorParticles.js'
+import {BehaviorProton} from './BehaviorProton.js'
+import {BehaviorEmitter} from './BehaviorEmitter.js'
 
 // Physics
 import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
 
+// Event handling
+import {BehaviorEvent} from './BehaviorEvent.js'
+import {BehaviorTick} from './BehaviorTick.js'
+import {BehaviorCollide} from './BehaviorCollide.js'
 
 
 ///
@@ -83,7 +82,8 @@ export class BehaviorChildren {
 
 export class Blob {
 	constructor(details=0,parent=0) {
-		this.parent = parent
+		this._details = details // save this so I can regenerate a blob from scratch if desired
+		this.parent = parent // parent is reserved - I wonder if I should switch this to use an _ to avoid polluting userland? TODO
 		try {
 			if(!details) details = {}
 			if(typeof details == 'string') {
@@ -171,6 +171,8 @@ export class Blob {
 		})
 	}
 	/// find a child in children - only searches first collection of children - and only if user named it
+	/// TODO may want a flat global namespace
+	/// TODO may want to call this _findGlobalByName or something
 	_findChildByName(name) {
 		if(!this.parent || !this.parent.children) return 0
 		return this.parent.children.find(name)
@@ -185,6 +187,9 @@ export class Blob {
 			}
 		}
 		return 0
+	}
+	_copy() {
+		return new Blob(this._details,this.parent)
 	}
 }
 
