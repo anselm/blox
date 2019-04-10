@@ -16,12 +16,8 @@ export class BehaviorEmitter {
 			let y = 0
 			let z = Math.random()*10 - 5
 			let position = {x:x,y:y,z:z}
-target._details.mesh.position = position
+			target._details.mesh.position = position
 			let fresh_copy = target._copy()
-console.log("***************  made mesh " + i)
-console.log(fresh_copy.mesh.position)
-console.log(fresh_copy.mesh)
-blob.parent.scene.add(fresh_copy.mesh)
 		}
 	}
 }

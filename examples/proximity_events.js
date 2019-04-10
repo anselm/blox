@@ -19,7 +19,7 @@ export let mything = {
 		{
 			name:"sky",
 			sky:{
-				art:"art/eso0932a.jpg"
+				art:"../art/eso0932a.jpg"
 			}
 		},
 

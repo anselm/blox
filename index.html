@@ -25,8 +25,6 @@ canvas { width: 100%; height: 100% }
 <script src="lib/XRSupport.js"></script>
 <script src="lib/three.proton.js"></script>
 
-<script src="js/Blob.js" type="module"></script>
-
 <style>
 
 h1 { font-family: Verdana, Geneva, sans-serif; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: Verdana, Geneva, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: Verdana, Geneva, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: Verdana, Geneva, sans-serif; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: Verdana, Geneva, sans-serif; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5714px; }
@@ -44,21 +42,37 @@ span {
 </style>
 </head>
 <body>
-</body>
+<div "commentary">
 <h1>ThreeJSFX</h1>
-
 A collection of effects and a declarative grammar. See <a href="https://github.com/anselm/threejsfx">github.com/anselm/threejsfx</a>
-
 <h1>Examples</h1>
+<a href="#hello_world.js"><span>Hello World</span></a>
+<a href="#physics_button.js"><span>Physics Button</span></a>
+<a href="#bouncing_scene.js"><span>Bouncing Scene</span></a>
+<a href="#proton_particles.js'"><span>Proton Based Particles</span></a>
+<a href="#floating_text.js"><span>Floating Text in 3D</span></a>
+<a href="#example_tick.js"><span>User scripting</span></a>
+<a href="#example_walking.js"><span>Walking</span></a>
+<a href="#cherry_blossoms.js"><span>Crude Particle Effects - Cherry Blossoms</span></a>
+<a href="#proximity_events.js"><span>Simple Collisions - Fox in Field</span></a>
+</div>
 
-<span onclick="BlobLoadHelper('../examples/hello_world.js')">Hello World</span>
-<span onclick="BlobLoadHelper('../examples/cherry_blossoms.js')">Cherry Blossoms and a Simple Particle Effects Engine</span>
-<span onclick="BlobLoadHelper('../examples/physics_button.js')">Physics Button</span>
-<span onclick="BlobLoadHelper('../examples/bouncing_scene.js')">Bouncing Scene</span>
-<span onclick="BlobLoadHelper('../examples/proton_particles.js')">Proton Based Particles</span>
-<span onclick="BlobLoadHelper('../examples/floating_text.js')">Floating Text in 3D</span>
-<span onclick="BlobLoadHelper('../examples/example_tick.js')">User scripting</span>
-<span onclick="BlobLoadHelper('../examples/example_walking.js')">Walking</span>
-<span onclick="BlobLoadHelper('../examples/proximity_events.js')">Collisions</span>
+<script type=module>
+import {Blob} from "./js/Blob.js"
+window.onload = (blarg) => {
+	let blob = 0
+	function gotohash() {
+		if(blob) document.body.removeChild(blob.renderer.domElement) // HACK
+		let hash = window.location.hash.substr(1)
+		if(!hash || !hash.length) return
+		let file = "../examples/"+hash
+		blob = new Blob(file)
+	}
+	window.addEventListener("hashchange", gotohash)
+	gotohash()
+}
 
+</script>
+
+</body>
 </html>

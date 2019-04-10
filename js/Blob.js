@@ -47,15 +47,19 @@ export class BehaviorChildren {
 		blob.children = this // slight hack, this would normally be set when the constructor returns, set it early so that find() works earlier
 		this.children = []
 		for(let i = 0; i < props.length; i++) {
-			let details = props[i]
-			let name = details.name || ++UUID
-			let child = new Blob(details,blob)
-			child.name = name
-			console.log("BlobChildren: adding child named " + name )
-			this.children.push(child)
-			blob._speak({ name:"child_added", child:child, parent:blob })
+			this._load_child(props[i],blob)
 		}
 	}
+
+	_load_child(details,blob) {
+		let name = details.name || ++UUID
+		let child = new Blob(details,blob)
+		child.name = name
+		console.log("BlobChildren: adding child named " + name )
+		this.children.push(child)
+		blob._speak({ name:"child_added", child:child, parent:blob })
+	}
+
 	find(name) {
 		for(let i = 0; i < this.children.length; i++) {
 			if(this.children[i].name == name) return this.children[i]
@@ -189,10 +193,12 @@ export class Blob {
 		return 0
 	}
 	_copy() {
-		return new Blob(this._details,this.parent)
+		if(!this.parent.children) {
+			console.error("Warning: There's no children in this area to attach your new blob to")
+			let blob = new Blob(this._details,this.parent)
+			return blob
+		} else {
+			let blob = this.parent.children._load_child(this._details,this.parent)
+		} 
 	}
 }
-
-// This is a helper to expose being able to make scenes to ordinary javascript in normal namespace
-window.BlobLoadHelper = (args) => { document.body.innerHTML = ""; return new Blob(args) }
-
