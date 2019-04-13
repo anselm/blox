@@ -183,12 +183,12 @@ The system is designed to be document driven, you describe what you want in a te
 	[x] on_overlap
 	[x] on_entered
 	[x] on_exited
+	[x] on_event (generic catch all)
 	[ ] on_ready
 	[ ] on_activate
 	[ ] on_deactivate
 	[ ] on_lifespan
 	[ ] on_loaded
-	[ ] on_event (generic catch all)
 
 	* Note that events can have any name but share a namespace with custom behaviors names, the convention is on_*
 

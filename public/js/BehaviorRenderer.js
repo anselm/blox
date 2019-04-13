@@ -45,7 +45,7 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 
 	updateScene() {
 		if(!this.scene || !this.camera) return
-		this.blox.event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
+		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
 	}
 
 	renderScene() {

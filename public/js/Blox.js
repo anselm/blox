@@ -1,3 +1,5 @@
+// dynamic import support for firefox
+import {importModule} from '../lib/importModule.js'
 
 // Basic
 import {BehaviorRenderer, BehaviorScene, BehaviorCamera} from './BehaviorRenderer.js'
@@ -69,7 +71,7 @@ export class Blox {
 		// inhale behaviors
 		try {
 			if(typeof description == 'string') {
-				import(description).then((module) => {
+				importModule(description).then((module) => {
 					let keys = Object.keys(module)
 					if(!keys.length) return
 					let behaviors = module[keys[0]]
@@ -143,7 +145,7 @@ export class Blox {
 			// find the class or throw an exception
 			let classRef = eval(className)
 			// advise that the behavior will exist soon
-			blox.event({name:"on_behavior_will_add",description:description,blox:blox})
+			blox.on_event({name:"on_behavior_will_add",description:description,blox:blox})
 			// instance a behavior passing it the bucket itself and the properties for the field
 			let behavior = new classRef(description,blox)
 			// in each new behavior - keep a reference to this bucket explicitly rather than letting the behavior do it or not
@@ -155,7 +157,7 @@ export class Blox {
 			blox[usename] = behavior
 			// append new behavior to list of behaviors associated with this bucket
 			blox.behaviors[usename] = behavior
-			blox.event({name:"on_behavior_added",behavior:behavior,blox:blox})
+			blox.on_event({name:"on_behavior_added",behavior:behavior,blox:blox})
 			//console.log("Added " + className + " " + " to " + blox.name)
 		} catch(e) {
 			console.error(e)
@@ -217,13 +219,13 @@ export class Blox {
 	/// forward received events to local behaviors
 	///
 
-	event(args) {
+	on_event(args) {
 
 		// set the blox to current scope regardless of what it was
 		args.blox = this
 
-		// go out of our way to call any user supplied property that matches this - except event itself
-		if(args.name != "event" && this.functions[args.name]) {
+		// go out of our way to call any user supplied property that matches this - except don't call ourseeeelllvvvvveessss 
+		if(args.name != "on_event" && this.functions[args.name]) {
 			this.functions[args.name](args)
 		}
 
@@ -234,8 +236,9 @@ export class Blox {
 				if(behavior[args.name]) {
 					behavior[args.name](args)
 				}
-				if(behavior.event) {
-					behavior.event(args)
+				// also call fallback if any
+				if(behavior.on_event) {
+					behavior.on_event(args)
 				}
 			} catch(e) {
 				console.error("error handling event")
@@ -289,7 +292,7 @@ export class BehaviorGroup {
 	add(description) {
 		let child = new Blox(description,this.blox)
 		this.children.push(child)
-		this.blox.event({ name:"on_blox_added", child:child })
+		this.blox.on_event({ name:"on_blox_added", child:child })
 		return child
 	}
 
@@ -297,11 +300,11 @@ export class BehaviorGroup {
 	/// Forward events to all blobs
 	///
 
-	event(args) {
+	on_event(args) {
 		this.children.forEach((child) => {
 			// set the blox to current scope always
 			args.blox = child
-			child.event(args)
+			child.on_event(args)
 		})
 	}
 
