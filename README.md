@@ -1,161 +1,205 @@
-# EXAMPLE
+# ABOUT
 
-https://anselm.github.io/threejsfx/
+Blox is a pattern library for 3d experience creators. It lets you succinctly describe virtual reality and augmented reality experiences, games and stories. It leverages open web standards, ThreeJS and WebXR and introduces an ECS component philosophy to encourage re-use of behaviors. It works on desktop browsers, WebXR iOS, Vive, Oculus and Rift.
 
-# USAGE
+The intended audience is:
 
-Install and run any small http server and then visit the URL such as http://localhost:3000
+1) Novices that want to make high quality high performance interactive stories in 3d.
+
+2) Storytellers who want to work faster and more accurately with a domain appropriate vocabulary, expressing semantic intent such as "be on the floor" or "tagalong with player" rather than "place a green cube at 0,0,0".
+
+3) Designers who want a pattern library of 3d UX widgets. See https://medium.com/@anselm/laundry-list-of-ux-patterns-in-vr-ar-24dae1e56c0a
+
+4) Veteran programmers who want a multi-collaborator foundation to be able to effectively organize, manage and build robust web, mobile and mixed-reality 3d applications.
+
+# ONLINE EXAMPLES
+
+https://anselm.github.io/blox/public
+
+# TRY IT YOURSELF
+
+Fetch from github and run any small http server in home folder and visit the URL such as http://localhost:3000
 
   npm install http-server -g
+  cd public
   http-server -c 0
 
-# USE CASE 1: TELLING STORIES
+# MAKING YOUR OWN EXAMPLE SCENE
 
-One use case is to allow 'storytellers' to easily tell 'stories'.
+<html>
+<body>
+<script>
+let myscene = {
+	scene: 0,
+	children: [
+		{
+			name:"mylight",
+			light:0
+		},
+		{
+			name:"mycamera",
+			camera:0,
+			orbit:0
+		},
+		{
+			name:"mymex",
+			mesh:{
+				art:"box",
+				position:{x:0,y:0,z:0},
+				color:"red"
+			}
+		}
+	]
+}
+let blox = new Blox(myscene)
+</script>
+</body>
+</html>
 
-A storyteller is a person or group of people who may be novice designers, artists, writers. They may have very little technical expertise.
+# USER CONCEPTS
 
-I imagine a storyteller needs to be able to use a 3d editor with property sheets similar to Unity3D, or at the very least edit a text file that describes their story, and beyond this have some ability to use a computer, to load, refresh, interact with a fairly modern circa 2019 graphics enabled 3d desktop, mobile phone and interactive HMD. They'll probably be leveraging tools like Glitch as well.
+There are two core concepts 'blox' and 'behaviors'. A 'blox' is nothing more than a bucket and contains children behaviors. Behaviors define all the fun stuff, lights, camera and action. There is a special behavior called 'children' that lets a blox contain children blox. You can build a hierarchy of blox that corresponds exactly to what game developers call a scene graph.
 
-A story for our purposes is an immersive 3d 'thing' that has actions and behaviors that change over time. This can be games, narratives, vignettes, experiences, emotionally saturated fables, dreams, fantasies, visual ideas - anything they think is important and has meaning. We are surrounded by stories, from the people we see on the bus, to the music we listen to, to advertising, to our own experiences.
+You start out by declaring a scene blox (and any lights, camera and action). By convention a blox encapsulates one of your concepts, so if the concept of a light is important to you, then you put one light behavior in one blox. However you can if you wish group multiple lights in one blox.
 
-# USE CASE 2: COLLECTIONS OF WIDGETS
+The system is designed to be document driven, you describe what you want in a text file and then pass it to Blox() for instantiation. Often mostly reasonable default assumptions are made if not specified. A working scene may be as simple as this:
 
-Another use case is that I want to build up a collection of reusable behaviors that are more complex that boxes, spheres or gltfs. My own interest is in being able to define objects with behaviors, that can be shared between applications, over a network or between programmers. In particular I would like to have collections of 3d clickable buttons, virtual pianos, cards with text layouts in 3d and other fancy interactions. I've been collecting examples of the kinds of widgets I'd like to be able to have here: [https://medium.com/@anselm/laundry-list-of-ux-patterns-in-vr-ar-24dae1e56c0a]
+# CORE BEHAVIORS
 
-# USE CASE 3: SEMANTIC BEHAVIORS
+	[x] Renderer
+	[x] Scene
+	[x] Camera
+	[x] Light
+	[ ] Sound
+	[x] Sky
+	[ ] Pano
+	[x] Heart
+	[x] Mesh
+	[x] Text
+	[ ] TextPanel
 
-Another use case is that I want to formally collect a world of basic animations, effects, policies or 'intent' that we somewhat take for granted but which do not actually exist in any 3d toolkit right now. We're pretty used to bouncing, color changing, animated effects in 2D (CSS has many of these). And intuitively we have a human conception of 'stand near that other thing'. Older tools such as VRML used to have some of these behaviors but no tool today seems to collect them. We often see effects like this laboriously programmed into in video games, TV shows and in other media and I'd like to collect these kinds of rules as a library.
+# SIMPLE PHYSICS
 
-In a full 3d "vocabulary" we have "nouns" (objects that you can see) and "verbs" (actions that act on those objects). Most users, storytellers or otherwise, will want to be able to easily decorate objects with reasonably intelligent animations or behaviors that we normally take for granted and are otherwise tedious to implement.
+	[ ] Forces -> maybe separate from mesh; maybe add gravity/mass also as a built in
+	[ ] Lifespan -> may be useful enough to be deeply imnplicit?
+	[x] Collide -> can I support AABB
 
-# ARCHITECTURE: COMPONENT MODEL
+# CONSTRAINT BASED PHYSICS
 
-This app is based around a minimalist (100 lines of code) "Entity Component System". The ECS philosophy allows multiple independant programmers to decorate an object (such as a 3d scene graph object) with their own behaviors without having to think very much about the system as a whole or each others work. Internally the scene, all objects and all behaviors are all represented as decorations on bare objects, and all the objects are arranged to form the scene graph that threejs renders. The approach is lower level than AFrame, and the ECS model is independent of threejs.
+	[x] Physics Object
+	[x] Physics Joint
+	[x] Physics Hinge
 
-# ARCHITECTURE: DOCUMENT DRIVEN
+# NAVIGATION AND INPUT
 
-A document driven approach acts as the glue between three parties 1) a storyteller, 2) a programmer, and 3) a player. A storyteller describes a scenario using an text editor or a fancy property sheet editor in an authoring tool. A programmer writes code to implement new behaviors if needed. The playback engine loads up the document, instances the behaviors, and produces and animates the story for the player.
+	[x] Walk
+	[ ] Orbit
+	[ ] Hand 6dof puck
+	[ ] gaze
+	[ ] mouse
+	[ ] leap motion
 
-A storyteller scripts entire stories in a declarative format - 3d scenes and scenarios, with 3d objects, proximity based events, triggers and behaviors. A storyteller can make high level statements about characters and actors in their stories. They can place them based on semantic rules, having that placement be reasonably intelligent such as "be on the ground!" or "be near this telephone pole" and express high level intention on actor behavior such as "go stand near that other actor" or "bounce for a moment" or "look at the telephone".
+# SEMANTIC
 
-Note that we will also expose programmatic or procedural behavior to the storytellers.
+	[x] Bounce
+	[ ] Tween
+	[x] Line
+	[x] Wander
+	[x] Stare
+	[ ] Follow
+	[ ] Goto
+	[ ] EyeLevel
+	[ ] Floor
+	[ ] Wall
+	[ ] Billboard
+	[ ] Tagalong
+	[ ] Sizeable
+	[ ] Wobble
+	[ ] Shrink
+	[ ] Grow
+	[ ] Fade
+	[ ] Rotate
+	[ ] Hide
+	[ ] Between
+	[ ] Timer
+	[ ] Latch Timer
 
-# COMPONENTS
+# PARTICLE EFFECTS
 
-Foundations
+	[x] Emitter <- Rename as duplicate or clone?
+	[x] Particles
+	[ ] Proton
 
-- [x] Formalize a description of each kind of object (a class or prototypical abstraction)
-- [x] Formalize a document model that captures the description of each kind of object (a concrete documentation format)
-- [x] Formalize an in-code component model that lets me load up a document into memory. It probably needs an ECS philosophy.
-- [x] Demonstrate decorating an object with multiple components or behaviors that can run and act on it simultaneously
-- [x] Demostrate loading a document into memory and producing an entire 3d scene with behaviors from that document
-- [x] Support Desktop flat panel display
-- [x] Support WebXR for Mozilla WebXR iOS
-- [ ] Support WebVR for HMD's like Oculus Rift etcetera
+# WIDGETS
 
-Basic 3d Objects - that can be produced from a text file similar to AFrame with a similar ECS behavior decorator model
+	[ ] button
+	[ ] dial
+	[ ] lever
+	[ ] slider
+	[ ] carousel
+	[ ] globe
+	[ ] terrain
+	[ ] deck of cards
+	[ ] chessboard
+	[ ] piano
+	[ ] wires
 
-- [x] Demonstrate loading, placing, orienting and setting color and texture of basic primitives, sphere, cube etc
-- [x] Demonstrate an arbitrary 3d gltf - that is produced into the scene and is document driven from a formal schema
-- [x] Demonstrate primitives, spheres, boxes, planes and the like with textures; demonstrate a photograph attached to a plane.
-- [x] Demonstrate text in world
-- [x] Demonstrate 360 pano static
-- [ ] 360 Pano animated
+	[ ] networking
+	[ ] multiplayer session management
 
-- [ ] Demonstrate an animated gif
-- [ ] Demonstrate a movie
-- [ ] Demonstrate a sound
-- [ ] Demonstrate Partial Hemisphere 360 panos
-- [ ] Demonstrate an idea of virtual occlusion to allow holes in walls and other similar VR effects
-- [ ] Autoload from sketchfab and other sources using the Hubs proxy support
-- [ ] Flip book style animated image textures
-- [ ] Constructive Solid Geometry
+# ARCHITECTURE
 
-Basic Behaviors on Objects
+	* Javascript based
+	* DAG; blox are arranged in a directed acyclic graph
+	* ECS pattern; blox are decorated with behaviors that do not need to be aware of each other
+	* Minimalist; behaviord are described in naked classes that embody pure functionality without requiring inheritance
+	* Clonable; blox can be cloned, added or deleted from the graph easily with a well defined API
+	* Packages; blox can be grouped and loaded or cloned as a group or loaded deactivated
+	* Events; blox can message component behaviors and each other
+	* Scriptable; blox and their behaviors can be produced from a vanilla json based document
+	* Scriptable code; ordinary javascript can be used lightweight work and handle events
 
-- [ ] Hideable and showable
-- [ ] Start stop video and audio
-- [ ] Events that can trigger actions such as hide, show scenes, clumps of objects or individual objects based on event
+# API
 
-Events, Collision
+	blox.new                          Pass a string, another object or a filename to instance a parent blox and children bloxs
+	blox.constructor                  Same as blox.new but callable from a live instance
 
-- [ ] Refine and test a collision and event and scripting system to propagate events and actions; test proximity
-- [ ] Active and inactive on most things; objects and behaviors; proximity based activity or inactivity; hiding and showing
-- [ ] Multiple instancing in the grammar for ease of use - extend the grammar
+	blox.parent                       Get the parent of a blox if any
+	blox.children                     Get the children of a blox if any
 
-Invent some kind of Smart Position / Orientation Concept
+		.add
+		.remove
+		.query({name:x,all:true,behavior:y,flat:true})
 
-- [ ] Invent an idea of a position that can be an absolute XYZ, an LLA, a trackable object or the player or some other concept
-- [ ] Dynamically Associate a scene, a clump or object with a smart place
-- [ ] Add ideas of semantically meaningful locations to position, such as floors, walls etcetera
-- [ ] Add ideas of semantically meaningful orientation, face player, face direction of travel
-- [ ] Demonstrate be in front of player
-- [ ] Demonstrate be on floor
-- [ ] Demonstrate be on wall
-- [ ] Demonstrate billboard
-- [ ] Demonstrate be at eye level
-- [ ] Demonstrate always be a reasonable size (ie; could decorate text with this so that it was always readable)
-- [ ] Demonstrate smart arrow that points at something else
+	blox.behaviors <- see if i can avoid building an array of; makes it easier to still add behaviors by hand
+	blox.getByBehavior                Search a global flat namespace for first instance of a blox by behavior
+	blox.getAllByBehavior
+	blox.addBehaviorIfMissing		  Make sure certain behaviors exist
+	blox.addBehavior
+	blox.addBehaviors
+	blox.removeBehavior
+	blox.getBehaviors
+	blox.getBehaviorByName
+	blox.getBehaviorByProperty
 
-Fancier Semantics - Make several small fun animated CSS like effects that can be used to draw attention to objects or to enhance realism
+	blox.sendEvent                    Send an event to all local behaviors that are capable of handling it
 
-- [ ] Bounce -> add more parameters
-- [ ] Wobble
-- [ ] Pulse colors
-- [ ] Shrink
-- [ ] Grow
-- [ ] Rotate
-- [ ] Stare (same as smart arrow)
-- [ ] Draw a line between
-- [ ] Leave field of view
-- [ ] Leave screen
-- [ ] Go near player or object
-- [ ] Tweening
+	* Note that behaviors are hashed and show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
+	* Note that behaviors share the namespace with these reserved method names
+	* Duplicate behaviors in one blox get a number added to them as in blox.mesh, blox.mesh1, blox.mesh2 starting from index 0
 
-Partices
+# CONVENTIONAL METHODS AND EVENTS ON BEHAVIORS
 
-- [x] Object based particle effects; expose object selection to the caller
-- [ ] Proton; demonstrate snow, fire and a few other basic effects
-- [ ] Other particles? A shader based? (proton and mine are both fairly mediocre)
+    events[]                          accumulation of events from the previous round
+    event                             listen to all events
+	tick                              used to update state
+	ready                             sent when a blox is fully initialized
+	activate                          sent to let an object activate or not
+	deactivate
+	lifespan                          it may be desirous to have duration be deeply featured as an event
+	collide                           it may make sense to mark objects with their collision status as well
 
-Physics
-
-- [x] An example of a ground object bound to a mesh (something with gravity set to zero that acts as a collidable ground surface)
-- [x] An example of a falling object, again bound to a mesh, something with gravity set to non zero.
-- [ ] An example of a hinge joint with proper constraints
-- [ ] An example of a slider joint with proper constraints
-
-Widgets
-
-- [ ] A button - define a button as raw physics pieces; then try package up a button as a single reuable component
-- [ ] A sensor that sends an event when hit - needs to support kinetic fingers, and audio etc
-- [ ] A lever
-- [ ] A dial
-- [ ] A slider
-- [ ] A carousel
-- [ ] A globe
-- [ ] A deck of cards
-- [ ] A text string
-- [ ] A nice card like layout of some information as a composable panel
-- [ ] A piano key behavior
-- [ ] A piano, route the events to an audio thing
-- [ ] A wire to wire things together in a dataflow model visually corresponding to internal event relationships
-- [ ] Pull in ATerrain and other kinds of things like that
-
-System Services
-
-- [ ] Flush current scene and load a new scene
-- [ ] Networking / Multiplayer
-- [ ] Multiplayer Session management and login
-- [ ] An ability to place a thing somewhere interactively ; some kind of interactive mode - this is important
-- [ ] A fancy property sheet editor
-
-Some kind of bare bones navigation model
-
-- [x] WebXR navigation model support; may need some thought around initial position in the scene
-- [ ] Some kind of navigation model for self aside from orbit
-- [ ] A mouse or other user input representation
-- [ ] Leap motion fingers
-- [ ] ARKit 6dof puck as a pen or hand
+    * Send an event by using blox.sendEvent('tick',{...arguments})
+	* Note that events can have any name but share a namespace with custom behavior properties
+	* Note that if an object doesn't have an event handler, it can still look at accumulated events in events[]
 

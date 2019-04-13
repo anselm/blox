@@ -3,7 +3,7 @@ export let cherry_blossoms = {
 
 	scene: 0,
 
-	children: [
+	group: [
 
 		{
 			name:"camera",

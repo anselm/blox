@@ -58,15 +58,18 @@ A collection of effects and a declarative grammar. See <a href="https://github.c
 </div>
 
 <script type=module>
-import {Blob} from "./js/Blob.js"
+
+// TODO turns out firefox doesn't support dynamic imports
+
+import {Blox} from "./js/blox.js"
 window.onload = (blarg) => {
-	let blob = 0
+	let blox = 0
 	function gotohash() {
-		if(blob) document.body.removeChild(blob.renderer.domElement) // HACK
+		if(blox) document.body.removeChild(blox.renderer.domElement) // HACK
 		let hash = window.location.hash.substr(1)
 		if(!hash || !hash.length) return
 		let file = "../examples/"+hash
-		blob = new Blob(file)
+		blox = new Blox(file)
 	}
 	window.addEventListener("hashchange", gotohash)
 	gotohash()

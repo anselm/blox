@@ -1,6 +1,6 @@
 export class BehaviorLine extends THREE.Line2 {
 
-	constructor(props,blob) {
+	constructor(props,blox) {
 		let geometry = new THREE.LineGeometry()
 		let matLine = new THREE.LineMaterial( {
 			color: 0xffffff,
@@ -11,11 +11,11 @@ export class BehaviorLine extends THREE.Line2 {
 		matLine.resolution.set( window.innerWidth, window.innerHeight )
 		super(geometry,matLine)
 		this.myGeometry = geometry
-		this.first = blob.parent.children.find(props.first)
-		this.second = blob.parent.children.find(props.second)
+		this.first = blox.query(props.first)
+		this.second = blox.query(props.second)
 	}
 
-	tick(interval,blob) {
+	on_tick(args) {
 
 		if(!this.first || !this.second) return
 
@@ -50,15 +50,15 @@ export class BehaviorBounce {
 		this.thrust = props.thrust ? new THREE.Vector3(props.thrust.x,props.thrust.y,props.thrust.z) : new THREE.Vector3()
 		this.force = props.force ? new THREE.Vector3(props.force.x,props.force.y,props.force.z) : new THREE.Vector3()
 		// TODO it does expect properties to exist... maybe it should force requirements to exist if not present
-		// TODO so maybe it should also add itself to the blob? can it add duplicate named entries?
-		// blob.register(this)
+		// TODO so maybe it should also add itself to the blox? can it add duplicate named entries?
+		// blox.register(this)
 	}
-	tick(interval,blob) {
-		if(!blob.mesh) return
+	on_tick(args) {
+		if(!args.blox.mesh) return
 		this.force.add(this.thrust)
-		blob.mesh.position.add(this.force)
-		if(blob.mesh.position.y < 2) {
-			blob.mesh.position.y = 2
+		args.blox.mesh.position.add(this.force)
+		if(args.blox.mesh.position.y < 2) {
+			args.blox.mesh.position.y = 2
 			this.force.y = 0.5
 		}
 	}
@@ -68,11 +68,11 @@ export class BehaviorOscillate {
 	constructor() {
 		this.angle = 0
 	}
-	tick(interval,blob) {
-		if(!blob.mesh) return // TODO more error checking
+	on_tick(args) {
+		if(!args.blox.mesh) return // TODO more error checking
 		let rad = 30
 		this.angle += 0.01
-		blob.mesh.position.set(Math.sin(this.angle)*rad, 3, Math.cos(this.angle)*rad)
+		args.blox.mesh.position.set(Math.sin(this.angle)*rad, 3, Math.cos(this.angle)*rad)
 	}
 }
 
@@ -81,29 +81,29 @@ export class BehaviorWander {
 		this.thrust = props.thrust ? new THREE.Vector3(props.thrust.x,props.thrust.y,props.thrust.z) : new THREE.Vector3()
 		this.force = props.force ? new THREE.Vector3(props.force.x,props.force.y,props.force.z) : new THREE.Vector3()
 	}
-	tick(interval,blob) {
-		if(!blob.mesh) return
+	on_tick(args) {
+		if(!args.blox.mesh) return
 		// pick somewhere occasionally
 		if(!this.focus || Math.random() < 0.011) {
 			this.focus = new THREE.Vector3(Math.random()*20-10,Math.random()*20,Math.random()*20-10)
 		}
 		// accelerate towards it if far away
-		this.thrust.x = ( this.focus.x - blob.mesh.position.x ) * 0.01 * interval
-		this.thrust.y = ( this.focus.y - blob.mesh.position.y ) * 0.01 * interval
-		this.thrust.z = ( this.focus.z - blob.mesh.position.z ) * 0.01 * interval
+		this.thrust.x = ( this.focus.x - blox.mesh.position.x ) * 0.01 * interval
+		this.thrust.y = ( this.focus.y - blox.mesh.position.y ) * 0.01 * interval
+		this.thrust.z = ( this.focus.z - blox.mesh.position.z ) * 0.01 * interval
 		this.force.add(this.thrust)
-		this.mesh.position.add(this.force)
+		args.mesh.position.add(this.force) // TODO update to use a newer force philosophy or consolidate
 	}
 }
 
 export class BehaviorStare {
-	constructor(props) {
+	constructor(props,blox) {
 		this.props = props
+		let focus = blox.query(props)
 	}
-	tick(interval,blob) {
-		let focus = blob.parent.children.find(this.props)
-		if(focus && focus.mesh) {
-			blob.mesh.lookAt(focus.mesh.position)
+	on_tick(args) {
+		if(this.focus && this.focus.mesh && args.blox.mesh) {
+			args.blox.mesh.lookAt(this.focus.mesh.position)
 		}
 	}
 }

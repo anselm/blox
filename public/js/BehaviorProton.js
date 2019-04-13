@@ -1,17 +1,17 @@
 
 export class BehaviorProton {
 
-	constructor(props,blob) {
+	constructor(props,blox) {
 		this.props = props
 		this.particles = []
 		this.rateCount = 0
-		this.parentMesh = blob._findByProperty("isObject3D")
-		let scene = blob.parent.scene // hack
+		this.parentMesh = blox._findByProperty("isObject3D")
+		let scene = blox.parent.scene // hack
 		if(!scene) console.error("no scene")
 		this.parentMesh.material.visible = false
 		this.initProton(this.parentMesh,scene)
 	}
-	tick(interval,blob) {
+	on_tick(args) {
         this.proton.update();
 	}
 

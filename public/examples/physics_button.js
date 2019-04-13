@@ -4,7 +4,7 @@ export let mything = {
 
 	physics: 0,
 
-	children: [
+	group: [
 
 		{
 			name:"camera",

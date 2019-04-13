@@ -15,21 +15,17 @@
 
 class Particle {
 
-	constructor(props,parentBehavior) {
-
-		if(!parentBehavior) {
-			console.error("Needs a hint about what kind of mesh to use - and needs a parent object to attach to")
-			return
-		}
+	constructor(props,parentBehaviorMesh) {
 
 		// re-instance and then somewhat manually associate the behavior with the threejs scene graph
-		this.mesh = new parentBehavior.constructor(parentBehavior.props,0)
-		parentBehavior.add(this.mesh)
+		// TODO it would be nicer to create full blown blobs - it is a bit of a hack to clone behaviors
+		this.mesh = new parentBehaviorMesh.constructor(parentBehaviorMesh.description,0)
+		parentBehaviorMesh.add(this.mesh)
 
-		this.reset(props,parentBehavior)
+		this.reset(props)
 	}
 
-	reset(props,parentBehavior=0) {
+	reset(props) {
 		// lifespan
 
 		let longevity = props.longevity || { min:50, max:100 }
@@ -92,10 +88,10 @@ class Particle {
 
 
 		// force tick it ahead to get the properties into the next refresh
-		this.tick(0)
+		this.on_tick({interval:0})
 	}
 
-	tick(interval) {
+	on_tick(args) {
 
 		// age
 		if(this.life < 0) {
@@ -144,19 +140,19 @@ class Particle {
 ///
 
 export class BehaviorParticles {
-	constructor(props,blob) {
+	constructor(props,blox) {
 		this.props = props
 		this.particles = []
 		this.rateCount = 0
-		this.parentBehavior = blob._findByProperty("isObject3D")
-		if(!this.parentBehavior) {
+		this.mesh = blox.query({property:"isObject3D"})
+		if(!this.mesh) {
 			console.error("Particles need to act on a 3d example object")
 			return
 		}
-		this.parentBehavior.material.visible = false
+		this.mesh.material.visible = false
 	}
-	tick(interval,blob) {
-		if(!this.parentBehavior) return
+	on_tick(args) {
+		if(!this.mesh) return
 
 		// visit all particles
 		let reusable = []
@@ -175,7 +171,7 @@ export class BehaviorParticles {
 			}
 
 			// update
-			particle.tick(interval)
+			particle.on_tick(args)
 			active++
 		}
 
@@ -191,7 +187,7 @@ export class BehaviorParticles {
 				particle.reset(this.props)
 			} else {
 				if(this.particles.length >= this.props.quantity) return
-				let particle = new Particle(this.props,this.parentBehavior)
+				let particle = new Particle(this.props,this.mesh)
 				this.particles.push(particle)
 			}
 			this.rateCount -=1

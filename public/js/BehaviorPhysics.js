@@ -17,7 +17,7 @@ export class BehaviorPhysics {
 	}
 
 	/// singleton constructor, can be called multiple times although it is slightly wasteful (a tiny object is created and thrown away)
-	constructor(props,blob) {
+	constructor(props,blox) {
 
 		// a singleton
 		if(physicsInstance) {
@@ -49,7 +49,7 @@ export class BehaviorPhysics {
 		this.bodies.push(body)
 	}
 
-	tick() {
+	on_tick() {
 		this.dynamicsWorld.stepSimulation(1/60, 10)
 	}
 
@@ -71,15 +71,15 @@ export class BehaviorPhysics {
 ///
 
 export class BehaviorPhysical {
-	constructor(props,blob) {
+	constructor(props,blox) {
 
-		if(!blob.mesh) {
+		if(!blox.mesh) {
 			/// TODO right now there is a bit of a hack where it looks for a 'mesh' property on the parent - may be better to force specify hull?
 			console.error("There has to be a mesh behavior in this object already")
 			return
 		}
 
-		if(blob.physical) {
+		if(blox.physical) {
 			/// TODO right now there is a bit of a hack where it looks for a 'mesh' property on the parent - may be better to force specify hull?
 			console.error("Object already has a physical behavior")
 			return
@@ -88,8 +88,8 @@ export class BehaviorPhysical {
 		this.props = props
 
 		// Force properties to exist
-		let scale = blob.mesh.scale
-		let position = blob.mesh.position
+		let scale = blox.mesh.scale
+		let position = blox.mesh.position
 		let size = scale.length()
 
 		let mass = this.mass = props.mass || 0
@@ -97,8 +97,8 @@ export class BehaviorPhysical {
 
 
 		let hull = "sphere"
-		if(blob.mesh.geometry instanceof THREE.BoxBufferGeometry) hull = "box"
-		if(blob.mesh.geometry instanceof THREE.SphereGeometry) hull = "sphere"
+		if(blox.mesh.geometry instanceof THREE.BoxBufferGeometry) hull = "box"
+		if(blox.mesh.geometry instanceof THREE.SphereGeometry) hull = "sphere"
 		let shape = 0
 
 		switch(hull) {
@@ -188,9 +188,9 @@ export class BehaviorPhysical {
 
 	}
 
-	tick(interval,blob) {
+	tick(interval,blox) {
 
-		if(!blob.mesh) return
+		if(!blox.mesh) return
 
 		if(this.props.force) {
 			// test code remove - TODO
@@ -203,8 +203,8 @@ export class BehaviorPhysical {
 			ms.getWorldTransform(this.trans)
 			var p = this.trans.getOrigin()
 			var q = this.trans.getRotation()
-			blob.mesh.position.set( p.x(), p.y(), p.z() )
-			blob.mesh.quaternion.set( q.x(), q.y(), q.z(), q.w() )
+			blox.mesh.position.set( p.x(), p.y(), p.z() )
+			blox.mesh.quaternion.set( q.x(), q.y(), q.z(), q.w() )
 		}
 	}
 }
@@ -274,7 +274,7 @@ function getModelMatrix (rb) {
 
 various kinds of primitives
 
-https://github.com/kripken/ammo.js/blob/master/examples/webgl_demo_terrain/index.html
+https://github.com/kripken/ammo.js/blox/master/examples/webgl_demo_terrain/index.html
 
 
 				switch ( objectType ) {

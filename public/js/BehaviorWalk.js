@@ -7,25 +7,21 @@
 
 export class BehaviorWalk {
 
-	constructor(props,blob) {
+	constructor(props,blox) {
 
-		this.parentBehavior = blob._findByProperty("isObject3D")
+		this.parentBehavior = blox.query({property:"isObject3D"})
 		if(!this.parentBehavior) {
 			console.error("There needs to be some mesh associated with this behavior")
 			return
 		}
 
-		// look around for a camera - TODO maybe user should pass a camera name if not making a camera?
-		this.camera = blob._findByProperty("isPerspectiveCamera")
-		if(!this.camera && blob._findChildByName("camera")) {
-			this.camera = blob._findChildByName("camera")._findByProperty("isPerspectiveCamera")
-		}
+		this.camera = blox.query({property:"isPerspectiveCamera"})
 		if(!this.camera) {
 			console.error("No camera found")
 		}
 
 		this.props = props
-		this.blob = blob
+		this.blox = blox
 		this.forward = new THREE.Vector3(0,0,0.1)
 		this.backward = new THREE.Vector3(0,0,-0.1)
 		this.left = new THREE.Euler(0,10*Math.PI/180.0,0)
@@ -34,7 +30,7 @@ export class BehaviorWalk {
 	}
 
 	onKeyDown(event) {
-		if(!this.blob || !this.parentBehavior) {
+		if(!this.blox || !this.parentBehavior) {
 			console.error("Needs a mesh")
 			return
 		}
@@ -58,7 +54,7 @@ export class BehaviorWalk {
 	    }
 	}
 
-	tick(interval,blob) {
+	on_tick(args) {
 
 		if(!this.camera) return
 

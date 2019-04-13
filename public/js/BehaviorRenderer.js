@@ -1,11 +1,11 @@
 
 
 export class BehaviorRenderer extends THREE.WebGLRenderer {
-	constructor(props,blob) {
+	constructor(props,blox) {
 		super({antialias:true,alpha:XRSupport.supportsARKit()})
 		this.setSize( window.innerWidth, window.innerHeight )
 		this.props = props
-		this.blob = blob
+		this.blox = blox
 		this.clock = new THREE.Clock()
 		this.scene = 0
 		this.camera = 0
@@ -45,7 +45,7 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 
 	updateScene() {
 		if(!this.scene || !this.camera) return
-		this.blob._tick(this.clock.getElapsedTime())
+		this.blox.event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
 	}
 
 	renderScene() {
@@ -68,7 +68,7 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 }
 
 export class BehaviorCamera extends THREE.PerspectiveCamera {
-	constructor(props,blob) {
+	constructor(props,blox) {
 		let camera = super( 45, window.innerWidth/window.innerHeight, 0.1, 1000 )
 		let position = props.position || {x:0,y:1,z:10}
 		let lookat = props.lookat || {x:0,y:1,z:0}
@@ -80,35 +80,34 @@ export class BehaviorCamera extends THREE.PerspectiveCamera {
 }
 
 export class BehaviorScene extends THREE.Scene {
-	constructor(props,blob) {
+	constructor(props,blox) {
 		super()
-		blob._listen("child_added",this.on_child_added.bind(this))
-		// add renderer by hand
-		this.renderer = blob.renderer = new BehaviorRenderer({},blob)
-		// add a default camera by hand - can be overridden
-		this.camera = blob.camera = new BehaviorCamera({},blob)
+		// force add a renderer by hand if not added
+		if(!blox.renderer) {
+			this.renderer = blox.renderer = new BehaviorRenderer({},blox)
+		}
+		// force add a default camera by hand - can be overridden
+		this.camera = blox.camera = new BehaviorCamera({},blox)
 		// set renderer to use this scene and default camera for now
 		this.renderer.reset(this,this.camera,this.camera)
 	}
-	on_child_added(args) {
-		if(args.name != "child_added") return // TODO could look to see if a behavior_added was a camera also
+	on_blox_added(args) {
 		let scene = this
-		let blob = args.parent
-		Object.entries(args.child).forEach(([key,value])=>{
+		let child = args.child
+		let objects = child.query({instance:THREE.Object3D,all:true})
+		objects.forEach((value)=>{
+			// any children behaviors that are actually threejs objects just get added to the scene
 			if(value instanceof THREE.Object3D) {
-				console.log("Scene: adding object " + value.constructor.name )
 				scene.add(value)
 			}
+			// also if a camera shows up, go ahead and use it instead
+			// TODO note that this does not notice cameras coming in as children of children etc - need a more global event system
 			if(value instanceof THREE.PerspectiveCamera) {
-				// TODO note that this does not notice cameras coming in as children of children etc - need a more global event system
 				console.log("Scene: noticed another camera being added - using that instead")
 				// tell renderer about new camera
-				blob.renderer.reset(this,value,value)
+				this.renderer.reset(this,value,value)
 			}
 		})
-	}
-	setCamera(camera) {
-		this.renderer.camera = camera
 	}
 }
 

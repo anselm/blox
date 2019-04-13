@@ -1,23 +1,23 @@
 export class BehaviorEmitter {
-	constructor(props,blob) {
+	constructor(props,blox) {
 		if(!props || !props.target) {
 			console.error("You have to specify a target")
 			return
 		}
-		let target = blob._findChildByName(props.target)
-		if(!target) {
+		let target = blox.query(props.target)
+		if(!target || !target.parent) {
 			console.error("Target is not found")
 			return
 		}
 		let count = props.count || 10
 		for(let i = 0; i < count; i++) {
+			// copy
+			let fresh = target.parent.group.add(target._description)
 			// randomly place - TODO parameterize
 			let x = Math.random()*10 - 5
 			let y = 0
 			let z = Math.random()*10 - 5
-			let position = {x:x,y:y,z:z}
-			target._details.mesh.position = position
-			let fresh_copy = target._copy()
+			if(fresh.mesh) fresh.mesh.position.set(x,y,z)
 		}
 	}
 }

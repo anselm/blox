@@ -8,7 +8,7 @@
 
 export class BehaviorMesh extends THREE.Mesh {
 
-	constructor(props={},blob=0) {
+	constructor(props={},blox=0) {
 
 		// TODO I would prefer to instance and set properties in one step rather than deleting and resetting properties
 		super()
@@ -16,24 +16,9 @@ export class BehaviorMesh extends THREE.Mesh {
 		// reset physics
 		this.physicsReset()
 
-		// publish an event that properties are about to be set
-		if(blob) blob._speak({ name:"behavior_initialization", behavior:this, parent:blob, props:props })
-
 		// set or reset various properties from params
 		this.reset(props)
 
-		// listen to events and attach any children that show up
-		if(blob) blob._listen("child_added",this.on_child_added.bind(this))
-	}
-
-	on_child_added(args) {
-		if(args.name != "child_added") return
-		let mesh = this
-		Object.entries(args.child).forEach(([key,value])=>{
-			if(value instanceof THREE.Object3D) {
-				mesh.add(value)
-			}
-		})
 	}
 
 	/// set or reset qualities of this mesh
@@ -75,9 +60,6 @@ export class BehaviorMesh extends THREE.Mesh {
 		if(typeof props.visible !== 'undefined') {
 			mesh.visible = props.visible ? true : false
 		}
-
-		// save for future reference on changes
-		this.props = props
 	}
 
 	/// set or reset geometry from a string description with special rules
@@ -165,7 +147,26 @@ export class BehaviorMesh extends THREE.Mesh {
 		throw new Error('You have to implement the method setCustomGeometry!')
 	}
 
-	tick(interval,blob) {
+	///
+	/// notice when any children blox show up and add to 3js
+	///
+
+	on_add(args) {
+		let mesh = this
+		let children = args.blox.query({instance:THREE.Object3D,all:true})
+		children.forEach((child) => { mesh.add(child) })
+	}
+
+	///
+	/// notice tick event and update kinetic physics
+	///
+
+	on_tick(args) {
+		this.physicsTick()
+	}
+
+	/// TODO may move kinetic physics elsewhere
+	physicsTick() {
 		if(!this.physical) return
 
 		// dampen linear movement by friction

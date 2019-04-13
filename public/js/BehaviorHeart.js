@@ -5,8 +5,8 @@ import {BehaviorMesh} from './BehaviorMesh.js'
 
 export class BehaviorHeart extends BehaviorMesh {
 
-	constructor(props,blob) {
-		super(props,blob)
+	constructor(props,blox) {
+		super(props,blox)
 	}
 
 	setCustomGeometry() {

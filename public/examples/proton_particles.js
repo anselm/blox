@@ -3,7 +3,7 @@ export let ascene = {
 
 	scene: 0,
 
-	children: [
+	group: [
 
 		{
 			name:"camera",

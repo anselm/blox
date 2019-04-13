@@ -8,9 +8,9 @@ import {BehaviorMesh} from './BehaviorMesh.js'
 /// - could combine 2d composited text layouts with this
 
 export class BehaviorText extends BehaviorMesh {
-	constructor(props,blob) {
+	constructor(props,blox) {
 		props.art = "sphere" // temporary
-		super(props,blob)
+		super(props,blox)
 		this.props = props
 		var loader = new THREE.FontLoader();
 		loader.load( 'fonts/helvetiker_bold.typeface.json', this.attachText.bind(this) )

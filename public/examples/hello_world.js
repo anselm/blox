@@ -14,7 +14,7 @@ export let mything = {
 	scene: 0,
 
 	// a collection of children (itself a behavior)
-	children: [
+	group: [
 
 		// a skybox
 		{

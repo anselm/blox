@@ -2,7 +2,7 @@ export let mything = {
 
 	scene: 0,
 
-	children: [
+	group: [
 
 		{
 			name:"camera",

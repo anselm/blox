@@ -4,7 +4,7 @@ export let mything = {
 
 	scene: 0,
 
-	children: [
+	group: [
 
 		{
 			name:"mylight",
@@ -34,29 +34,27 @@ export let mything = {
 		},
 
 		{
+			// name is a special property
 			name:"flower",
-			event: function(e) {
-				// This is an exploration of an idea of decorating an object with a *generic* event handling capability
-				// On the plus side it consolidates events and code into a single method and then multiple listeners can listen into events
-				// On the minus side it is a bit more complex for novice users than directly attaching object.on_collision() type methods
-				console.log("got event")
-				console.log(e)
-				if(e.name == "on_overlap") {
-					// we could handle overlaps here
-				}
-				if(e.name == "on_tick") {
-					// we could do tick events here in general
-				}
-				if(e.name == "behavior_initialization" && e.props) {
-					let random_art = [
-						"art/flowers/animium_3d_model_flower_3d_model",
-						"art/flowers/blujay_margarita_flower",
-						"art/flowers/rufusrockwell_lupine_plant",
-						"art/flowers/rufusrockwell_snap_dragon",
-						"art/flowers/tojamerlin_white_flower",
-					]
-					e.props.art = random_art[ Math.floor(Math.random()*random_art.length) ]
-				}
+			// a typical behavior for a mesh
+			// randomize art - has to be declared before the mesh to be invoked
+			on_behavior_will_add: function(args) {
+				// is it a mesh being added?
+				if(!args.description.art) return
+				// change the art if so
+				let random_art = [
+					"art/flowers/animium_3d_model_flower_3d_model",
+					"art/flowers/blujay_margarita_flower",
+					"art/flowers/rufusrockwell_lupine_plant",
+					"art/flowers/rufusrockwell_snap_dragon",
+					"art/flowers/tojamerlin_white_flower",
+				]
+				args.description.art = random_art[ Math.floor(Math.random()*random_art.length) ]
+			},
+			// animate art
+			on_tick: function(args) {
+				if(!args.blox || !args.blox.mesh) return
+				args.blox.mesh.rotateY(0.01)
 			},
 			mesh:{
 				// TODO I should show provenance on screen
@@ -72,17 +70,8 @@ export let mything = {
 				position:{x:0,y:0,z:0},
 				scale:{x:1,y:1,z:1},
 				color:0xff0212,
-				// TODO one idea is to have event listeners directly and explicitly hammered into various useful points
-				// I feel this is "ok" but maybe a bit over-specialized and it hides an ability to generally route and ship events around
-				// basically, it is a bit nicer for the user bit it is a bit over-constrained for the system as a whole
-				//on_construction: function(e) { console.log("do something useful ") }
 			},
-			// This is another way of thinking about some events, in this case simply decorating the object with a tick behavior
-			tick: function(interval,parent) {
-				if(!parent.mesh) return
-				parent.mesh.rotateY(0.01)
-			},
-			// This is a similar to above way of thinking about events, in this case decorating the object with a special behavior and handler
+			// a collision behavior with specialized event support
 			collide: {
 				gaze: true,
 				click: true,
@@ -91,9 +80,9 @@ export let mything = {
 				filter:2, // do not send me any messages unless the other party is in this layer also (layer is a bitmask)
 				on_enter: 0,
 				on_exit: 0,
-				on_overlap: function(interval,parent,target) {
-					if(!parent.mesh) return
-					if(parent.mesh.position.y < 3) parent.mesh.position.y += 0.1
+				on_overlap: function(args) { // TODO could pull this out to general scope
+					if(!args || !args.blox || !args.blox.mesh) return
+					if(args.blox.mesh.position.y < 3) args.blox.mesh.position.y += 0.1
 				}
 			},
 		},
