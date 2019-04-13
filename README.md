@@ -1,4 +1,4 @@
-# ABOUT
+# BLOX 
 
 Blox is a pattern library for 3d experience creators. It lets you succinctly describe virtual reality and augmented reality experiences, games and stories. It leverages open web standards, ThreeJS and WebXR and introduces an ECS component philosophy to encourage re-use of behaviors. It works on desktop browsers, WebXR iOS, Vive, Oculus and Rift.
 
@@ -26,6 +26,7 @@ Fetch from github and run any small http server in home folder and visit the URL
 
 # MAKING YOUR OWN EXAMPLE SCENE
 
+```
 <html>
 <body>
 <script>
@@ -55,6 +56,7 @@ let blox = new Blox(myscene)
 </script>
 </body>
 </html>
+```
 
 # USER CONCEPTS
 
@@ -163,43 +165,30 @@ The system is designed to be document driven, you describe what you want in a te
 
 	blox.new                          Pass a string, another object or a filename to instance a parent blox and children bloxs
 	blox.constructor                  Same as blox.new but callable from a live instance
-
 	blox.parent                       Get the parent of a blox if any
-	blox.children                     Get the children of a blox if any
+	blox.group                        Get the children of a blox if any
+	blox.behaviors
+	blox.functions
+	blox.query                        Fancy query support for finding children blox or behaviors
+	blox.event                        A generic event publishing mechanism
 
-		.add
-		.remove
-		.query({name:x,all:true,behavior:y,flat:true})
-
-	blox.behaviors <- see if i can avoid building an array of; makes it easier to still add behaviors by hand
-	blox.getByBehavior                Search a global flat namespace for first instance of a blox by behavior
-	blox.getAllByBehavior
-	blox.addBehaviorIfMissing		  Make sure certain behaviors exist
-	blox.addBehavior
-	blox.addBehaviors
-	blox.removeBehavior
-	blox.getBehaviors
-	blox.getBehaviorByName
-	blox.getBehaviorByProperty
-
-	blox.sendEvent                    Send an event to all local behaviors that are capable of handling it
-
-	* Note that behaviors are hashed and show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
-	* Note that behaviors share the namespace with these reserved method names
-	* Duplicate behaviors in one blox get a number added to them as in blox.mesh, blox.mesh1, blox.mesh2 starting from index 0
+	* Note that behaviors show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
+	* Note that only one of a kind of behavior is allowed in one Blox at a time
 
 # CONVENTIONAL METHODS AND EVENTS ON BEHAVIORS
 
-    events[]                          accumulation of events from the previous round
-    event                             listen to all events
-	tick                              used to update state
-	ready                             sent when a blox is fully initialized
-	activate                          sent to let an object activate or not
-	deactivate
-	lifespan                          it may be desirous to have duration be deeply featured as an event
-	collide                           it may make sense to mark objects with their collision status as well
+	[x] on_tick
+	[x] on_behavior_will_add
+	[x] on_behavior_added
+	[x] on_overlap
+	[x] on_entered
+	[x] on_exited
+	[ ] on_ready
+	[ ] on_activate
+	[ ] on_deactivate
+	[ ] on_lifespan
+	[ ] on_loaded
+	[ ] on_event (generic catch all)
 
-    * Send an event by using blox.sendEvent('tick',{...arguments})
-	* Note that events can have any name but share a namespace with custom behavior properties
-	* Note that if an object doesn't have an event handler, it can still look at accumulated events in events[]
+	* Note that events can have any name but share a namespace with custom behaviors names, the convention is on_*
 
