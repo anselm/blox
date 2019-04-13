@@ -1,7 +1,7 @@
 {
-  "name": "threejsfx",
-  "version": "1.0.1",
-  "description": "an effects library with a component document model",
+  "name": "blox",
+  "version": "1.0.2",
+  "description": "A pattern library for 3d effects",
   "main": "needs_a_server.js",
   "scripts": {
     "start": "cd public; http-server -c 0"
