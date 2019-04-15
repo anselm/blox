@@ -66,7 +66,7 @@ window.onload = (blarg) => {
 		if(blox) document.body.removeChild(blox.renderer.domElement) // HACK
 		let hash = window.location.hash.substr(1)
 		if(!hash || !hash.length) return
-		let file = "../examples/"+hash
+		let file = "./examples/"+hash
 		blox = new Blox(file)
 	}
 	window.addEventListener("hashchange", gotohash)
