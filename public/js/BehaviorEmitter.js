@@ -12,7 +12,7 @@ export class BehaviorEmitter {
 		let count = props.count || 10
 		for(let i = 0; i < count; i++) {
 			// copy
-			let fresh = target.parent.group.add(target._description)
+			let fresh = target.parent.group.add(target.description)
 			// randomly place - TODO parameterize
 			let x = Math.random()*10 - 5
 			let y = 0

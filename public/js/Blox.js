@@ -58,10 +58,14 @@ export class Blox {
 	/// parent = a parent blox if any
 	///
 	constructor(description={},parent=0) {
+		this.load(description,parent)
+	}
+
+	async load(description={},parent=0) {
 		// grant a default name that can be rewritten during construction
 		this.name = "blox" + UUID++
 		// save details so that the blox can be cloned on demand
-		this._description = description
+		this.description = description
 		// save the parent scope - 'parent' is a reserved term
 		this.parent = parent
 		// functions can be declared directly in descriptions as well and are called when matching events occur
@@ -71,32 +75,50 @@ export class Blox {
 		// inhale behaviors
 		try {
 			if(typeof description == 'string') {
-				importModule(description).then((module) => {
+				let module = await importModule(description)
+				if(module) {
 					let keys = Object.keys(module)
-					if(!keys.length) return
-					let behaviors = module[keys[0]]
-					if(!behaviors) return
-					this._attach_behaviors(behaviors)
-				})
+					if(keys.length && module[keys[0]]) {
+						let behaviors = module[keys[0]]
+						await this._attach_behaviors(behaviors)
+					}
+				} else {
+					console.error("Cannot load module")
+				}
 			} else {
 				let behaviors = description
-				this._attach_behaviors(behaviors)
+				await this._attach_behaviors(behaviors)
 			}
 		} catch(e){
 			console.error(e)
 		}
 	}
 
-	_attach_behaviors(behaviors={}) {
+	async _attach_behaviors(behaviors={}) {
 		if(!behaviors) return
 		if(behaviors.constructor != Object) {
 			console.error("Blox behaviors need to be a hash")
 			return
 		}
+		// built in support to load a package for now TODO revisit this idea later - needs to exploit async
+		if(behaviors.load) {
+			let module = await importModule(behaviors.load)
+			if(module) {
+				let keys = Object.keys(module)
+				if(keys.length && module[keys[0]]) {
+					let behaviors_package = module[keys[0]]
+					Object.entries(behaviors_package).forEach(([key,description])=>{
+						this._attach_behavior(key,description)
+					})
+				}
+			}
+			delete behaviors.load
+		}
 		// add all behaviors
 		Object.entries(behaviors).forEach(([key,description])=>{
 			this._attach_behavior(key,description)
 		})
+		if(this.parent)this.parent.on_event({ name:"on_blox_added", child:this })
 	}
 
 	_attach_behavior(key,description) {
@@ -126,38 +148,56 @@ export class Blox {
 			return
 		}
 
-		// Right now properties are a hash, but in some far future day it's conceivable that multiple instances could exist
-		// Also nothing stops users from decorating blox with multiple instances after creation
-		// So make some effort to support this although behavior may not be entirely logical
+		// The name of the behavior to load
+		let className = "Behavior"+key.charAt(0).toUpperCase() + key.slice(1)
+		let classRef = 0
+		let classInst = 0
+
+		// If a property already exists then the assumption right now is that the intention is to edit the existing property
+		// behaviors exist both in blox.behaviors and directly on blox[] for convenience; here check on []
 		let usename = key
 		for(let count = 0;;count++) {
 			usename = key + (count ? count : "")
-			if(!blox[usename]) break
-			if (typeof blox[usename] === "function") {
-				console.error("Warning: your behavior collides with an existing property : " + usename)
+			let previous = blox[usename]
+			if(!previous) break
+			if (typeof previous === "function") {
+				console.error("Error: your behavior collides with an existing reserved field : " + usename)
+				return
+			}
+			console.log(previous.constructor.name)
+			if(previous.constructor.name == className) {
+				// looks like this is an edit
+				console.log("editing " + className)
+				classInst = previous
+				break
 			}
 		}
 
 		// Attempt to manufacture and add behavior, else treat it as an attribute but warn for now
 		try {
-			// The name of the behavior to load
-			let className = "Behavior"+key.charAt(0).toUpperCase() + key.slice(1)
-			// find the class or throw an exception
-			let classRef = eval(className)
 			// advise that the behavior will exist soon
 			blox.on_event({name:"on_behavior_will_add",description:description,blox:blox})
-			// instance a behavior passing it the bucket itself and the properties for the field
-			let behavior = new classRef(description,blox)
+			// make if was not found
+			if(!classInst) {
+				// find the class or throw an exception
+				classRef = eval(className)
+				// instance a behavior passing it the bucket itself and the properties for the field
+				classInst = new classRef(description,blox)
+			} else {
+				// if there is an on reset then call that
+				let args = {description:description,blox:blox}
+				if(classInst.on_reset) classInst.on_reset(args)
+			}
 			// in each new behavior - keep a reference to this bucket explicitly rather than letting the behavior do it or not
 			// TODO it's arguable if this is needed actually
-			behavior.blox = blox
+			classInst.blox = blox
 			// also keep a reference to the details that were used to build it
-			behavior.description = description
+			classInst.description = description
 			// directly attach fresh behavior to the blox
-			blox[usename] = behavior
+			blox[usename] = classInst
 			// append new behavior to list of behaviors associated with this bucket
-			blox.behaviors[usename] = behavior
-			blox.on_event({name:"on_behavior_added",behavior:behavior,blox:blox})
+			blox.behaviors[usename] = classInst
+			blox.on_event({name:"on_behavior_added",behavior:classInst,blox:blox})
 			//console.log("Added " + className + " " + " to " + blox.name)
 		} catch(e) {
 			console.error(e)
@@ -292,7 +332,6 @@ export class BehaviorGroup {
 	add(description) {
 		let child = new Blox(description,this.blox)
 		this.children.push(child)
-		this.blox.on_event({ name:"on_blox_added", child:child })
 		return child
 	}
 

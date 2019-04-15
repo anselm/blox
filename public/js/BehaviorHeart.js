@@ -24,6 +24,7 @@ export class BehaviorHeart extends BehaviorMesh {
 		//heart_geometry = new THREE.ExtrudeBufferGeometry( shape, extrudeSettings )
 		//heart_geometry = new THREE.ShapeGeometry( shape )
 		heart_geometry = new THREE.ShapeBufferGeometry( shape )
+		this.madeGeometry = true
 		return heart_geometry
 	}
 }

@@ -17,17 +17,19 @@ export class BehaviorMesh extends THREE.Mesh {
 		this.physicsReset()
 
 		// set or reset various properties from params
-		this.reset(props)
+		this.on_reset({description:props,blox:blox})
 
 	}
 
 	/// set or reset qualities of this mesh
-	reset(props) {
+	on_reset(args) {
 
+		let props = args.description
 		if(!props) return
 
-		// set or reset material from params - do this before the geom in case I later want to try scavenge material into gltf
-		{
+		// set or reset material from params if changed
+		// - do this before the geom in case I later want to try scavenge material into gltf
+		if(!this.description || props.color != this.description.color || !this.material) {
 			let c = props.color || 0xff00ff
 			let s = props.doublesided ? THREE.DoubleSide : 0
 			let t = props.transparent ? 0 : 0
@@ -36,9 +38,9 @@ export class BehaviorMesh extends THREE.Mesh {
 			this.material = m
 		}
 
-		// set or reset geometry
-		if(!this.props || this.props.art != props.art) {
-			this.setGeometryFromString(props.art)
+		// set or reset geometry if changed
+		if(!this.madeGeometry || (this.description && props.art && this.description.art != props.art)) {
+			this.geometry = this.setGeometryFromString(props.art)
 		}
 
 		let mesh = this
@@ -60,10 +62,13 @@ export class BehaviorMesh extends THREE.Mesh {
 		if(typeof props.visible !== 'undefined') {
 			mesh.visible = props.visible ? true : false
 		}
+
 	}
 
 	/// set or reset geometry from a string description with special rules
 	setGeometryFromString(str) {
+
+		this.madeGeometry = true
 
 		// TODO must write remove if already exists in scene
 
@@ -74,6 +79,7 @@ export class BehaviorMesh extends THREE.Mesh {
 			case undefined:
 			case 0:
 			case null:
+			case "ignore":
 				// TODO the semantics here could use thought - perhaps a default shape is best if nothing is supplied
 				geometry = this.setCustomGeometry()
 				break
@@ -97,7 +103,7 @@ export class BehaviorMesh extends THREE.Mesh {
 
 		// was a simple geometry
 		if(!is_gltf) {
-			return
+			return this.geometry
 		}
 
 		// actually i don't want to see it
@@ -137,6 +143,8 @@ export class BehaviorMesh extends THREE.Mesh {
 			// TODO later use the top level material here
 			if(this.material) this.material.visible = false
 		})
+
+		return this.geometry
 	}
 
 	///

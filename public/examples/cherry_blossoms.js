@@ -46,14 +46,13 @@ export let cherry_blossoms = {
 
 		{
 			name:"tree",
+			load:"./blox/cherry_tree.js", // loading a package and then changing it
 			mesh:{
-				art:"art/cherry_tree",
-				position:{x:20,y:10,z:10},
 				scale:{x:5,y:5,z:5},
-				color:0xff0000,
 			},
 		},
 
+		// a tree
 		{
 			name:"tree",
 			mesh:{
@@ -64,6 +63,7 @@ export let cherry_blossoms = {
 			},
 		},
 
+		// a tree
 		{
 			name:"tree",
 			mesh:{
@@ -74,13 +74,13 @@ export let cherry_blossoms = {
 			},
 		},
 
-
 		// a mesh and a simple particle effects engine
 		{
 			name:"tree",
 
 			// add any kind of object to this clump as a prototype of what to re-use, will find it and use it
 			heart: {
+				art:"ignore",
 				color:0xffffff,
 				position:{x:0,y:10,z:0},
 				scale:{x:1,y:1,z:1},

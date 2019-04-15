@@ -77,13 +77,14 @@ class Particle {
 			let s = Math.random() + 1
 			// build up properties to write
 			let modifiers = {
+				art:"ignore",
 				color:c,
 				scale:{ x:s, y:s, z:s },
 				doublesided:1,
 				transparent:1,
 			}
 			// modify the mesh
-			this.mesh.reset(modifiers)
+			this.mesh.on_reset({description:modifiers})
 		}
 
 
