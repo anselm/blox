@@ -95,7 +95,6 @@ export class BehaviorPhysical {
 		let mass = this.mass = props.mass || 0
 		let transform = this.transform = 0
 
-
 		let hull = "sphere"
 		if(blox.mesh.geometry instanceof THREE.BoxBufferGeometry) hull = "box"
 		if(blox.mesh.geometry instanceof THREE.SphereGeometry) hull = "sphere"
@@ -188,7 +187,8 @@ export class BehaviorPhysical {
 
 	}
 
-	tick(interval,blox) {
+	on_tick(args) {
+		let blox = args.blox
 
 		if(!blox.mesh) return
 

@@ -99,7 +99,7 @@ export class BehaviorWander {
 export class BehaviorStare {
 	constructor(props,blox) {
 		this.props = props
-		let focus = blox.query(props)
+		this.focus = blox.query(props)
 	}
 	on_tick(args) {
 		if(this.focus && this.focus.mesh && args.blox.mesh) {

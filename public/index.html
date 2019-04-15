@@ -31,7 +31,7 @@ h1 { font-family: Verdana, Geneva, sans-serif; font-size: 24px; font-style: norm
 
 span {
 	width:100px;
-	height:100px;
+	height:50px;
 	border:5px solid grey;
 	 display: block;
 	 float:left;
@@ -59,9 +59,7 @@ See <a href="https://github.com/anselm/blox">github.com/anselm/blox</a>
 
 <script type=module>
 
-// TODO turns out firefox doesn't support dynamic imports
-
-import {Blox} from "./js/blox.js"
+import {Blox} from "./js/Blox.js"
 window.onload = (blarg) => {
 	let blox = 0
 	function gotohash() {
