@@ -6,7 +6,7 @@ The intended audience is:
 
 1) Novices that want to make high quality high performance interactive stories in 3d.
 
-2) Storytellers who want to work faster and more accurately with a domain appropriate vocabulary, expressing semantic intent such as "be on the floor" or "tagalong with player" rather than "place a green cube at 0,0,0".
+2) Storytellers who want to work faster and more accurately with a domain appropriate vocabulary, expressing semantic intent such as "be on the floor" or "tagalong with player".
 
 3) Designers who want a pattern library of 3d UX widgets. See https://medium.com/@anselm/laundry-list-of-ux-patterns-in-vr-ar-24dae1e56c0a
 
@@ -46,9 +46,10 @@ let myscene = {
 			name:"mymex",
 			mesh:{
 				art:"box",
-				position:{x:0,y:0,z:0},
-				color:"red"
+				position:"ground",
+				color:"green"
 			}
+			on_collide:function(e) { e.blox.position.slerp("eyelevel") }
 		}
 	]
 }
