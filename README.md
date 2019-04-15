@@ -63,9 +63,10 @@ export let myscene = {
 				art:"box",
 				position:"ground",
 				color:"green"
-			}
-			on_load:function(e) { console.log("just woke up") }
-			on_tick:function(e) { e.blox.mesh.rotate.y+=0.1 }
+			},
+			on_visible:"./scripts/visible_handler.js",
+			on_load:function(e) { console.log("just woke up") },
+			on_tick:function(e) { e.blox.mesh.rotate.y+=0.1 },
 			on_overlap:function(e) { e.blox.position.slerp("eyelevel") }
 		}
 	]
