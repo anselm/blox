@@ -14,7 +14,7 @@ The intended audience is:
 
 # ONLINE EXAMPLES
 
-https://anselm.github.io/blox/public
+[https://anselm.github.io/blox/public]
 
 # TRY IT YOURSELF
 
