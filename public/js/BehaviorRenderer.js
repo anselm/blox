@@ -11,8 +11,11 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 		this.camera = 0
 		this.pov = 0
 
+		// supports VR? HACK
+		let usevr = window.supportsVR ? true : false
+
 		this.PASSTHROUGH = XRSupport.supportsARKit()
-		if(!this.PASSTHROUGH) {
+		if(!this.PASSTHROUGH && !usevr) {
 			document.body.appendChild( this.domElement )
 			this.setAnimationLoop( this.render3.bind(this) )
 		} else {
@@ -22,11 +25,11 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 				updateCamera:this.updateCamera.bind(this),
 				updateScene:this.updateScene.bind(this),
 				renderScene:this.renderScene.bind(this),
-				createVirtualReality:false,
+				createVirtualReality:usevr ? true : false,
 				shouldStartPresenting:true,
 				useComputervision:false,
-				worldSensing:true,
-				alignEUS:true
+				worldSensing:usevr ? false : true,
+				alignEUS:usevr ? false : true
 			})
 		}
 	}

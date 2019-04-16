@@ -40,7 +40,8 @@ export class BehaviorMesh extends THREE.Mesh {
 
 		// set or reset geometry if changed
 		if(!this.madeGeometry || (this.description && props.art && this.description.art != props.art)) {
-			this.geometry = this.setGeometryFromString(props.art)
+			if(props.hasOwnProperty("art"))
+				this.geometry = this.setGeometryFromString(props.art)
 		}
 
 		let mesh = this
@@ -164,6 +165,7 @@ export class BehaviorMesh extends THREE.Mesh {
 		let children = args.blox.query({instance:THREE.Object3D,all:true})
 		children.forEach((child) => { mesh.add(child) })
 	}
+
 
 	///
 	/// notice tick event and update kinetic physics

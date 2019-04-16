@@ -224,35 +224,37 @@ export class Blox {
 			console.error("Blox query not understood")
 			return null
 		}
+
+		// which blox?
+		let blox = args.name ? global_blox_namespace[args.name] : this
+
 		// return first or all?
 		let results = args.all ? [] : 0
 		// search local behaviors for a behavior with a given attribute and return said behavior
 		if(args.property) {
-			let keys = Object.keys(this.behaviors)
+			let keys = Object.keys(blox.behaviors)
 			for(let i = 0 ; i < keys.length; i++) {
 				let key = keys[i]
-				let value = this.behaviors[key]
+				let value = blox.behaviors[key]
 				if(value[args.property]) {
 					if(!results) return value
 					results.push(value)
 				}
 			}
-			return results
 		}
 		// search local behaviors for a behavior of a kind and return said behavior
 		if(args.instance) {
-			let keys = Object.keys(this.behaviors)
+			let keys = Object.keys(blox.behaviors)
 			for(let i = 0 ; i < keys.length; i++) {
 				let key = keys[i]
-				let value = this.behaviors[key]
+				let value = blox.behaviors[key]
 				if(value instanceof args.instance) {
 					if(!results) return value
 					results.push(value)
 				}
 			}
-			return results
 		}
-		return 0
+		return results
 	}
 
 	///

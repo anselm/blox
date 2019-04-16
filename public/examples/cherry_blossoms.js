@@ -1,4 +1,13 @@
 
+///
+/// This artist created scene demonstrates high level declarations of simple behaviors with 'packages' and particle effects.
+///
+/// A cherry tree is defined in a separate package that is stored in a blox folder as blox/cherry_tree.js.
+/// That description loads up a gltf of a Cherry Tree from SketchFab.
+/// [ from the artist https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876 ].
+/// There is also a simple particle effects engine attached.
+///
+
 export let cherry_blossoms = {
 
 	scene: 0,
@@ -29,7 +38,7 @@ export let cherry_blossoms = {
 		{
 			name:"sky",
 			sky:{
-				art:"art/eso0932a.jpg"
+				art:"../art/eso0932a.jpg"
 			}
 		},
 
@@ -46,7 +55,7 @@ export let cherry_blossoms = {
 
 		{
 			name:"tree",
-			load:"./blox/cherry_tree.js", // loading a package and then changing it
+			load:"../blox/cherry_tree.js", // loading a package and then changing it
 			mesh:{
 				scale:{x:5,y:5,z:5},
 			},
@@ -56,7 +65,7 @@ export let cherry_blossoms = {
 		{
 			name:"tree",
 			mesh:{
-				art:"art/cherry_tree",
+				art:"../art/cherry_tree",
 				position:{x:-30,y:10,z:-15},
 				scale:{x:5,y:5,z:5},
 				color:0xff0000,
@@ -67,7 +76,7 @@ export let cherry_blossoms = {
 		{
 			name:"tree",
 			mesh:{
-				art:"art/cherry_tree",
+				art:"../art/cherry_tree",
 				position:{x:30,y:10,z:40},
 				scale:{x:5,y:5,z:5},
 				color:0xff0000,

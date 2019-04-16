@@ -1,5 +1,5 @@
 export class BehaviorSky extends THREE.Mesh {
-	constructor() {
+	constructor(props) {
 		let sky_vertex = `
 			varying vec2 vUV;
 			void main() {  
@@ -19,7 +19,7 @@ export class BehaviorSky extends THREE.Mesh {
 			`
 		var geometry = new THREE.SphereGeometry(-500, 60, 40);  
 		var uniforms = {  
-		  texture: { type: 't', value: THREE.ImageUtils.loadTexture('/art/eso0932a.jpg') }
+		  texture: { type: 't', value: THREE.ImageUtils.loadTexture(props.art) }
 		}
 		var material = new THREE.ShaderMaterial( {  
 		  uniforms:       uniforms,

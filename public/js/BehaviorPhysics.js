@@ -193,7 +193,7 @@ export class BehaviorPhysical {
 		if(!blox.mesh) return
 
 		if(this.props.force) {
-			// test code remove - TODO
+			// test code remove - idea is to push the button back out constantly - TODO
 			//this.body.applyCentralForce(new Ammo.btVector3(this.props.force.x,this.props.force.y,this.props.force.z))
 			this.body.applyCentralImpulse(new Ammo.btVector3(this.props.force.x,this.props.force.y,this.props.force.z))
 		}
@@ -310,6 +310,31 @@ https://github.com/kripken/ammo.js/blox/master/examples/webgl_demo_terrain/index
 						shape = new Ammo.btConeShape( radius, height );
 						break;
 				}
+
+*/
+
+/*
+
+cannon
+
+this.world = new CANNON.World();
+this.world.defaultContactMaterial.contactEquationStiffness = 1e6;
+this.world.defaultContactMaterial.contactEquationRegularizationTime = 3;
+this.world.solver.iterations = 20;
+this.world.gravity.set(this.gravity.x, this.gravity.y, this.gravity.z);
+this.world.allowSleep = true;
+this.world.broadphase = new CANNON.SAPBroadphase(this.world);
+
+
+On bodies, I set:
+body.allowSleep = true;
+body.sleepSpeedLimit = 0.01;
+body.sleepTimeLimit = 1.0;
+
+On the material:
+mass: 100 (or about the mass of the object in kilograms)
+friction: 0.1
+restitution: 0.3 
 
 */
 
