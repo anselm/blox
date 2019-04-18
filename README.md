@@ -1,20 +1,14 @@
-# BLOX 
+# BLOX INTRODUCTION
 
-Blox is a pattern library for 3d experience creators. It lets you succinctly describe virtual reality and augmented reality experiences, games and stories. It leverages open web standards, ThreeJS and WebXR and introduces an ECS component philosophy to encourage re-use of behaviors. It works on desktop browsers, WebXR iOS, Vive, Oculus and Rift.
+Blox is a document driven framework that lets you tell 3d stories.
 
-The intended audience is:
+You can make a text file that describes 3d objects, their relationships to each other, what they do over time, and play it back as an interactive 3d experience that anybody can enjoy.
 
-1) Novices that want to make high quality high performance interactive stories in 3d.
+It's designed to run anywhere, on desktop browsers, in VR for the Oculus and the Rift and on mobile augmented reality such as WebXR-iOS.
 
-2) Storytellers who want to work faster and more accurately with a domain appropriate vocabulary, expressing semantic intent such as "be on the floor" or "tagalong with player".
+# EXAMPLES
 
-3) Designers who want a pattern library of 3d UX widgets. See https://medium.com/@anselm/laundry-list-of-ux-patterns-in-vr-ar-24dae1e56c0a
-
-4) Veteran programmers who want a multi-collaborator foundation to be able to effectively organize, manage and build robust web, mobile and mixed-reality 3d applications.
-
-# ONLINE EXAMPLES
-
-[https://anselm.github.io/blox/public]
+You can see examples of both scenes and source descriptions at [https://anselm.github.io/blox/public]
 
 # TRY IT YOURSELF
 
@@ -24,7 +18,24 @@ Fetch from github and run any small http server in home folder and visit the URL
   cd public
   http-server -c 0
 
-# THE CONCEPTS
+# CORE CONCEPTS
+
+You describe a scene by arranging a series of blox. A typical scene is something like this (the actual grammar is a bit different but this is what is going on conceptually):
+
+	[scene itself]
+		[the player]
+		[a light]
+		[a bunny]
+		[a tree]
+			[a bird in the tree]
+
+Once you've defined your scene you can decorate each of those blox with unique and responsive behaviors. You can make the bunny run around the tree, or respond to the player, and you can set basic rules such as "the bunny should stay on the ground".
+
+An important aspect of what blox does is it helps you think of a story in a story appropriate grammar; you can issue high level directives, like a film director, telling an object to "go to the nearest tree" or "run away from the player". At the same time these directives are formal and efficient, and this tool is intended for high quality interactive experience design and development.
+
+I wrote this framework because I want to be able to tell stories that have progression over time. As a veteran game developer I also wanted something that was near optimal, that could be used as a framework for an industrial strength commercial video game - but that was also accessible to creatives and designers who themselves are not technical.
+
+# TECHNICAL CONCEPTS
 
 There are the concepts this library is built around:
 
@@ -187,32 +198,6 @@ let blox = new Blox(myscene)
 	[ ] networking
 	[ ] multiplayer session management
 
-# ARCHITECTURE
-
-	* Javascript based
-	* DAG; blox are arranged in a directed acyclic graph
-	* ECS pattern; blox are decorated with behaviors that do not need to be aware of each other
-	* Minimalist; behaviord are described in naked classes that embody pure functionality without requiring inheritance
-	* Clonable; blox can be cloned, added or deleted from the graph easily with a well defined API
-	* Packages; blox can be grouped and loaded or cloned as a group or loaded deactivated
-	* Events; blox can message component behaviors and each other
-	* Scriptable; blox and their behaviors can be produced from a vanilla json based document
-	* Scriptable code; ordinary javascript can be used lightweight work and handle events
-
-# API
-
-	blox.new                          Pass a string, another object or a filename to instance a parent blox and children bloxs
-	blox.constructor                  Same as blox.new but callable from a live instance
-	blox.parent                       Get the parent of a blox if any
-	blox.group                        Get the children of a blox if any
-	blox.behaviors
-	blox.functions
-	blox.query                        Fancy query support for finding children blox or behaviors
-	blox.event                        A generic event publishing mechanism
-
-	* Note that behaviors show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
-	* Note that only one of a kind of behavior is allowed in one Blox at a time
-
 # CORE EVENTS
 
 	[x] on_tick
@@ -229,4 +214,18 @@ let blox = new Blox(myscene)
 	[ ] on_loaded
 
 	* Note that events can have any name but share a namespace with custom behaviors names, the convention is on_*
+
+# INTERNAL API
+
+	blox.new                          Pass a string, another object or a filename to instance a parent blox and children bloxs
+	blox.constructor                  Same as blox.new but callable from a live instance
+	blox.parent                       Get the parent of a blox if any
+	blox.group                        Get the children of a blox if any
+	blox.behaviors
+	blox.functions
+	blox.query                        Fancy query support for finding children blox or behaviors
+	blox.on_event                     A generic event publishing mechanism
+
+	* Note that behaviors show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
+	* Note that only one of a kind of behavior is allowed in one Blox at a time
 
