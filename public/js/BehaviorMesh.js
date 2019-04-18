@@ -13,9 +13,6 @@ export class BehaviorMesh extends THREE.Mesh {
 		// TODO I would prefer to instance and set properties in one step rather than deleting and resetting properties
 		super()
 
-		// reset physics
-		this.physicsReset()
-
 		// set or reset various properties from params
 		this.on_reset({description:props,blox:blox})
 
@@ -166,60 +163,6 @@ export class BehaviorMesh extends THREE.Mesh {
 		children.forEach((child) => { mesh.add(child) })
 	}
 
-
-	///
-	/// notice tick event and update kinetic physics
-	///
-
-	on_tick(args) {
-		this.physicsTick()
-	}
-
-	/// TODO may move kinetic physics elsewhere
-	physicsTick() {
-		if(!this.physical) return
-
-		// dampen linear movement by friction
-		this.linear.x = this.linear.x * this.friction
-		this.linear.y = this.linear.y * this.friction
-		this.linear.z = this.linear.z * this.friction
-
-		// apply force to object
-		this.position.add(this.linear)
-	}
-
-	physicsReset() {
-		this.physical = 0
-		this.friction = 0.9
-		this.linear = new THREE.Vector3()
-	}
-
-	///
-	/// Apply a linear force to an object, or an angular force, which dampen over time
-	/// TODO use time interval TODO parameterize
-
-	physicsForce(linear=0,angular=0) {
-		this.physical = 1
-		if(linear) {
-			// rotate force to current heading and apply it to forces on object
-			//let scratch = new THREE.Vector3(this.linear.x,this.linear.y,this.linear.z)
-			let scratch = new THREE.Vector3(linear.x,linear.y,linear.z) //this.linear.x,this.linear.y,this.linear.z)
-			scratch.applyQuaternion( this.quaternion )
-			this.linear.add(scratch)
-		}
-		if(angular) {
-			// get angular force as a quaternion
-			let q = new THREE.Quaternion() ; q.setFromEuler(angular)
-			// apply to current orientation immediately
-			this.quaternion.multiply(q)
-			// debug
-			let e = new THREE.Euler()
-			e.setFromQuaternion(this.quaternion)
-			let x = e.x * 180 / Math.PI
-			let y = e.y * 180 / Math.PI
-			let z = e.z * 180 / Math.PI
-		}
-	}
 }
 
 

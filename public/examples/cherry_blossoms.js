@@ -85,7 +85,7 @@ export let cherry_blossoms = {
 
 		// a mesh and a simple particle effects engine
 		{
-			name:"tree",
+			name:"hearts",
 
 			// add any kind of object to this clump as a prototype of what to re-use, will find it and use it
 			heart: {

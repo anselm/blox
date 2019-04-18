@@ -30,26 +30,27 @@ export class BehaviorWalk {
 	}
 
 	onKeyDown(event) {
-		if(!this.blox || !this.parentBehavior) {
+		let blox = this.blox
+		if(!blox || !blox.intent) {
 			console.error("Needs a mesh")
 			return
 		}
 		let mesh = this.parentBehavior
 	    switch(event.key) {
 	    	case 'w': // up
-	    		mesh.physicsForce(this.forward,0)
+	    		blox.intent.impulse(this.forward,0)
 	    		break
 	    	case 's': // down
-	    		mesh.physicsForce(this.backward,0)
+	    		blox.intent.impulse(this.backward,0)
 	    		break
 	    	case 'a': // left
-	    		mesh.physicsForce(0,this.left)
+	    		blox.intent.impulse(0,this.left)
 	    		break
 	    	case 'd': // right
-	    		mesh.physicsForce(0,this.right)
+	    		blox.intent.impulse(0,this.right)
 	    		break
 	    	case 32: // space
-	    		mesh.physicsReset()
+	    		blox.intent.on_reset({})
 	    		break
 	    }
 	}

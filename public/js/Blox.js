@@ -30,6 +30,9 @@ import {BehaviorParticles} from './BehaviorParticles.js'
 import {BehaviorProton} from './BehaviorProton.js'
 import {BehaviorEmitter} from './BehaviorEmitter.js'
 
+// Intents - which are fancy behaviors - may roll back into Mesh itself
+import {BehaviorIntent} from './BehaviorIntent.js'
+
 // BehaviorAudio TBD
 
 //

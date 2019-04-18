@@ -1,81 +1,102 @@
 
 ///
-/// Intent
+/// BehaviorMotion
 ///
-///		- a motion model of basic physics and momentum
-///		- inverse kinematics such as goto a specific destination
-///		- somne helpers such as radial explosion, shared wind, shared gravity or per object forces
-///		- expressions of multi-part abstract and relational position { hover above joe, hop near the tree on the ground }
+/// Simplest motion support with some minimal fake "inverse kinematics" so that things can have a sense of heft and be directed
+/// Includes some simple collision
+/// Includes semantic concepts of destination
 ///
-/// Orchestrating events over time?
-////
-///		- visit ten waypoints in a row
-///		- explosions?
+/// Rudiments of motion:
 ///
+///			- position
+///			- quaternion
+///			- velocity - objects visually exhibit a linear and angular velocity [ there is no explicit acceleration property ]
+///			- angular velocity
+///			- forces - objects have forces being applied to them constantly over every frame that are applied to their velocity
+///			- friction - objects have a friction that dampens velocity over time
+///			- mass - objects have a mass that forces are divided by over time
+///			- impulses - objects can accept impulses that immediately are applied to the velocity
+///			- inverse kinematics - objects can be asked to go to a place and apply forces to get there at a speed
+///			- speed - affect inverse kinematics
+///			- helpers - radial explosions, wind, gravity and other kinds of forces can be easily declared over objects
+///
+/// Collision (TBD):
+///			- collision -> crude sphere proximity as a default - not using real physics engine
+///
+/// Semantics:
+///			- expressions of target destinations as abstractions (go to the tree)
+///			- modifiers of destination (be at eye level)
+///
+/// Examples:
+///			* drive a player avatar around easily
+///			- make a bunch of 3d letters explode
+///			- make a camera go to a place and look at the player
+///			- make an object go to a place that is abstract
+///			- walk a path of breadcrumbs - each collision event sets the next goal
+///			- choreograph a story over time with delays easily with deferred event sequencing and proximity collisions
 ///
 
-class BehaviorMotion {
-
-	// - force being applied; i guess you can have multiple of these and they are constant; like 
-	// - acc = force / mass
-	// - vel = acceleration over time
-}
-
-
-
-///
-/// - there are a set of forces being applied to an objevt
-/// - an impulse will directly change the velocity
-/// - sum up all forces
-/// - acceleration = force * mass
-/// - velocity += acceleration * time slice
-/// - pos += vel
-
-
-// - you can control your avatar and move through a field
-// - things can appear or disappear
-// - maybe words explode
-// - i would like to choreograph a sequence
-//		- move camera to a spot
-//		- successive sentences
-//		- 
-
-// - i want to make something appear
-// - then explode some letters
-// - then move the camera around
-// - then make it 
-
+// TODO I'd like to start importing 3js now instead of just assuming it is around
 
 export class BehaviorIntent {
 
 	constructor(props,blox) {
-		on_reset({description:props,blox:blox})
+		// pass to ourselves as a reset message for convenience so event handlers can easily invoke changes
+		this.on_reset({description:props,blox:blox})
 	}
 
-	on_reset(args) {
+	on_reset(args={}) {
 
-		let props = args.description
-		let blox = args.blox
+		let props = args.description || {}
+		let blox = args.blox || 0
 
-		// reset if desired
+		// reset?
 		if(!this.isInitialized || props.reset) {
-			this.friction = 0.9
-			this.linear = new THREE.Vector3()
-			this.position = new THREE.Vector3()
-			this.quaternion = new THREE.Quaternion()
-			this.mesh = blox.query({property:"isObject3D"})
-			this.speed = 1.0
-			if(this.mesh) {
-				this.position = this.mesh.position.clone()
-				this.destination = this.mesh.destination.clone()
-			}
 			this.isInitialized = true
+			// back reference to player if any (for destination modifiers like 'be at eye level')
+			this.player = 0
+			// back reference to nearest mesh if any
+			this.mesh = blox ? blox.query({property:"isObject3D"}) : 0
+			// position right now
+			this.position = this.mesh ? this.mesh.position.clone() : new THREE.Vector3()
+			// orientation right now
+			this.quaternion = this.mesh ? this.mesh.quaternion.clone() : new THREE.Quaternion()
+			// velocity right now - can be thought of as momentum - and is a product of forces over time / mass
+			this.velocity = new THREE.Vector3()
+			// angular velocity right now
+			this.angular = new THREE.Quaternion()
+			// keep forces in a forces bucket so that multiple forces can act on something at once
+			this.forces = {}
+			// universal friction applied to dampen all forces over time
+			this.friction = 0.9
+			// a rate concept for inverse kinematics
+			this.speed = 1.0
+			// mass
+			this.mass = 1.0
+
+			// don't have any particular ik destination to start with
+			this.destination = 0
+			this.facing = 0
+			this.inverse_kinematics = false
+			// don't be doing any physics at all unless there are any forces being applied
+			this.any_kinematics = false
+			// don't have any modifiers to start with; these are all explicit for now, I may coalese into a smarter concept
+			this.modifier_eyelevel = 0
+			this.modifier_ground = 0
+			this.modifier_wall = 0
+			this.modifier_billboard = 0
+			this.modifier_tagalong = 0
 		}
 
-		// hammer in a starting position in x,y,z
-		if(props.position) {
+		// player?
+		if(props.hasOwnProperty("player")) {
+			this.player = blox ? blox.query(props.player) : 0
+		}
+
+		// hammer in an absolute position in x,y,z or from an existing entity (such as a previously placed breadcrumb)
+		if(props.hasOwnProperty("position")) {
 			if(typeof props.position === "string") {
-				let mesh = blox.query({name:props.position,property:isObject3D})
+				let mesh = blox ? blox.query({name:props.position,property:isObject3D}) : 0
 				if(mesh) {
 					this.position = mesh.position.clone()
 				}
@@ -84,44 +105,73 @@ export class BehaviorIntent {
 			}
 		}
 
-		// establish an eventual destination (could be a target named object that may be moving)
-		if(props.destination) {
+		// remember an eventual destination (could be a target named object that may be moving) - resolved later on
+		if(props.hasOwnProperty("destination")) {
+			// TODO could verify that this is a string or a Vector3
 			this.destination = props.destination
+			this.any_kinematics = true
+			this.inverse_kinematics = true
 		}
 
-		// gravity?
-		if(props.gravity) {
-			this.gravity = new THREE.Vector3(props.gravity.x,props.gravity.y,props.gravity.z)
+		// remember an eventual orientation
+		if(props.hasOwnProperty("facing")) {
+			this.facing = props.facing
 		}
 
-		// friction?
-		if(props.hasOwnProperty("friction") {
+		// friction? (It feels hand to have a special universal opposing force to brings things to rest)
+		if(props.hasOwnProperty("friction")) {
 			this.friction = props.friction
 		}
 
-		// speed ratio; 1 = 1m/s - a number like 100000 would mean do the act instantly effectively
-		if(props.hasOwnProperty("speed") {
+		// velocity
+		if(props.hasOwnProperty("velocity")) {
+			this.velocity = new THREE.Vector3(props.velocity.x,props.velocity.y,props.velocity.z)
+			this.any_kinematics = true
+		}
+
+		if(props.hasOwnProperty("angular")) {
+			// TODO angular - convert
+		}
+
+		// gravity? (I feel it's handy to explicitly call out gravity as a special force... it's debatable however...)
+		if(props.hasOwnProperty("gravity")) {
+			this.forces["gravity"] = new THREE.Vector3(props.gravity.x,props.gravity.y,props.gravity.z)
+			this.any_kinematics = true
+		}
+
+		// mass
+		if(props.hasOwnProperty("mass")) {
+			this.mass = props.mass
+		}
+
+		// inverse kinematics speed ratio; 1 = 1m/s - a number like 100000 would mean move very fast to destination
+		if(props.hasOwnProperty("speed")) {
 			this.speed = props.speed
 		}
 
-		// seek eye level (above and beyond any specified target)
-		if(props.hasOwnProperty("eyelevel") {
-			this.eyelevel = props.eyelevel
+		// ik modifier - seek a height level based on a target or number (this is a modifier on a destination)
+		if(props.hasOwnProperty("eyelevel")) {
+			this.modifier_eyelevel = props.eyelevel
 		}
 
-		// seek ground
-		if(props.hasOwnProperty("ground") {
-			this.eyelevel = props.eyelevel
+		// ik modifier - seek some elevation on wall
+		if(props.hasOwnProperty("wall")) {
+			this.modifier_eyelevel = props.wall
 		}
 
-		// billboard to face user
-		if(props.hasOwnProperty("billboard") {
-			this.eyelevel = props.eyelevel
+		// ik modifier - seek some elevation above ground
+		if(props.hasOwnProperty("ground")) {
+			this.modifier_ground = props.eyelevel
 		}
 
-		// be in front of user
-		if(props.hasOwnProperty("tagalong") {
-			this.eyelevel = props.eyelevel
+		// ik modifier - billboard to face some angle with respect to a third party such as the user
+		if(props.hasOwnProperty("billboard")) {
+			this.modifier_billboard = props.eyelevel
+		}
+
+		// ik modifier - be in some position relative to a user - like in front of user
+		if(props.hasOwnProperty("tagalong")) {
+			this.modifier_tagalong = props.eyelevel
 		}
 
 		// TODO - NEAR, ABOVE, BELOW, INSIDE, BEHIND, FACING, STARE
@@ -132,111 +182,118 @@ export class BehaviorIntent {
 	/// notice tick event and update kinetic physics
 	///
 
-	on_tick(args) {
+	on_tick(args={}) {
 
-		// Find a destination to go to if any
+		let blox = args.blox || 0
 
-		let destiny = 0
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Get out if no kinematics at all
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		if(this.destination === "string") {
-			let mesh = blox.query({name:this.destination,property:isObject3D})
-			if(mesh) {
-				destiny = mesh.position.clone()
+		if(!this.any_kinematics) return
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Evaluate Destinations which will compute an inverse kinematics style set of forces to apply to the object
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		if(this.inverse_kinematics) {
+			let destiny = 0
+
+			if(this.destination === "string") {
+				let mesh = blox ? blox.query({name:this.destination,property:isObject3D}) : 0
+				if(mesh) {
+					destiny = mesh.position.clone()
+				}
+				// TODO deal with this.facing
+			} else if(this.destination) {
+				destiny = new THREE.Vector3(this.destination.x,this.destination.y,this.destination.z)
+				// TODO deal with this.facing
 			}
-		} else {
-			this.destination = new THREE.Vector3(props.destination.x,props.destination.y,props.destination.z)
+
+			// TODO - high level goal modifiers - modulate that destination or current position by any high level modifiers
+
+			// TODO - inverse kinematics - figure out forces to go from current position to destination at current rate of movement
 		}
 
-		// TODO - modulate that destination by any high level rules, such as be on ground
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Given forces being applied - compute a total impulse to add - this is ignoring the time interval at this stage
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		// TODO - figure out forces to go from current position to destination at current rate of movement
+		let impulse = new THREE.Vector3(0,0,0)
+		Object.entries(this.forces).forEach(([name,force])=>{
+			impulse.x += force.x
+			impulse.y += force.y
+			impulse.z += force.z
+		})
 
-		// OLD:
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Given an impulse, it has to be divided by the mass
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		// dampen linear movement by friction
-		this.linear.x = this.linear.x * this.friction
-		this.linear.y = this.linear.y * this.friction
-		this.linear.z = this.linear.z * this.friction
+		let mass = this.mass ? this.mass : 1
 
-		// add force to object
-		this.position.add(this.linear)
+		this.velocity.x += impulse.x / mass
+		this.velocity.y += impulse.y / mass
+		this.velocity.z += impulse.z / mass
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Dampen velocity by a universal friction
+		// Given an impulse, it has to be divided by the temporal interval and it has to be divided by the mass
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		let universalFriction = this.friction ? this.friction : 0.9
+		let lapsedTimeSlice = 60.0/1000.0 // TODO hack - assume 60fps
+
+		this.velocity.x -= this.velocity.x * universalFriction * lapsedTimeSlice
+		this.velocity.y -= this.velocity.y * universalFriction * lapsedTimeSlice
+		this.velocity.z -= this.velocity.z * universalFriction * lapsedTimeSlice
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Move the object
+		// TODO In a physics engine this would have to be solved forward at a small time step to deal with collisions
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		this.position.x += this.velocity.x * lapsedTimeSlice
+		this.position.y += this.velocity.y * lapsedTimeSlice
+		this.position.z += this.velocity.z * lapsedTimeSlice
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Copy position to mesh
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		if(this.mesh) {
 			this.mesh.position.set(this.position.x,this.position.y,this.position.z)
+			this.mesh.quaternion.copy(this.quaternion)
 		}
 	}
 
 	///
-	/// Immediately apply a linear force to an object, or an angular force, which dampen over time
-	/// TODO use time interval TODO parameterize
-	/// TODO maybe I should just set a destination...
+	/// Helper function
+	///
+	/// Directly impact this object with an instaneous impulse from behind
+	/// Disable a concept of a destination if this is active since it fights with an idea of inverse kinematics
+	/// All input forces are being delivered at some standard time rate assumption like 1 meter per second
+	/// The system will convert that to the real time interval above
 	///
 
-	force(linear=0,angular=0) {
-		this.physical = 1
+	impulse(linear=0,angular=0) {
+
+		this.any_kinematics = true
+		this.inverse_kinematics = false
+		this.destination = 0
 		if(linear) {
 			// rotate force to current heading and apply it to forces on object
-			//let scratch = new THREE.Vector3(this.linear.x,this.linear.y,this.linear.z)
-			let scratch = new THREE.Vector3(linear.x,linear.y,linear.z) //this.linear.x,this.linear.y,this.linear.z)
+			let scratch = new THREE.Vector3(linear.x,linear.y,linear.z) 
 			scratch.applyQuaternion( this.quaternion )
-			this.linear.add(scratch)
+			this.velocity.add(scratch)
 		}
 		if(angular) {
 			// get angular force as a quaternion
 			let q = new THREE.Quaternion() ; q.setFromEuler(angular)
 			// apply to current orientation immediately
 			this.quaternion.multiply(q)
-			// debug
-			let e = new THREE.Euler()
-			e.setFromQuaternion(this.quaternion)
-			let x = e.x * 180 / Math.PI
-			let y = e.y * 180 / Math.PI
-			let z = e.z * 180 / Math.PI
 		}
 	}
 
 }
-
-
-/*
-
-	- basic motion
-
-		+ this implements a manual basic physics with very mediocre collision
-
-		+ you can set mass
-		+ you can add a linear impulse to your velocity
-		+ you can set a linear force that is persistently applied over time; maybe even more than one force
-		+ you can set the velocity
-		+ you can set angular forces that is persistently applied over time
-		+ you can add an angular impulse to your angular 
-		+ you can set angular velocity
-		+ you can set position
-		+ you can set orientation
-		+ these update over time
-
-		+ you can set collision hull shape
-		+ you can set collision style; either pairwise or maybe some kind of mask
-
-		+ you can set a destination or orientation and forces will try make you go there { reverse kinematics }
-		+ high level destinations could be expressed here as well - parties and modifiers such as on-ground
-		+ maybe some built in powers for randomization; radial explosions and suchlike
-
-	- physics
-		- wraps these methods with real physics?
-		+ you can set physics to none, or to static, kinematic, or to physical; this encapsulates ammojs if needed
-		+ ammojs will not be invoked at all if the physics style is none - so 'none' is not compatible with other types
-
-	- mesh -> remove physics from there
-	- fox -> call this layer of physics instead
-
-	- my example story
-		- you can move around the world { so your physics push your body around nicely }
-		- maybe you can do that with real physics engine and/or physics engine - both should be testable
-		- 
-
-how should i do waypoints over time?
-
-
-*/
 

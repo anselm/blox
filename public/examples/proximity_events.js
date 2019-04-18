@@ -110,6 +110,7 @@ export let mything = {
 				color:0xff0000,
 			},
 			camera:{},
+			intent:{},
 			walk:{},
 			collide: {
 				gaze: true,
