@@ -7,7 +7,9 @@
 
 export class BehaviorWalk {
 
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 
 		this.parentBehavior = blox.query({property:"isObject3D"})
 		if(!this.parentBehavior) {
@@ -22,8 +24,8 @@ export class BehaviorWalk {
 
 		this.props = props
 		this.blox = blox
-		this.forward = new THREE.Vector3(0,0,0.1)
-		this.backward = new THREE.Vector3(0,0,-0.1)
+		this.forward = new THREE.Vector3(0,0,1)
+		this.backward = new THREE.Vector3(0,0,-1)
 		this.left = new THREE.Euler(0,10*Math.PI/180.0,0)
 		this.right = new THREE.Euler(0,-10*Math.PI/180.0,0)
 		document.addEventListener("keydown", this.onKeyDown.bind(this), false)
@@ -38,16 +40,16 @@ export class BehaviorWalk {
 		let mesh = this.parentBehavior
 	    switch(event.key) {
 	    	case 'w': // up
-	    		blox.intent.impulse(this.forward,0)
+	    		blox.intent.on_impulse({linear:this.forward,angular:0})
 	    		break
 	    	case 's': // down
-	    		blox.intent.impulse(this.backward,0)
+	    		blox.intent.on_impulse({linear:this.backward,angular:0})
 	    		break
 	    	case 'a': // left
-	    		blox.intent.impulse(0,this.left)
+	    		blox.intent.on_impulse({linear:0,angular:this.left})
 	    		break
 	    	case 'd': // right
-	    		blox.intent.impulse(0,this.right)
+	    		blox.intent.on_impulse({linear:0,angular:this.right})
 	    		break
 	    	case 32: // space
 	    		blox.intent.on_reset({})
@@ -61,6 +63,7 @@ export class BehaviorWalk {
 
 		let xrmode = typeof window.webkit !== 'undefined'
 
+// TODO TESTING XR - IMPROVE
 		// if in vr mode then move camera to us
 		if(!xrmode) {
 			let mesh = this.parentBehavior

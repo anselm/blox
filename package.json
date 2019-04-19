@@ -1,16 +1,21 @@
 {
   "name": "blox",
-  "version": "1.0.2",
-  "description": "A pattern library for 3d effects",
+  "version": "1.0.3",
+  "description": "A pattern library for 3d behaviors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anselm/blox.git"
+  },
   "main": "needs_a_server.js",
   "scripts": {
     "start": "cd public; http-server -c 0"
   },
-  "author": "me",
-  "license": "BSD",
+  "author": "@anselm",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "express": "^4.16.3"
   },
   "dependencies": {
+    "three": "^0.103.0"
   }
 }

@@ -5,7 +5,9 @@ import {BehaviorMesh} from './BehaviorMesh.js'
 
 export class BehaviorHeart extends BehaviorMesh {
 
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		super(props,blox)
 	}
 

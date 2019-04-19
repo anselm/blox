@@ -53,11 +53,12 @@ let filename = "./cherry_blossoms.js"
 
 function loadBlox() {
 	// (this will fire off a threejs renderer that will start painting a display)
-	let blox = new Blox(filename)
+	let blox = new Blox({description:filename})
 }
 
 async function checkForXRSupport() {
-	if(navigator.xr && navigator.xr.supportsSessionMode('immersive-vr').then(() => {
+	if(navigator.xr) {
+		navigator.xr.supportsSessionMode('immersive-vr').then(() => {
 			var button = document.createElement("button")
 			button.innerHTML = "Enter VR"
 			button.addEventListener("click", loadBlox)

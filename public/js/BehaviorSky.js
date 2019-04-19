@@ -1,5 +1,7 @@
 export class BehaviorSky extends THREE.Mesh {
-	constructor(props) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		let sky_vertex = `
 			varying vec2 vUV;
 			void main() {  

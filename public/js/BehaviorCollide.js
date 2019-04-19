@@ -2,7 +2,9 @@
 let collidants = []
 
 export class BehaviorCollide {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		if(!props.layer) props.layer = 1
 		if(!props.filter) props.filter = 1
 		if(!props.proximity) props.proximity = 1

@@ -1,7 +1,9 @@
 
 export class BehaviorProton {
 
-	constructor(props,blox) {
+    constructor(args) {
+        let props = args.description
+        let blox = args.blox
 		this.props = props
 		this.particles = []
 		this.rateCount = 0

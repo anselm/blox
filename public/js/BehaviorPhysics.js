@@ -17,7 +17,9 @@ export class BehaviorPhysics {
 	}
 
 	/// singleton constructor, can be called multiple times although it is slightly wasteful (a tiny object is created and thrown away)
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 
 		// a singleton
 		if(physicsInstance) {
@@ -27,7 +29,6 @@ export class BehaviorPhysics {
 		physicsInstance = this
 
 		Ammo()
-		console.log("XXXX")
 
 		this.collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration()
 		this.dispatcher              = new Ammo.btCollisionDispatcher(this.collisionConfiguration)

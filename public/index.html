@@ -67,7 +67,7 @@ window.onload = (blarg) => {
 		let hash = window.location.hash.substr(1)
 		if(!hash || !hash.length) return
 		let file = "./examples/"+hash
-		blox = new Blox(file)
+		blox = new Blox({description:file})
 	}
 	window.addEventListener("hashchange", gotohash)
 	gotohash()

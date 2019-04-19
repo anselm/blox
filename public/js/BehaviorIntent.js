@@ -36,13 +36,16 @@
 ///			- choreograph a story over time with delays easily with deferred event sequencing and proximity collisions
 ///
 
+
 // TODO I'd like to start importing 3js now instead of just assuming it is around
+// import * as THREE from 'three';
+
 
 export class BehaviorIntent {
 
-	constructor(props,blox) {
+	constructor(args) {
 		// pass to ourselves as a reset message for convenience so event handlers can easily invoke changes
-		this.on_reset({description:props,blox:blox})
+		this.on_reset(args)
 	}
 
 	on_reset(args={}) {
@@ -108,6 +111,7 @@ export class BehaviorIntent {
 		// remember an eventual destination (could be a target named object that may be moving) - resolved later on
 		if(props.hasOwnProperty("destination")) {
 			// TODO could verify that this is a string or a Vector3
+			// TODO could consolidate with on_goto
 			this.destination = props.destination
 			this.any_kinematics = true
 			this.inverse_kinematics = true
@@ -276,7 +280,9 @@ export class BehaviorIntent {
 	/// The system will convert that to the real time interval above
 	///
 
-	impulse(linear=0,angular=0) {
+	on_impulse(args) {
+		let linear = args.linear || 0
+		let angular = args.angular || 0
 
 		this.any_kinematics = true
 		this.inverse_kinematics = false
@@ -295,5 +301,16 @@ export class BehaviorIntent {
 		}
 	}
 
+	on_goto(args) {
+		this.destination = args.destination || 0
+		this.inverse_kinematics = this.destination ? true : false
+		// don't set any_kinematics because maybe the above fails and i don't want to make an object stop moving
+	}
+
 }
+
+
+
+
+
 

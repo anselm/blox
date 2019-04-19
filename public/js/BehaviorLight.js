@@ -1,5 +1,7 @@
 export class BehaviorLight extends THREE.DirectionalLight {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 
 		// instance directional light
 		super(props)

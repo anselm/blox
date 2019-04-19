@@ -8,7 +8,9 @@ import {BehaviorMesh} from './BehaviorMesh.js'
 /// - could combine 2d composited text layouts with this
 
 export class BehaviorText extends BehaviorMesh {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		props.art = "sphere" // temporary
 		super(props,blox)
 		this.props = props

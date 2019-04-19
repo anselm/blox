@@ -1,6 +1,8 @@
 export class BehaviorLine extends THREE.Line2 {
 
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		let geometry = new THREE.LineGeometry()
 		let matLine = new THREE.LineMaterial( {
 			color: 0xffffff,
@@ -46,7 +48,9 @@ export class BehaviorLine extends THREE.Line2 {
 }
 
 export class BehaviorBounce {
-	constructor(props) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		this.thrust = props.thrust ? new THREE.Vector3(props.thrust.x,props.thrust.y,props.thrust.z) : new THREE.Vector3()
 		this.force = props.force ? new THREE.Vector3(props.force.x,props.force.y,props.force.z) : new THREE.Vector3()
 		// TODO it does expect properties to exist... maybe it should force requirements to exist if not present
@@ -65,7 +69,9 @@ export class BehaviorBounce {
 }
 
 export class BehaviorOscillate {
-	constructor() {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		this.angle = 0
 	}
 	on_tick(args) {
@@ -77,7 +83,9 @@ export class BehaviorOscillate {
 }
 
 export class BehaviorWander {
-	constructor(props) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		this.thrust = props.thrust ? new THREE.Vector3(props.thrust.x,props.thrust.y,props.thrust.z) : new THREE.Vector3()
 		this.force = props.force ? new THREE.Vector3(props.force.x,props.force.y,props.force.z) : new THREE.Vector3()
 	}
@@ -97,7 +105,9 @@ export class BehaviorWander {
 }
 
 export class BehaviorStare {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		this.props = props
 		this.focus = blox.query(props)
 	}

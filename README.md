@@ -2,9 +2,9 @@
 
 Blox is a document driven framework that lets you tell 3d stories.
 
-You can make a text file that describes 3d objects, their relationships to each other, what they do over time, and play it back as an interactive 3d experience that anybody can enjoy.
+You make a text file that describes 3d objects, their relationships to each other, what they do over time, and play it back as an interactive 3d experience that anybody can enjoy.
 
-It's designed to run anywhere, on desktop browsers, in VR for the Oculus and the Rift and on mobile augmented reality such as WebXR-iOS.
+It's intended to be a free, simple and minimalist creative workflow tool. It is built on top of ThreeJS and emerging web standards. It is designed to run anywhere, on desktop browsers, in VR for the Oculus and the Rift and on mobile augmented reality such as WebXR-iOS.
 
 # EXAMPLES
 
@@ -32,8 +32,6 @@ You describe a scene by arranging a series of blox. A typical scene is something
 Once you've defined your scene you can decorate each of those blox with unique and responsive behaviors. You can make the bunny run around the tree, or respond to the player, and you can set basic rules such as "the bunny should stay on the ground".
 
 An important aspect of what blox does is it helps you think of a story in a story appropriate grammar; you can issue high level directives, like a film director, telling an object to "go to the nearest tree" or "run away from the player". At the same time these directives are formal and efficient, and this tool is intended for high quality interactive experience design and development.
-
-I wrote this framework because I want to be able to tell stories that have progression over time. As a veteran game developer I also wanted something that was near optimal, that could be used as a framework for an industrial strength commercial video game - but that was also accessible to creatives and designers who themselves are not technical.
 
 # TECHNICAL CONCEPTS
 

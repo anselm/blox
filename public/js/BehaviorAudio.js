@@ -17,7 +17,9 @@ export class BehaviorAudioListener extends THREE.AudioListener {
 ///
 
 export class BehaviorPositionalAudio extends THREE.PositionalAudio {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		super(audioListener)
 		if(!blox.mesh) return
 		let sound = props.sound

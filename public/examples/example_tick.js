@@ -39,8 +39,8 @@ export let cherry_blossoms = {
 				scale:{x:10,y:10,z:1},
 				say:"hello"
 			},
-			tick: function(interval,parent) {
-				parent.text.rotateX(0.1)
+			on_tick: function(args) {
+				args.blox.text.rotateX(0.1) // go up to the parent, down to the text - which is just a threejs mesh ultimately...
 			}
 		},
 

@@ -1,5 +1,7 @@
 export class BehaviorEmitter {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		if(!props || !props.target) {
 			console.error("You have to specify a target")
 			return
@@ -12,7 +14,7 @@ export class BehaviorEmitter {
 		let count = props.count || 10
 		for(let i = 0; i < count; i++) {
 			// copy
-			let fresh = target.parent.group.add(target.description)
+			let fresh = target.parent.group.push(target.description)
 			// randomly place - TODO parameterize
 			let x = Math.random()*10 - 5
 			let y = 0

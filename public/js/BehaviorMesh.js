@@ -8,20 +8,20 @@
 
 export class BehaviorMesh extends THREE.Mesh {
 
-	constructor(props={},blox=0) {
+	constructor(args) {
 
 		// TODO I would prefer to instance and set properties in one step rather than deleting and resetting properties
 		super()
 
 		// set or reset various properties from params
-		this.on_reset({description:props,blox:blox})
+		this.on_reset(args)
 
 	}
 
 	/// set or reset qualities of this mesh
 	on_reset(args) {
 
-		let props = args.description
+		let props = args.description || {}
 		if(!props) return
 
 		// set or reset material from params if changed

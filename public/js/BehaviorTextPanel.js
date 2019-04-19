@@ -2,7 +2,9 @@
 import {BehaviorMesh} from './BehaviorMesh.js'
 
 export class BehaviorTextPanel extends BehaviorMesh {
-	constructor(props,blox) {
+	constructor(args) {
+		let props = args.description
+		let blox = args.blox
 		props.art = "sphere" // temporary
 		super(props,blox)
 		this.props = props
