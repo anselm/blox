@@ -10,7 +10,7 @@ export let myscene = {
 	// a test of a child directly declared rather than inside a child group
 	"mysky": {
 		sky:{
-			art:"./art/eso0932a.jpg"
+			art:"../art/eso0932a.jpg"
 		}
 	},
 
@@ -24,10 +24,20 @@ export let myscene = {
 	"myground":{
 		mesh:{
 			art:"sphere",
-			position:{x:0,y:-1,z:0},
-			scale:{x:300,y:-1,z:300},
+			scale:{x:10,y:0.01,z:10},
 			color:0x278212,
+			texture:"../art/carnations.jpg"
 		}
+	},
+
+	// a tree
+	"tree":{
+		mesh:{
+			art:"../art/cherry_tree",
+			position:{x:0,y:2.9,z:0},
+			scale:{x:2,y:2,z:2},
+			color:0xffffff,
+		},
 	},
 
 	// a child blox
@@ -38,31 +48,28 @@ export let myscene = {
 			// is it a mesh being added?
 			if(!args.description.art) return
 			// change the art if so
-			let random_art = [
-				"art/flowers/animium_3d_model_flower_3d_model",
-				"art/flowers/blujay_margarita_flower",
-				"art/flowers/rufusrockwell_lupine_plant",
-				"art/flowers/rufusrockwell_snap_dragon",
-				"art/flowers/tojamerlin_white_flower",
-			]
-			args.description.art = random_art[ Math.floor(Math.random()*random_art.length) ]
-		},
-		// animate art
-		on_tick: function(args) {
-			if(!args.blox || !args.blox.mesh) return
-			args.blox.mesh.rotateY(0.01)
-		},
-		mesh:{
-			// TODO I should show provenance on screen
-			provenance:[
+			let provenance = [
 				"https://sketchfab.com/3d-models/flower-3d-model-8792070e9ee942078c26ca44a670a902",
 				"https://sketchfab.com/3d-models/margarita-flower-58ce34c65642408cb92eab784af2bd6c",
 				"https://sketchfab.com/3d-models/lupine-plant-bf30f1110c174d4baedda0ed63778439",
 				"https://sketchfab.com/3d-models/snapdragon-b4a95a86f35d48fd9a5020372d44539f",
 				"https://sketchfab.com/3d-models/white-flower-9e025b18a39741a4a38b197cee3cdcac",
-			],
-			art:"art/flowers/tojamerlin_white_flower",
-			// TODO I could use a particle effects engine, or I could just randomly emit a pile of these, with random positions?
+			]
+			let random_art = [
+				"../art/flowers/animium_3d_model_flower_3d_model",
+				"../art/flowers/blujay_margarita_flower",
+				"../art/flowers/rufusrockwell_lupine_plant",
+				"../art/flowers/rufusrockwell_snap_dragon",
+				"../art/flowers/tojamerlin_white_flower",
+			]
+			args.description.art = random_art[ Math.floor(Math.random()*random_art.length) ]
+		},
+		// animate art
+		on_tick: function(args) {
+			args.blox.mesh.rotateY(0.01)
+		},
+		mesh:{
+			art:"sphere",
 			position:{x:0,y:0,z:0},
 			scale:{x:1,y:1,z:1},
 			color:0xff0212,
@@ -93,12 +100,12 @@ export let myscene = {
 		}
 	},
 
-	"myparty": {
+	"foxy": {
 		mesh:{
 			provenance:[
 				"https://sketchfab.com/3d-models/low-poly-fox-by-pixelmannen-animated-371dea88d7e04a76af5763f2a36866bc",
 			],
-			art:"art/pixelmannen_low_poly_fox",
+			art:"../art/pixelmannen_low_poly_fox",
 			position:{x:0,y:0,z:-7},
  			scale:{x:1,y:1,z:1},
 			color:0xff0000,
@@ -115,63 +122,20 @@ export let myscene = {
 
 	},
 
-	on_blox_added: function(args) {
-		console.error("yay on blox1 is called")
-		console.log("this is an event that is called back to indicate the current scope is done loading")
-	},
-
-	on_loaded: function(args) {
-		console.error("yay on loaded2 is called")
-		console.log("this is an event that is called back to indicate the current scope is done loading")
-	},
-
-	on_tick: function(args) {
-
-		// this is a test of manually sequencing events by scripting...
-		// another way which I haven't tried is to build a behavior that accepts a list of events to publish
-		switch(Math.floor(args.interval)) {
-			case 1:
-				// TODO all naked handlers here should be scoped to a temporary behavior so that this is a behavior
-				if(!args.blox.query("betty")) {
-					// find a description of an existing thing - this is an easier way than below
-					//let description = blox.query(props.target).description
-
-					// make something by hand by brute force - this is pretty inelegant... but whatever
-					let description = {
-						name:"betty",
-						mesh:{
-							art:"art/eyeball",
-							position:{x:0,y:2,z:0},
-						},
-						intent:0
-					}
-
-					// go ahead and actually brute force inject this into the parent scene... also a bit manual and ugly
-					let fresh = args.blox.group.push(description)
-
-				}
-				break
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-				// make it go somewhere
-				{
-					let betty = args.blox.query("betty")
-					if(!betty) {
-						console.error("cannot find betty")
-						return
-					}
-					//betty.on_impulse({linear:3})
-					//betty.mesh.position.set(0,1,2)
-					betty.on_event({name:"on_impulse",linear:{x:3,y:3,z:3}})
-					console.log("pushing betty")
-				}
-				break
-			case 15:
-				break
-			case 20:
-				break
-		}
+	"bettybumblebee":{
+		name:"betty",
+		mesh:{
+			art:"../art/hornet",
+			position:{x:5,y:2,z:0},
+		},
+		intent:[
+			{time:2,destination:"foxy",height:1},
+			{time:5,destination:{x:-5,y:0,z:-5},height:1},
+			{time:6,destination:"tree",height:2},
+			{time:8,destination:{x:5,y:0,z:5},height:3},
+			{time:9,destination:"tree",height:0},
+			{time:11,reset:0}
+		]
 	}
 }
+

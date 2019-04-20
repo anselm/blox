@@ -5,6 +5,7 @@
 /// Simplest motion support with some minimal fake "inverse kinematics" so that things can have a sense of heft and be directed
 /// Includes some simple collision
 /// Includes semantic concepts of destination
+/// Currently conflates a concept of sequencing events over time
 ///
 /// Rudiments of motion:
 ///
@@ -34,6 +35,7 @@
 ///			- make an object go to a place that is abstract
 ///			- walk a path of breadcrumbs - each collision event sets the next goal
 ///			- choreograph a story over time with delays easily with deferred event sequencing and proximity collisions
+///			- apply the same choreography to many objects
 ///
 
 
@@ -45,13 +47,30 @@ export class BehaviorIntent {
 
 	constructor(args) {
 		// pass to ourselves as a reset message for convenience so event handlers can easily invoke changes
+		this.blox = args.blox
 		this.on_reset(args)
 	}
 
-	on_reset(args={}) {
+	on_reset(args) {
+		if(args.description instanceof Array) {
+			this.sequence_counter = 0
+			this.sequence_latch = 0
+			this.sequence = args.description
+			return
+		}
+		this.on_do(args)
+	}
+
+	on_do(args) {
 
 		let props = args.description || {}
-		let blox = args.blox || 0
+		let blox = this.blox
+
+		// sequence time? (to loop programs themselves)
+		if(props.hasOwnProperty("reset")) {
+			this.sequence_counter = parseInt(props.reset)
+			this.sequence_latch = 0
+		}
 
 		// reset?
 		if(!this.isInitialized || props.reset) {
@@ -154,28 +173,23 @@ export class BehaviorIntent {
 		}
 
 		// ik modifier - seek a height level based on a target or number (this is a modifier on a destination)
-		if(props.hasOwnProperty("eyelevel")) {
-			this.modifier_eyelevel = props.eyelevel
+		if(props.hasOwnProperty("height")) {
+			this.modifier_height = props.height
 		}
 
 		// ik modifier - seek some elevation on wall
 		if(props.hasOwnProperty("wall")) {
-			this.modifier_eyelevel = props.wall
-		}
-
-		// ik modifier - seek some elevation above ground
-		if(props.hasOwnProperty("ground")) {
-			this.modifier_ground = props.eyelevel
-		}
-
-		// ik modifier - billboard to face some angle with respect to a third party such as the user
-		if(props.hasOwnProperty("billboard")) {
-			this.modifier_billboard = props.eyelevel
+			this.modifier_wall = props.wall
 		}
 
 		// ik modifier - be in some position relative to a user - like in front of user
 		if(props.hasOwnProperty("tagalong")) {
 			this.modifier_tagalong = props.eyelevel
+		}
+
+		// ik modifier - billboard to face some angle with respect to a third party such as the user
+		if(props.hasOwnProperty("billboard")) {
+			this.modifier_billboard = props.eyelevel
 		}
 
 		// TODO - NEAR, ABOVE, BELOW, INSIDE, BEHIND, FACING, STARE
@@ -191,6 +205,34 @@ export class BehaviorIntent {
 		let blox = args.blox || 0
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Step forward in sequence
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		if(this.sequence) {
+			// get seconds so far
+			let seconds = Math.floor(args.interval)
+			// has there been any significant change in time?
+			if(seconds != this.sequence_latch) {
+				this.sequence_latch = seconds
+				// perform everything at this time; TODO could accept fractional time also
+				for(let i = 0; i < this.sequence.length; i++) {
+					let s = this.sequence[i]
+					if(s.time == this.sequence_counter) {
+						this.on_do({description:s})
+					}
+				}
+				this.sequence_counter++
+			}
+		}
+
+		this.on_kinematics(args)
+	}
+
+	on_kinematics(args) {
+
+		let blox = this.blox
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Get out if no kinematics at all
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -200,11 +242,17 @@ export class BehaviorIntent {
 		// Evaluate Destinations which will compute an inverse kinematics style set of forces to apply to the object
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		if(this.inverse_kinematics) {
-			let destiny = 0
+		let mass = this.mass ? this.mass : 1
+		let impulse = new THREE.Vector3(0,0,0)
 
-			if(this.destination === "string") {
-				let mesh = blox ? blox.query({name:this.destination,property:isObject3D}) : 0
+		if(this.inverse_kinematics) {
+
+			// Find basic destination
+
+			let destiny = {x:0,y:0,z:0}
+
+			if(typeof this.destination === "string") {
+				let mesh = blox ? blox.query({name:this.destination,property:"isObject3D"}) : 0
 				if(mesh) {
 					destiny = mesh.position.clone()
 				}
@@ -214,16 +262,24 @@ export class BehaviorIntent {
 				// TODO deal with this.facing
 			}
 
-			// TODO - high level goal modifiers - modulate that destination or current position by any high level modifiers
+			// Apply modifiers
+			// TODO 0 is off right now ... improve
 
-			// TODO - inverse kinematics - figure out forces to go from current position to destination at current rate of movement
+			if(this.modifier_height) {
+				destiny.y = this.modifier_height || 0
+			}
+
+			// TODO - improve inverse kinematics - figure out forces to go from current position to destination at current rate of movement
+
+			impulse.x += (destiny.x - this.position.x) / 10
+			impulse.y += (destiny.y - this.position.y) / 10
+			impulse.z += (destiny.z - this.position.z) / 10
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Given forces being applied - compute a total impulse to add - this is ignoring the time interval at this stage
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		let impulse = new THREE.Vector3(0,0,0)
 		Object.entries(this.forces).forEach(([name,force])=>{
 			impulse.x += force.x
 			impulse.y += force.y
@@ -233,8 +289,6 @@ export class BehaviorIntent {
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Given an impulse, it has to be divided by the mass
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		let mass = this.mass ? this.mass : 1
 
 		this.velocity.x += impulse.x / mass
 		this.velocity.y += impulse.y / mass
@@ -272,18 +326,13 @@ export class BehaviorIntent {
 	}
 
 	///
-	/// Helper function
-	///
-	/// Directly impact this object with an instaneous impulse from behind
-	/// Disable a concept of a destination if this is active since it fights with an idea of inverse kinematics
-	/// All input forces are being delivered at some standard time rate assumption like 1 meter per second
-	/// The system will convert that to the real time interval above
+	/// Adjust velocity in m/s right now. Technically this is called an 'impulse'. It also turns off IK.
 	///
 
 	on_impulse(args) {
 		let linear = args.linear || 0
 		let angular = args.angular || 0
-console.log(args)
+
 		this.any_kinematics = true
 		this.inverse_kinematics = false
 		this.destination = 0
@@ -301,10 +350,18 @@ console.log(args)
 		}
 	}
 
+	///
+	/// Turn on IK. Set a target.
+	///
+
 	on_goto(args) {
 		this.destination = args.destination || 0
-		this.inverse_kinematics = this.destination ? true : false
-		// don't set any_kinematics because maybe the above fails and i don't want to make an object stop moving
+		if(this.destination) {
+			this.any_kinematics = true
+			this.inverse_kinematics = true
+		} else {
+			this.inverse_kinematics = false		
+		}
 	}
 
 }

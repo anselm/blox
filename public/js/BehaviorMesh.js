@@ -29,10 +29,11 @@ export class BehaviorMesh extends THREE.Mesh {
 		if(!this.description || props.color != this.description.color || !this.material) {
 			let c = props.color || 0xff00ff
 			let s = props.doublesided ? THREE.DoubleSide : 0
-			let t = props.transparent ? 0 : 0
-			let m = new THREE.MeshPhongMaterial( {color: c, transparent: t, side: s } )
+			let a = props.alpha ? 0 : 0
+			let t = props.texture ? THREE.ImageUtils.loadTexture(props.texture) : 0
+			let mat = new THREE.MeshPhongMaterial( {color: c, transparent: a, side: s, map: t } )
 			if(this.material) this.material.dispose()
-			this.material = m
+			this.material = mat
 		}
 
 		// set or reset geometry if changed
@@ -85,10 +86,11 @@ export class BehaviorMesh extends THREE.Mesh {
 				geometry = null
 				break
 			case "box":
+			case "cube":
 				geometry = new THREE.BoxBufferGeometry(1,1,1,16,16,16)
 				break
 			case "sphere":
-				geometry = new THREE.SphereGeometry(1,16,16)
+				geometry = new THREE.SphereGeometry(1,32,32)
 				break
 			default:
 				is_gltf = 1

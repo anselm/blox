@@ -1,25 +1,64 @@
 # NOTES AND IDEAS
 
-# XR SUPPORT?
+# try harder to pull events up to blox level itself -> work around whatever is crashing that
 
-	- not clear why it is not working
+# semantic choreography
 
+	- I'd like to kind of build up a concatenation that refines from a coarse to fine position and orientation
+	- And or specifies some policies (face towards direction of travel etc)
 
-# move the demos apart and make as separate files with links to source
+	- go to entity
+	- go to place
+	- go to be in front of player
+	- go behind (player sets what is behind)
+	- go above (look at thing and get height)
+	- go below
+	- go generally nearish
+	- be at a height regardless of other stuff, like a height above ground
+	- be pinned to a wall at a height at a position
 
-# delays - how can i easily express delays in a way that is not super messy? what real event handler powers are there yet?
-	maybe a delay could be a message OR a function
+	- face a certain direction
+	- face a relative direction (look left) waggle
+	- face forward
+	- face player ( billboard )
 
-	// a timeline behavior idea 
-	timeline: {
-		name: "mytimeline",
-		// a sequence of events all separated by time... i will sort these
-		times: [
-			{ time:1, name:"on_goto",destination:"joe" }
-			{ time:2, name:"on_goto",destination:"mary" }
+	- fire an event when goal is reached?
+
+	- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
+
+	hornet: {
+		intent: { // arguably consolidate with mesh... since we really want to tell stories...
+			eyelevel:3,
+			above:true,
+			near:true,
+			other:?
+		}
+	}
+
+	hornet: {
+		intent: [ // it could maybe accept an array of many commands for convenience as an option - executed over time
+			{ time:1, destination:"joe",height:2, wall:2, billboard:1, behind:1, above:1, below:1, near:1 }
+			{ time:2, tilt:1, face:1, }
+			{ time:3, reset:1 }
 		]
 	}
 
+# choreography of groups
+
+	- the easiest way to time things is just write code
+	- i don't want to replace javascript, but i want to pull out or emphasize the timeline itself
+	- so where appropriate a grammar can be story level?
+	- i want to separate verbs from nouns, so they can be applied to anything or i can group or find similar things
+	- mass or group behavior - make 50 things do one dance together
+	- any reasonable separation of behavior from being overly bound to objects
+	- I'd like to be able to have a sequence or program made up out of successive intentions; a choreography
+	- maybe i can give these little sequences names and save them the same way i save meshes and then refer to them like macros
+	- although branching and turning completeness is risky, maybe events and resets are reasonable so a thing can loop behavior
+
+	// a live query
+
+	group = blox.query({monsters,all})
+	group.add_behavior(intent) // - if i could save behaviors for later, and then apply them by reference this is doable
 
 # [ DONE ] Usability feature - make it so that users don't have to declare a child group at all
 
@@ -83,7 +122,7 @@
 		and since everybody has their own events i have to have event chains...
 		but if i did this then now blox become more powerful and more generic; they are imbued with the derived child methods
 
-# naked event arguments versus events always being a hash of properties
+# [DECIDED/DONE] naked event arguments versus events always being a hash of properties
 
 	- there is also a bit of a question about buckets of event arguments...
 
@@ -110,6 +149,15 @@
 			AND ALSO pass the parent blox and the behavior as arguments
 			AND userland functions that are naked - declared directly in the documents - I can bind(parentbehavior) on
 
+
+# XR SUPPORT?
+
+	- not clear why it is not working
+
+# gltf load consolidation to avoid duplicate loads
+
+# move the demos apart and make as separate files with links to source
+
 # documentation
 
 	- document examples of events better; i did this a bit
@@ -125,14 +173,6 @@
 
 	- packages?- does not really handle children though? maybe it does?
 
-# semantic intent and position
-
-	[ kinda done ]
-
-	this somewhat dovetails with events because i want to both declaratively say what a target is but also procedurally
-
-		- smart position: try do some semantics; be above, be near, goto, a range of tests, be on artag
-		tagalong, relative to something else, always in front of you etc hysteresis
 
 # examples
 
