@@ -283,7 +283,7 @@ export class BehaviorIntent {
 	on_impulse(args) {
 		let linear = args.linear || 0
 		let angular = args.angular || 0
-
+console.log(args)
 		this.any_kinematics = true
 		this.inverse_kinematics = false
 		this.destination = 0

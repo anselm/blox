@@ -7,7 +7,7 @@ export let myscene = {
 	// scene behavior needs to be declared before other elements
 	scene: 0,
 
-	// a test of a naked child
+	// a test of a child directly declared rather than inside a child group
 	"mysky": {
 		sky:{
 			art:"./art/eso0932a.jpg"
@@ -103,9 +103,9 @@ export let myscene = {
  			scale:{x:1,y:1,z:1},
 			color:0xff0000,
 		},
-		camera:{},
-		intent:{},
-		walk:{},
+		camera:{}, // a test of ones own camera for special controls
+		intent:{}, // a test of an intent system - arguably may consolidate down into mesh
+		walk:{}, // walking behavior
 		collide: {
 			gaze: true,
 			click: true,
@@ -130,18 +130,20 @@ export let myscene = {
 		// this is a test of manually sequencing events by scripting...
 		// another way which I haven't tried is to build a behavior that accepts a list of events to publish
 		switch(Math.floor(args.interval)) {
-			case 5:
+			case 1:
 				// TODO all naked handlers here should be scoped to a temporary behavior so that this is a behavior
-				{
+				if(!args.blox.query("betty")) {
 					// find a description of an existing thing - this is an easier way than below
 					//let description = blox.query(props.target).description
 
 					// make something by hand by brute force - this is pretty inelegant... but whatever
 					let description = {
+						name:"betty",
 						mesh:{
 							art:"art/eyeball",
-							position:{x:0,y:5,z:0},
-						}
+							position:{x:0,y:2,z:0},
+						},
+						intent:0
 					}
 
 					// go ahead and actually brute force inject this into the parent scene... also a bit manual and ugly
@@ -149,8 +151,22 @@ export let myscene = {
 
 				}
 				break
-			case 10:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
 				// make it go somewhere
+				{
+					let betty = args.blox.query("betty")
+					if(!betty) {
+						console.error("cannot find betty")
+						return
+					}
+					//betty.on_impulse({linear:3})
+					//betty.mesh.position.set(0,1,2)
+					betty.on_event({name:"on_impulse",linear:{x:3,y:3,z:3}})
+					console.log("pushing betty")
+				}
 				break
 			case 15:
 				break

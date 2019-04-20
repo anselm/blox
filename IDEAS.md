@@ -21,7 +21,7 @@
 	}
 
 
-# raw blox visible on parent -> more competition in blox namespace
+# [ DONE ] Usability feature - make it so that users don't have to declare a child group at all
 
 	at the moment the parent blox namespace is directly polluted with behaviors and functions
 	it might be nice to pollute it with children blox as well because this would make it easier for users to work in text
@@ -40,7 +40,7 @@
 				],
 			}
 
-	it would become
+	it would become this - which could be dangerous because now behaviors and blox are colliding - but easier
 
 		{
 			name:"parentblox",
@@ -61,7 +61,7 @@
 	i can tell functions apart by the keyvalue, i can tell behaviors apart by the reserved name on the key
 	i cannot tell some literals apart - unless i disallow hashes as literals, or disallow literals entirely?
 
-# event chains and gathering up of events
+# [ DONE ] event chains and gathering up of events
 
 	there's a pretty deeply woven idea that most activity in this system is event driven, and events percolate to named handlers
 	this is so that users who work directly on documents can decorate a blox or a behavior with a handler and do work

@@ -189,7 +189,7 @@ class BehaviorFunctions {
 		if(!chain) {
 			// make a fresh chain
 			chain = this.chains[label] = []
-			// TEST: promote chains directly up to the blox scope so they are visible to userland
+			// TEST: not working well... promote chains directly up to the blox scope so they are visible to userland
 			if(false) {
 				if(this.blox[label]) {
 					console.error("Functions:: Warning: naked function name collision " + label )
@@ -384,8 +384,9 @@ export class Blox {
 		let className = "Behavior"+label.charAt(0).toUpperCase() + label.slice(1)
 		let classRef = 0
 		let classInst = 0
+		let isNew = true
 
-		// TEST flatter namespaces where behaviors are visible directly on the blox for userland
+		// TEST flatten namespaces where behaviors are visible directly on the blox for userland
 		// Does the 'behavior' that you want to create already exist as a property of some kind (a behavior, function etc?)
 		for(let count = 0;;count++) {
 			let previous = blox[label]
@@ -398,6 +399,7 @@ export class Blox {
 				// looks like you're trying to modify an existing behavior - this would be fine if you loaded a package
 				console.log("editing " + className)
 				classInst = previous
+				isNew = false
 				break
 			}
 		}
@@ -453,9 +455,9 @@ export class Blox {
 			// behaviors back reference their construction document
 			classInst.description = description
 			// remember behavior
-			blox.behaviors[label] = classInst
-			// TEST an idea of flatter namespaces - inject behavior directly into blox scope for userland
-			if(!blox[label]) {
+			if(isNew) {
+				blox.behaviors[label] = classInst
+				// TEST an idea of flatter namespaces - inject behavior directly into blox scope for userland
 				blox[label] = classInst
 				// tell local parties about the new behavior
 				blox.on_event({name:"on_behavior_added",behavior:classInst,blox:blox})
