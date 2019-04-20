@@ -13,6 +13,8 @@ export class BehaviorEmitter {
 		}
 		let count = props.count || 10
 		for(let i = 0; i < count; i++) {
+			// randomize name
+			target.description.name = props.name + i
 			// copy
 			let fresh = target.parent.group.push(target.description)
 			// randomly place - TODO parameterize

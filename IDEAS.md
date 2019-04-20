@@ -7,14 +7,14 @@
 	- I'd like to kind of build up a concatenation that refines from a coarse to fine position and orientation
 	- And or specifies some policies (face towards direction of travel etc)
 
-	- go to entity
-	- go to place
+	* go to entity
+	* go to xyz
+	* be at a height regardless of other stuff, like a height above ground
 	- go to be in front of player
 	- go behind (player sets what is behind)
 	- go above (look at thing and get height)
 	- go below
 	- go generally nearish
-	- be at a height regardless of other stuff, like a height above ground
 	- be pinned to a wall at a height at a position
 
 	- face a certain direction
@@ -28,16 +28,16 @@
 
 	hornet: {
 		intent: { // arguably consolidate with mesh... since we really want to tell stories...
-			eyelevel:3,
+			destination:"joe"
+			height:3,
 			above:true,
 			near:true,
-			other:?
 		}
 	}
 
 	hornet: {
 		intent: [ // it could maybe accept an array of many commands for convenience as an option - executed over time
-			{ time:1, destination:"joe",height:2, wall:2, billboard:1, behind:1, above:1, below:1, near:1 }
+			{ time:1, destination:"joe",height:2, wall:2, forward:1, billboard:1, behind:1, above:1, below:1, near:1 }
 			{ time:2, tilt:1, face:1, }
 			{ time:3, reset:1 }
 		]

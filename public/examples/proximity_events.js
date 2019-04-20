@@ -95,8 +95,9 @@ export let myscene = {
 	"myemitter": {
 		emitter:{
 			target:"myflower",
+			name:"flowerpower",
 			radius:10,
-			number:50
+			count:15
 		}
 	},
 
@@ -119,22 +120,20 @@ export let myscene = {
 			proximity:1,
 			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
 		},
-
 	},
 
 	"bettybumblebee":{
-		name:"betty",
 		mesh:{
 			art:"../art/hornet",
 			position:{x:5,y:2,z:0},
 		},
 		intent:[
-			{time:2,destination:"foxy",height:1},
-			{time:5,destination:{x:-5,y:0,z:-5},height:1},
-			{time:6,destination:"tree",height:2},
-			{time:8,destination:{x:5,y:0,z:5},height:3},
-			{time:9,destination:"tree",height:0},
-			{time:11,reset:0}
+			{time:2,destination:"foxy",height:1,facing:1},
+			{time:6,destination:"*",height:1},
+			{time:9,destination:"*",height:1},
+			{time:12,destination:"*",height:1},
+			{time:15,destination:"tree",height:5},
+			{time:20,reset:0}
 		]
 	}
 }

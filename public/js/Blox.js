@@ -477,25 +477,44 @@ export class Blox {
 	}
 
 	///
-	/// Moderately fancy query support
+	/// Moderately fancy query support for blox OR behaviors of a blox - always returning a group of behaviors
+	///
 	/// args may be a string, in which case a global namespace is searched for the blox.name
 	/// args may be hash containing a 'property' in which case the assumption is to look for children behaviors with that field
 	/// TODO extend as needed over time
 	///
 
 	query(args) {
+
 		// as a service to users, if a query is just a single string then search a global namespace for that blox.name
 		if(typeof args == 'string') {
 			return global_blox_namespace[args]
 		}
+
 		// otherwise queries should be fancier hashes describing a possibly complex query, fail if this is not the case
 		if(args.constructor != Object) {
 			console.error("Blox query not understood")
 			return null
 		}
 
-		// which blox?
-		let blox = args.name ? global_blox_namespace[args.name] : this
+		// some crude wildcard support; a name may be supplied to establish a parent blox to search in
+
+		let blox = this
+		if(args.name == "*") {
+			let keys = Object.keys(global_blox_namespace)
+			let which = Math.floor(keys.length * Math.random() )
+			blox = global_blox_namespace[keys[which]]
+		}
+		else if(args.name) {
+			blox = global_blox_namespace[args.name]
+		}
+		// TODO ends with * and maybe regex
+
+		// anything?
+
+		if(!blox) {
+			return 0
+		}
 
 		// return first or all?
 		let results = args.all ? [] : 0

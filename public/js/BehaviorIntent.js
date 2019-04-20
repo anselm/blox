@@ -239,7 +239,7 @@ export class BehaviorIntent {
 		if(!this.any_kinematics) return
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Evaluate Destinations which will compute an inverse kinematics style set of forces to apply to the object
+		// Linear - Evaluate Destinations which will compute an inverse kinematics style set of forces to apply to the object
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		let mass = this.mass ? this.mass : 1
@@ -255,6 +255,7 @@ export class BehaviorIntent {
 				let mesh = blox ? blox.query({name:this.destination,property:"isObject3D"}) : 0
 				if(mesh) {
 					destiny = mesh.position.clone()
+					this.destination = destiny // HACK just stick with the one we found and do not refind
 				}
 				// TODO deal with this.facing
 			} else if(this.destination) {
@@ -271,13 +272,13 @@ export class BehaviorIntent {
 
 			// TODO - improve inverse kinematics - figure out forces to go from current position to destination at current rate of movement
 
-			impulse.x += (destiny.x - this.position.x) / 10
-			impulse.y += (destiny.y - this.position.y) / 10
-			impulse.z += (destiny.z - this.position.z) / 10
+			impulse.x += (destiny.x - this.position.x) / 20
+			impulse.y += (destiny.y - this.position.y) / 20
+			impulse.z += (destiny.z - this.position.z) / 20
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Given forces being applied - compute a total impulse to add - this is ignoring the time interval at this stage
+		// Linear - Given forces being applied - compute a total impulse to add - this is ignoring the time interval at this stage
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		Object.entries(this.forces).forEach(([name,force])=>{
@@ -287,7 +288,7 @@ export class BehaviorIntent {
 		})
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Given an impulse, it has to be divided by the mass
+		// Linear - Given an impulse, it has to be divided by the mass
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		this.velocity.x += impulse.x / mass
@@ -295,7 +296,7 @@ export class BehaviorIntent {
 		this.velocity.z += impulse.z / mass
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Dampen velocity by a universal friction
+		// Linear - Dampen velocity by a universal friction
 		// Given an impulse, it has to be divided by the temporal interval and it has to be divided by the mass
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -307,13 +308,27 @@ export class BehaviorIntent {
 		this.velocity.z -= this.velocity.z * universalFriction * lapsedTimeSlice
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Move the object
+		// Linear - Move the object
 		// TODO In a physics engine this would have to be solved forward at a small time step to deal with collisions
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		this.position.x += this.velocity.x * lapsedTimeSlice
 		this.position.y += this.velocity.y * lapsedTimeSlice
 		this.position.z += this.velocity.z * lapsedTimeSlice
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Angular
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		if(this.facing) {
+			let dir = this.velocity.clone().normalize()
+			dir.x = -dir.x
+			dir.y = -dir.y
+			dir.z = -dir.z
+			var mx = new THREE.Matrix4().lookAt(dir,new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0))
+			let q = new THREE.Quaternion().setFromRotationMatrix(mx)
+			this.quaternion.rotateTowards(q,0.1)
+		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Copy position to mesh
@@ -351,7 +366,7 @@ export class BehaviorIntent {
 	}
 
 	///
-	/// Turn on IK. Set a target.
+	/// Go to a specific target now...
 	///
 
 	on_goto(args) {
