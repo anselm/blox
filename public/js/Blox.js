@@ -323,7 +323,7 @@ export class Blox {
 				if(keys.length && module[keys[0]]) {
 					let behaviors_package = module[keys[0]]
 					Object.entries(behaviors_package).forEach(([label,description])=>{
-						this.add({name:key,value:description})
+						this.add({label:label,description:description})
 					})
 				}
 			}

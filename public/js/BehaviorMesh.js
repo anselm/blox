@@ -24,6 +24,9 @@ export class BehaviorMesh extends THREE.Mesh {
 		let props = args.description || {}
 		if(!props) return
 
+		// support a single parameter - to the art
+		if(typeof props === "string") props = { art:props }
+
 		// set or reset material from params if changed
 		// - do this before the geom in case I later want to try scavenge material into gltf
 		if(!this.description || props.color != this.description.color || !this.material) {

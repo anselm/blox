@@ -24,21 +24,17 @@ export class BehaviorCollide {
 				let near = a.props.proximity + b.props.proximity
 				if(dist < near) {
 					// May only report if filters also succeed
-					if((a.props.filter & b.props.layer) && a.props.on_overlap) {
-						a.props.on_overlap({blox:a.blox,other:b.blox})
+					if((a.props.filter & b.props.layer)) {
+						a.blox.on_event({name:"on_overlap",blox:a.blox,other:b.blox})
 					}
-					if((b.props.filter & a.props.layer) && b.props.on_overlap) {
-						b.props.on_overlap({blox:b.blox,other:a.blox})
+					if((b.props.filter & a.props.layer)) {
+						b.blox.on_event({name:"on_overlap",blox:b.blox,other:a.blox})
 					}
 				}
 				if(dist < near && !a.latched) {
 					a.latched = true
-					if(a.props.on_enter) {
-						a.props.on_enter({blox:a.blox,other:b.blox})
-					}
-					if(b.props.on_enter) {
-						b.props.on_enter({blox:b.blox,other:a.blox})
-					}
+					a.blox.on_event({name:"on_enter",blox:a.blox,other:b.blox})
+					b.blox.on_event({name:"on_enter",blox:b.blox,other:a.blox})
 				} else if(dist >= 2) a.latched = false
 			}
 		}

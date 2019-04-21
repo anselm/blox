@@ -81,13 +81,13 @@ export let myscene = {
 			proximity: 1, // TODO this should be computed from the primitive, things should have collision hulls
 			layer:1, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
 			filter:2, // do not send me any messages unless the other party is in this layer also (layer is a bitmask)
-			on_enter: 0,
-			on_exit: 0,
-			on_overlap: function(args) { // TODO could pull this out to general scope
-				if(!args || !args.blox || !args.blox.mesh) return
-				if(args.blox.mesh.position.y < 3) args.blox.mesh.position.y += 0.1
-			}
 		},
+		on_overlap: function(args) { // TODO could pull this out to general scope
+			if(!args || !args.blox || !args.blox.mesh) return
+			if(args.blox.mesh.position.y < 3) args.blox.mesh.position.y += 0.1
+		},
+		//on_enter: function() { console.log("enter") }, // TODO it would be nice to fire off messages as well
+		//on_exit: function() { console.log("exit") },
 	},
 
 	// a separate entity that makes many first class copies of some other entity already described earlier
@@ -123,10 +123,7 @@ export let myscene = {
 	},
 
 	"bettybumblebee":{
-		mesh:{
-			art:"../art/hornet",
-			position:{x:5,y:2,z:0},
-		},
+		mesh:"../art/hornet",
 		intent:[
 			{time:2,destination:"foxy",height:1,facing:1},
 			{time:6,destination:"*",height:1},

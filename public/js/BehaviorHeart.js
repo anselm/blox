@@ -8,7 +8,7 @@ export class BehaviorHeart extends BehaviorMesh {
 	constructor(args) {
 		let props = args.description
 		let blox = args.blox
-		super(props,blox)
+		super(args)
 	}
 
 	setCustomGeometry() {

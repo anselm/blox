@@ -321,10 +321,7 @@ export class BehaviorIntent {
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		if(this.facing) {
-			let dir = this.velocity.clone().normalize()
-			dir.x = -dir.x
-			dir.y = -dir.y
-			dir.z = -dir.z
+			let dir = new THREE.Vector3(-this.velocity.x,0,-this.velocity.z).normalize()
 			var mx = new THREE.Matrix4().lookAt(dir,new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0))
 			let q = new THREE.Quaternion().setFromRotationMatrix(mx)
 			this.quaternion.rotateTowards(q,0.1)

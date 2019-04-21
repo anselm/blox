@@ -1,28 +1,47 @@
 # NOTES AND IDEAS
 
-# try harder to pull events up to blox level itself -> work around whatever is crashing that
+# - rename "on_*" to "do_*" ? as in do_reset or do_goto or do_event? just for clarity?
 
-# semantic choreography
+		i am now specially reserving the word on_* to look for events...
 
-	- I'd like to kind of build up a concatenation that refines from a coarse to fine position and orientation
-	- And or specifies some policies (face towards direction of travel etc)
+# - I did want to copy blox.functions.on_something handlers directly up to blox.on_something ...
 
-	* go to entity
-	* go to xyz
-	* be at a height regardless of other stuff, like a height above ground
-	- go to be in front of player
-	- go behind (player sets what is behind)
-	- go above (look at thing and get height)
-	- go below
-	- go generally nearish
-	- be pinned to a wall at a height at a position
+		this would purely be nice for document level scripting, it makes it simpler to say "thing.do_something"
 
-	- face a certain direction
-	- face a relative direction (look left) waggle
-	- face forward
-	- face player ( billboard )
+# - continue to improve semantic choreography
 
-	- fire an event when goal is reached?
+	This tries to strike a balance between high level story telling and simplicity in a declarative grammar.
+	It will probably have a lot of verbs.
+	It's currently merged with sequencing of events over time - which arguably it should be distinct from
+
+	The approach I've been taking is to define a BehaviorIntent which accepts a single event filled with lots of hints.
+	The event can be a single request or an array of requests - that get played back over time.
+	These are the powers I want:
+
+	linear kinematic
+		* accelerate in general
+
+	linear inverse kinematic
+		* go to entity
+		* go to xyz
+		* be at a height regardless of other stuff, like a height above ground
+		- go to be in front of player
+		- go behind (player sets what is behind)
+		- go above (look at thing and get height)
+		- go below
+		- go generally nearish
+		- be pinned to a wall at a height at a position
+
+	angular
+		* face forward [ this is not working as well as I would like although it does work ]
+		- face a certain direction
+		- face a relative direction (look left) waggle
+		- face player ( billboard )
+		- tilt { for waddling, or cartoon effects - like tilt left or tilt right }
+		- spin in general
+
+	collision?
+		- fire an event when goal is reached?
 
 	- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
 
@@ -43,7 +62,7 @@
 		]
 	}
 
-# choreography of groups
+# - choreography of groups [ LOWER PRIORITY RIGHT NOW ]
 
 	- the easiest way to time things is just write code
 	- i don't want to replace javascript, but i want to pull out or emphasize the timeline itself
@@ -122,14 +141,14 @@
 		and since everybody has their own events i have to have event chains...
 		but if i did this then now blox become more powerful and more generic; they are imbued with the derived child methods
 
-# [DECIDED/DONE] naked event arguments versus events always being a hash of properties
+# [DECIDED/DONE] raw event arguments versus events always being a hash of properties - decided in favor of hashes
 
 	- there is also a bit of a question about buckets of event arguments...
 
 		i kind of would like to be able to do 
 
 			joe = query(find a blox named joe)
-			joe.goto("mary")
+			joe.on_goto("mary")
 
 		but unnamed arguments are a hassle because events percolate generically with rollups of args and .blox is declared
 		for example what looks like a single param is actually injected with the parent scope as a hint
@@ -150,21 +169,17 @@
 			AND userland functions that are naked - declared directly in the documents - I can bind(parentbehavior) on
 
 
-# XR SUPPORT?
-
-	- not clear why it is not working
-
-# gltf load consolidation to avoid duplicate loads
-
-# move the demos apart and make as separate files with links to source
-
-# documentation
+# - XR SUPPORT broken?
+# - gltf load consolidation to avoid duplicate loads
+# - move the demos apart and make as separate files with links to source ( partially done )
+# - make sure all demos work again
+# - documentation
 
 	- document examples of events better; i did this a bit
 	- demonstrate scene switching
 	- explore an idea of loading and unloading scenes and a scene counter
 
-# packages
+# [DONE] packages
 
 	[ kinda done? ]
 
@@ -174,37 +189,36 @@
 	- packages?- does not really handle children though? maybe it does?
 
 
-# examples
+# - other
 
-				- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
-<<<				- sound! can i also do sound synthesis and wire sound things together?
+	- make a tamagotchi as a demo
 
-				- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
-				- multiplayer; think harder about this
-				- a tree graph viewer?
-				- need a virtual hand
-				- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
-				- replace the polyfill esp for josh
-				- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
-				- make a powerpoint on this whole app
-				- animate the gltfs
-				- i would like an orbit camera than can attach to other kinds of cameras
-				- i would like to fix up the camera so it does not flicker
+	- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
+	- sound! can i also do sound synthesis and wire sound things together?
 
-# example
+	- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
+	- multiplayer; think harder about this
 
-				- the turtle story
-					- a person appears on the ground, in front of you
-					- can you help me find my turtle
-					- you have to tap on the text box
-					- here’s a picture!
-					- he wandered off!
-					- and then you can look around and try find it? i guess?
-					- and if you tap it then you get some end sequence? 
+	- need a virtual hand
+	- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
 
+	- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
+	- make a powerpoint on this whole app
 
-# tamagotchi
+	- animate the gltfs
+	- i would like an orbit camera than can attach to other kinds of cameras
+	- i would like to fix up the camera so it does not flicker
 
-	- make a tamagotchi
+# a story to try
+
+	- the turtle story
+		- a person appears on the ground, in front of you
+		- can you help me find my turtle
+		- you have to tap on the text box
+		- here’s a picture!
+		- he wandered off!
+		- and then you can look around and try find it? i guess?
+		- and if you tap it then you get some end sequence? 
+
 
 
