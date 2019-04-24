@@ -1,6 +1,6 @@
 # BLOX INTRODUCTION
 
-Blox is a document driven framework that lets you tell 3d stories.
+Blox is a document driven framework that lets you tell interactive 3d stories.
 
 You make a text file that describes 3d objects, their relationships to each other, what they do over time, and play it back as an interactive 3d experience that anybody can enjoy.
 
@@ -63,50 +63,43 @@ The system is designed to be document driven, you describe what you want in a te
 <body>
 <script>
 
-/// this is a scene blox decorated with a scene behavior and having some children blox
-export let myscene = {
-	name: "myscene",
+/// this is a scene with some children blox
+
+var myscene = {
+
+	// a behavior that says this is a 'scene' concept
 	scene: 0,
 
-	// here are some children blox
-	children: [
+	// this is a child light
+	mylamp: {
+		light:"yellow"
+	},
 
-		// this is a light
-		{
-			name:"mylight",
-			light:0
+	// this is a child camera, it's optional to declare a camera
+	mycamera: {
+		camera:0,
+		orbit:0
+	},
+
+	// this is a reference to a separate child blox stored on disk
+	mytree: "./blox/cherry_tree.js",
+
+	// this is a piece of child art placed on the ground loaded off disk as a gltf
+	// it listens to the on_tick method and rotates a bit every frame
+	myhornet: {
+		mesh:{
+			ar:"../art/hornet",
+			position:"ground",
+			color:"green"
 		},
-
-		// this is a camera, it's optional to declare a camera
-		{
-			name:"mycamera",
-			camera:0,
-			orbit:0
-		},
-
-		// this is a reference to a separate blox stored on disk
-		"./blox/cherry_tree.js",
-
-		// this is a piece of art placed on the ground loaded off disk as a gltf
-		// it listens to the on_tick method and rotates a bit every frame
-		// it listens to collision events and moves the art to viewer eye level
-		{
-			name:"./art/hornet",
-			mesh:{
-				art:"box",
-				position:"ground",
-				color:"green"
-			},
-			on_visible:"./scripts/visible_handler.js",
-			on_load:function(e) { console.log("just woke up") },
-			on_tick:function(e) { e.blox.mesh.rotate.y+=0.1 },
-			on_overlap:function(e) { e.blox.position.slerp("eyelevel") }
-		}
-	]
+		on_load:function(e) { console.log("just woke up") },
+		on_tick:function(e) { e.blox.mesh.rotate.y+=0.1 },
+	}
 }
 
-// this kicks the whole system into starting up; a scene node force launches a renderer and a display
-let blox = new Blox(myscene)
+// launch the app and view
+
+var blox = new Blox(myscene)
 
 </script>
 </body>
@@ -119,46 +112,31 @@ let blox = new Blox(myscene)
 	[x] Scene
 	[x] Camera
 	[x] Light
-	[ ] Sound
 	[x] Sky
-	[ ] Pano
 	[x] Heart
 	[x] Mesh
 	[x] Text
-	[ ] TextPanel
+	[ ] TextPanel (needs work)
+	[ ] Sound
+	[ ] Pano
 
-# SIMPLE PHYSICS
+# FORWARD KINEMATICS / SIMPLE PHYSICS
 
-	[ ] Forces -> maybe separate from mesh; maybe add gravity/mass also as a built in
-	[ ] Lifespan -> may be useful enough to be deeply imnplicit?
-	[x] Collide -> can I support AABB
+	[x] Forces -> acceleration, mass
+	[x] Lifespan -> objects can have a time to live
+	[x] Overlap -> just AABB right now
 
-# CONSTRAINT BASED PHYSICS
-
-	[x] Physics Object
-	[x] Physics Joint
-	[x] Physics Hinge
-
-# NAVIGATION AND INPUT
-
-	[x] Walk
-	[ ] Orbit
-	[ ] Hand 6dof puck
-	[ ] gaze
-	[ ] mouse
-	[ ] leap motion
-
-# SEMANTIC
+# INVERSE KINEMATICS / SEMANTIC INTENT
 
 	[x] Bounce
-	[ ] Tween
+	[x] Tween
 	[x] Line
 	[x] Wander
 	[x] Stare
-	[ ] Follow
 	[ ] Goto
 	[ ] EyeLevel
 	[ ] Floor
+	[ ] Follow
 	[ ] Wall
 	[ ] Billboard
 	[ ] Tagalong
@@ -172,6 +150,22 @@ let blox = new Blox(myscene)
 	[ ] Between
 	[ ] Timer
 	[ ] Latch Timer
+
+# CONSTRAINT BASED PHYSICS (AMMOJS)
+
+	[x] Physics Object
+	[x] Physics Joint
+	[x] Physics Hinge
+	[x] Collision
+
+# NAVIGATION AND INPUT
+
+	[x] Walk
+	[ ] Orbit
+	[ ] Hand 6dof puck
+	[ ] gaze
+	[ ] mouse
+	[ ] leap motion
 
 # PARTICLE EFFECTS
 
@@ -205,11 +199,10 @@ let blox = new Blox(myscene)
 	[x] on_entered
 	[x] on_exited
 	[x] on_event (generic catch all)
-	[ ] on_ready
+	[x] on_loaded
 	[ ] on_activate
 	[ ] on_deactivate
-	[ ] on_lifespan
-	[ ] on_loaded
+	[ ] on_lifespan? (it may make sense to give things innate lifespans)
 
 	* Note that events can have any name but share a namespace with custom behaviors names, the convention is on_*
 
@@ -219,11 +212,11 @@ let blox = new Blox(myscene)
 	blox.constructor                  Same as blox.new but callable from a live instance
 	blox.parent                       Get the parent of a blox if any
 	blox.group                        Get the children of a blox if any
-	blox.behaviors
-	blox.functions
+	blox.behaviors                    The behaviors associated with a blox
+	blox.functions                    The event handlers associated with a blox
 	blox.query                        Fancy query support for finding children blox or behaviors
 	blox.on_event                     A generic event publishing mechanism
 
 	* Note that behaviors show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
-	* Note that only one of a kind of behavior is allowed in one Blox at a time
+	* Note that only one of a kind of a behavior is allowed in one Blox at a time
 

@@ -15,7 +15,7 @@ import {BehaviorText} from './BehaviorText.js'
 import {BehaviorTextPanel} from './BehaviorTextPanel.js'
 
 // Motion and physics, some of this may merge together
-import {BehaviorIntent} from './BehaviorIntent.js'
+import {BehaviorAction,BehaviorActionKinetic,BehaviorActionTarget} from './BehaviorAction.js'
 import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
 import {BehaviorCollide} from './BehaviorCollide.js'
 
@@ -344,7 +344,13 @@ export class Blox {
 		}
 	}
 
+	///
+	/// Add a child property of some kind
+	///
+
 	add(args) {
+
+		if(typeof args === "string") args = { label:args }
 
 		let label = args.label
 		let description = args.description
@@ -429,7 +435,6 @@ export class Blox {
 					return
 				}
 				// I'm trying an idea of promoting all behavior functions into the functions collection
-				// TODO could try use reflection
 				for (let label of Object.getOwnPropertyNames(Object.getPrototypeOf(classInst))) {
 					let handler = classInst[label]
 					if(label.startsWith("on_") && handler instanceof Function) {
@@ -488,6 +493,13 @@ export class Blox {
 
 		// as a service to users, if a query is just a single string then search a global namespace for that blox.name
 		if(typeof args == 'string') {
+
+			if(args == "*") {
+				let keys = Object.keys(global_blox_namespace)
+				let which = Math.floor(keys.length * Math.random() )
+				return global_blox_namespace[keys[which]]
+			}
+
 			return global_blox_namespace[args]
 		}
 
@@ -515,6 +527,8 @@ export class Blox {
 		if(!blox) {
 			return 0
 		}
+
+		// if the name was passed in a hash then the expectation is to find other sub properties... kindof a hack
 
 		// return first or all?
 		let results = args.all ? [] : 0

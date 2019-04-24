@@ -112,7 +112,7 @@ export let myscene = {
 			color:0xff0000,
 		},
 		camera:{}, // a test of ones own camera for special controls
-		intent:{}, // a test of an intent system - arguably may consolidate down into mesh
+		action:{}, // a test of an intent system - arguably may consolidate down into mesh
 		walk:{}, // walking behavior
 		collide: {
 			gaze: true,
@@ -124,13 +124,13 @@ export let myscene = {
 
 	"bettybumblebee":{
 		mesh:"../art/hornet",
-		intent:[
-			{time:2,destination:"foxy",height:1,facing:1},
-			{time:6,destination:"*",height:1},
-			{time:9,destination:"*",height:1},
-			{time:12,destination:"*",height:1},
-			{time:15,destination:"tree",height:5},
-			{time:20,reset:0}
+
+		action:[
+			{time:2,target:"foxy",height:1,forward:1},
+			{time:6,target:"*",height:1},
+			{time:9,target:"*",height:1},
+			{time:12,target:"*",height:1},
+			{time:15,target:"tree",height:5},
 		]
 	}
 }

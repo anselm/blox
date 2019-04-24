@@ -8,6 +8,12 @@
 
 		this would purely be nice for document level scripting, it makes it simpler to say "thing.do_something"
 
+# - kinematic motion model improvements
+
+	- tends to keep sliding sideways; i really want something that feels more precise for the pov movement; like set destination
+	- destinations tend to be overshot in the ik model
+	- should really use real physics engine again; and integrate physics with my motion model too
+
 # - continue to improve semantic choreography
 
 	This tries to strike a balance between high level story telling and simplicity in a declarative grammar.
@@ -46,7 +52,7 @@
 	- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
 
 	hornet: {
-		intent: { // arguably consolidate with mesh... since we really want to tell stories...
+		intent: { 
 			destination:"joe"
 			height:3,
 			above:true,
@@ -55,8 +61,8 @@
 	}
 
 	hornet: {
-		intent: [ // it could maybe accept an array of many commands for convenience as an option - executed over time
-			{ time:1, destination:"joe",height:2, wall:2, forward:1, billboard:1, behind:1, above:1, below:1, near:1 }
+		intent: [ 
+			{ time:1, target:"joe",height:2, wall:2, forward:1, billboard:1, behind:1, above:1, below:1, near:1 }
 			{ time:2, tilt:1, face:1, }
 			{ time:3, reset:1 }
 		]

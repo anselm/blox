@@ -16,6 +16,11 @@ export class BehaviorMesh extends THREE.Mesh {
 		// set or reset various properties from params
 		this.on_reset(args)
 
+		// force set these properties on the blox; by convention these become reserved for this role
+		args.blox.mesh = this
+		args.blox.position = this.position
+		args.blox.quaternion = this.quaternion
+
 	}
 
 	/// set or reset qualities of this mesh
@@ -56,9 +61,7 @@ export class BehaviorMesh extends THREE.Mesh {
 		}
 
 		if(props.orientation) {
-			mesh.rotation.x = props.orientation.x * Math.PI/180.0
-			mesh.rotation.y = props.orientation.y * Math.PI/180.0
-			mesh.rotation.z = props.orientation.z * Math.PI/180.0
+			mesh.rotation.set(props.orientation.x * Math.PI/180.0, props.orientation.y * Math.PI/180.0, props.orientation.z * Math.PI/180.0 )
 		}
 
 		if(typeof props.visible !== 'undefined') {
