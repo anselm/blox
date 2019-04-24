@@ -17,9 +17,11 @@ export class BehaviorMesh extends THREE.Mesh {
 		this.on_reset(args)
 
 		// force set these properties on the blox; by convention these become reserved for this role
-		args.blox.mesh = this
-		args.blox.position = this.position
-		args.blox.quaternion = this.quaternion
+		if(args.blox) {
+			args.blox.mesh = this
+			args.blox.position = this.position
+			args.blox.quaternion = this.quaternion
+		}
 
 	}
 
