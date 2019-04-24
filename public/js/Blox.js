@@ -14,27 +14,35 @@ import {BehaviorHeart} from './primitives/BehaviorHeart.js'
 import {BehaviorText} from './primitives/BehaviorText.js'
 import {BehaviorTextPanel} from './primitives/BehaviorTextPanel.js'
 
+// Collision support
+import {BehaviorCollide} from './BehaviorCollide.js'
+
 // Motion and physics, some of this may merge together
 import {BehaviorAction,
 		BehaviorActionKinetic,
 		BehaviorActionTarget,
 		BehaviorActionLifespan,
 		BehaviorActionTumble
-	} from './BehaviorAction.js'
+	} from './animation/BehaviorAction.js'
 
-import {BehaviorCollide} from './BehaviorCollide.js'
-import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
+import {BehaviorLine,
+		BehaviorBounce,
+		BehaviorOscillate,
+		BehaviorWander,
+		BehaviorStare
+	} from './animation/BehaviorBounce.js'
 
-// Motion models for player
-import {BehaviorOrbit} from './BehaviorOrbit.js' // TODO this one really needs to be rewritten
-import {BehaviorWalk} from './BehaviorWalk.js'
+import {BehaviorEmitter} from './animation/BehaviorEmitter.js'
 
-// Some other behaviors
-import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
+import {BehaviorPhysics, BehaviorPhysical} from './animation/BehaviorPhysics.js'
+
+import {BehaviorOrbit} from './animation/BehaviorOrbit.js' // TODO this one really needs to be rewritten
+import {BehaviorWalk} from './animation/BehaviorWalk.js'
+
+// Particles
 import {BehaviorProton} from './BehaviorProton.js'
-import {BehaviorEmitter} from './BehaviorEmitter.js'
 
-//import {BehaviorParticles} from './BehaviorParticles.js'
+//import {BehaviorParticles} from './animation/BehaviorParticles.js'
 
 // Intents - which are fancy behaviors - may roll back into Mesh itself
 
