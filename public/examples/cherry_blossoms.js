@@ -113,41 +113,52 @@ export let cherry_blossoms = {
 			transparent:1
 		},
 
-		action:{
-			// sets a position - overriding what was set in the mesh above if any
-			position:{x:0,y:10,z:0},
+		// an action is another way of declaring behaviors that are applied to the parent blox
+		// if a behavior already exists then effectively the action is resetting the behavior
+		// actions can also be arranged in timewise arrays to do actions over time
+		//action:{
 
-			// sets a starting velocity and direction
-			velocity:{x:0,y:10,z:0},
+			actionTumble: {
+				// set in a tumble motion
+				tumble:1,
+			},
 
-			// global friction acting against velocity
-			// friction:0.9
+			actionLifespan: {
+				// limit lifespan; will re-run this entire action rule once this expires
+				lifespan:{min:100, max:150},
 
-			// adds a force; forces can have properties that allow them to dampen over time or be one frame events 
-			force:{name:"gravity",x:0,y:-1,z:0,friction:0,impulse:false},
+				// randomize the color
+				color_gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
 
-			// adjust the position - make it randomized over an area
-			disperse:{radius:50},
+				// randomize the scale
+				scale_range:{min:1,max:1,end:0},
+			},
 
-			// reset the velocity - make it focused within a nozzle area
-			//nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
+			actionKinetic: {
+				// sets a position - overriding what was set in the mesh above if any
+				position:{x:0,y:10,z:0},
 
-			// this may be obsolete TODO remove
-			//speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
+				// sets a starting velocity and direction
+				velocity:{x:0,y:10,z:0},
 
-			// randomize the color
-			color_gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
+				// global friction acting against velocity
+				// friction:0.9
 
-			// randomize the scale
-			scale_range:{min:1,max:1,end:0},
+				// adds a force; forces can have properties that allow them to dampen over time or be one frame events 
+				force:{name:"gravity",x:0,y:-1,z:0,friction:0,impulse:false},
 
-			// set in a tumble motion
-			tumble:1,
+				// adjust the position - make it randomized over an area
+				disperse:{radius:50},
 
-			// limit lifespan; will re-run this entire action rule once this expires
-			lifespan:{min:100, max:150}
+				// reset the velocity - make it focused within a nozzle area
+				//nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
 
-		}
+				// this may be obsolete TODO remove
+				//speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
+
+			},
+
+		//}
 	},
 
 	"petalemitter": {

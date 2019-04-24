@@ -112,7 +112,7 @@ export let myscene = {
  			scale:{x:1,y:1,z:1},
 			color:0xff0000,
 		},
-		action:{}, // a test of an intent system - arguably may consolidate down into mesh
+		actionKinetic:{},
 		walk:{}, // walking behavior
 		collide: {
 			gaze: true,
@@ -125,25 +125,15 @@ export let myscene = {
 	"bettybumblebee":{
 		mesh:"../art/hornet",
 
+		actionKinetic:{},
+
 		action:[
-			{time:2,target:"foxy",height:1,forward:1},
-			{time:6,target:"*",height:1},
-			{time:9,target:"*",height:1},
-			{time:12,target:"*",height:1},
-			{time:15,target:"tree",height:5},
+			{ time:  2, actionTarget:{ target:"foxy",height:1,forward:1} },
+			{ time:  6, actionTarget:{ target:"*",height:1} },
+			{ time:  9, actionTarget:{ target:"*",height:1} },
+			{ time: 12, actionTarget:{ target:"*",height:1} },
+			{ time: 15, actionTarget:{ target:"tree",height:5} },
 		]
 	}
 }
-
-// todo
-// - consolidate gltf creation more cleanly with some kind of recycling and remove behaviorheart
-// - i think i want to consolidate effects more completely above into larger blocks associated with their code logic
-
-/*			// a particle field finds any mesh nearby and assumes that is the base of the effect
-			particles: {
-				radius:30, // starting radius
-				quantity:5000,
-				rate:0.1
-*/
-
 

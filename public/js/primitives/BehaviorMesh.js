@@ -30,8 +30,11 @@ export class BehaviorMesh extends THREE.Mesh {
 	/// set or reset qualities of this mesh
 	on_reset(args) {
 
-		let props = args.description || {}
-		if(!props) return
+		let props = args.description || this.description
+		if(!props) {
+			console.error("need to pass some args to reset a mesh")
+			return
+		}
 
 		// support a single parameter - to the art
 		if(typeof props === "string") props = { art:props }
@@ -46,12 +49,14 @@ export class BehaviorMesh extends THREE.Mesh {
 			let mat = new THREE.MeshPhongMaterial( {color: c, transparent: a, side: s, map: t } )
 			if(this.material) this.material.dispose()
 			this.material = mat
+			console.log("updated material")
 		}
 
 		// set or reset geometry if changed
 		if(!this.madeGeometry || (this.description && props.art && this.description.art != props.art)) {
 			if(props.hasOwnProperty("art"))
 				this.geometry = this.setGeometryFromString(props.art)
+			console.log("updated geometry to " + props.art)
 		}
 
 		let mesh = this

@@ -13,7 +13,7 @@ export class BehaviorWalk {
 
 	onKeyDown(event) {
 		let blox = this.blox
-		if(!blox || !blox.action) {
+		if(!blox || !blox.actionKinetic) {
 			console.error("Needs BehaviorAction")
 			return
 		}

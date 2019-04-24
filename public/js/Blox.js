@@ -10,7 +10,7 @@ import {BehaviorCamera} from './primitives/BehaviorCamera.js'
 import {BehaviorLight} from './primitives/BehaviorLight.js'
 import {BehaviorMesh} from './primitives/BehaviorMesh.js'
 import {BehaviorSky} from './primitives/BehaviorSky.js'
-import {BehaviorHeart} from './primitives/BehaviorHeart.js'
+import {BehaviorHeart} from './primitives/BehaviorHeart.js' // TODO this may go away - it's an idea
 import {BehaviorText} from './primitives/BehaviorText.js'
 import {BehaviorTextPanel} from './primitives/BehaviorTextPanel.js'
 
@@ -417,7 +417,7 @@ export class Blox {
 				return
 			}
 			if(previous.constructor.name == className) {
-				// looks like you're trying to modify an existing behavior - this would be fine if you loaded a package
+				// looks like you're trying to modify an existing behavior - which is ok
 				console.log("editing " + className)
 				classInst = previous
 				isNew = false
@@ -437,7 +437,7 @@ export class Blox {
 		// Populate the child behavior with the passed description
 		if(classRef || classInst) {
 
-			// advise that the behavior will exist soon
+			// advise that the behavior will exist soon (TODO this is incorrectly sent when re-initialized also)
 			blox.on_event({name:"on_behavior_will_add",description:description,blox:blox})
 
 			// Instance the behavior if need be
@@ -486,7 +486,7 @@ export class Blox {
 			// pass this back
 			return classInst
 		} else {
-			// TEST - make it easier for users to make documents by declaring children directly on the parent
+			// New feature - let you directly inject entire children blox without having to declare group[]
 			description.name = label
 			if(!this.behaviors.group) {
 				console.error("Blox:: injecting children directly is missing a group")

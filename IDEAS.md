@@ -8,6 +8,12 @@
 
 		this would purely be nice for document level scripting, it makes it simpler to say "thing.do_something"
 
+# - small but curious bug with camera declaring blox.mesh - study?
+
+# - could shorten the name to the various BehaviorAction* utilities... and also maybe not pollute Blox namespace so much
+
+# - change behaviorwalk to use new impulse method and remove impulse hacks from behavioraction
+
 # - kinematic motion model improvements
 
 	- tends to keep sliding sideways; i really want something that feels more precise for the pov movement; like set destination
@@ -84,6 +90,101 @@
 
 	group = blox.query({monsters,all})
 	group.add_behavior(intent) // - if i could save behaviors for later, and then apply them by reference this is doable
+
+
+# - XR SUPPORT broken?
+# - gltf load consolidation to avoid duplicate loads?
+# - move the demos apart and make as separate files with links to source ( partially done )
+# - documentation
+
+	- document examples of events better; i did this a bit
+	- demonstrate scene switching
+	- explore an idea of loading and unloading scenes and a scene counter
+
+
+# - other todos
+
+	- make a tamagotchi as a demo
+
+	- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
+	- sound! can i also do sound synthesis and wire sound things together?
+
+	- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
+	- multiplayer; think harder about this
+
+	- need a virtual hand
+	- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
+
+	- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
+	- make a powerpoint on this whole app
+
+	- animate the gltfs
+	- i would like an orbit camera than can attach to other kinds of cameras
+	- i would like to fix up the camera so it does not flicker
+
+# - a a story to try
+
+	- the turtle story
+		- a person appears on the ground, in front of you
+		- can you help me find my turtle
+		- you have to tap on the text box
+		- here’s a picture!
+		- he wandered off!
+		- and then you can look around and try find it? i guess?
+		- and if you tap it then you get some end sequence? 
+
+# - [DONE] BehaviorAction event pipeline improvements
+
+	You can decorate a blox with a BehaviorAction which brings in a bunch of related Behaviors. I want to tidy this up.
+
+	- right now I decorate the parent blox with a bunch of conventions that are assumed and implicit...
+		it would be nicer to have some formalism for when I'm decorating a blox with anything at all....
+
+	- right now all of the action properties are fairly naked and simple such as
+
+		action: {
+			position:{x:0,y:10,z:0},
+			velocity:{x:0,y:10,z:0},
+			friction:0.9
+			force:{name:"gravity",x:0,y:-1,z:0,friction:0,impulse:false},
+			disperse:{radius:50},
+			//nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
+			//speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
+			color_gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
+			scale_range:{min:1,max:1,end:0},
+			tumble:1,
+			lifespan:{min:100, max:150}
+
+		if instead i force bundle them with their associated Behavior, then this could also solve another problem
+		of attaching behaviors that I don't need. I'd like to do something more like this
+
+		action: {
+			kinetic: {
+				position:
+				velocity:
+				friction:
+				force:
+				disperse:
+				nozzle:
+				speed:
+				color:
+				tumble:
+				lifespan:
+			},
+			goal: {
+				target:
+				height:
+				forward:
+				faces:
+			}
+
+		and then i can not only spawn the right behavior, but i can direct the right events
+		it becomes a way to talk to a behavior by name... and this could be a deeper more useful pattern
+		right now i talk to a behavior based on what it has published as a listening method
+		i would like instead to be able to simply talk directly to a behavior
+		that is to say, behaviors can always listen to any events
+		but it would be nice to have directed events
+
 
 # [ DONE ] Usability feature - make it so that users don't have to declare a child group at all
 
@@ -174,17 +275,6 @@
 			AND ALSO pass the parent blox and the behavior as arguments
 			AND userland functions that are naked - declared directly in the documents - I can bind(parentbehavior) on
 
-
-# - XR SUPPORT broken?
-# - gltf load consolidation to avoid duplicate loads
-# - move the demos apart and make as separate files with links to source ( partially done )
-# - make sure all demos work again
-# - documentation
-
-	- document examples of events better; i did this a bit
-	- demonstrate scene switching
-	- explore an idea of loading and unloading scenes and a scene counter
-
 # [DONE] packages
 
 	[ kinda done? ]
@@ -193,38 +283,4 @@
 		- maybe ignore the second ’scene’ if it shows up? should scene be special?
 
 	- packages?- does not really handle children though? maybe it does?
-
-
-# - other
-
-	- make a tamagotchi as a demo
-
-	- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
-	- sound! can i also do sound synthesis and wire sound things together?
-
-	- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
-	- multiplayer; think harder about this
-
-	- need a virtual hand
-	- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
-
-	- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
-	- make a powerpoint on this whole app
-
-	- animate the gltfs
-	- i would like an orbit camera than can attach to other kinds of cameras
-	- i would like to fix up the camera so it does not flicker
-
-# a story to try
-
-	- the turtle story
-		- a person appears on the ground, in front of you
-		- can you help me find my turtle
-		- you have to tap on the text box
-		- here’s a picture!
-		- he wandered off!
-		- and then you can look around and try find it? i guess?
-		- and if you tap it then you get some end sequence? 
-
-
 

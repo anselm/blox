@@ -35,20 +35,25 @@
 
 export class BehaviorActionKinetic {
 
-	constructor(args) {
+	constructor(props) {
 
 		// remember original pose
-		let blox = args.blox
-		this.original_position = blox.position.clone()
-		this.original_quaternion = blox.quaternion.clone()
+		if(props.blox) {
+			this.original_position = props.blox.position.clone()
+			this.original_quaternion = props.blox.quaternion.clone()
+		}
 
-		// reset without passing any args for now
-		this.on_move({blox:blox})
+		this.on_reset(props)
 	}
 
-	on_move(args) {
+	on_move(props) {
+		this.on_reset({blox:this.blox,description:props})
+	}
 
-		let blox = args.blox
+	on_reset(props) {
+
+		let args = props.description || this.description
+		let blox = props.blox
 
 		if(!blox.position || !blox.quaternion) {
 			console.error("blox has no position")
@@ -274,14 +279,16 @@ export class BehaviorActionKinetic {
 
 export class BehaviorActionTarget {
 
-	constructor() {
+	constructor(props) {
 		// relies on features of BehaviorActionKinetic but since that is not loaded yet... don't do any init...
 		// it's worth studying if this is a good approach (implicit relationships between action behaviors) TODO
+		this.on_reset(props)
 	}
 
-	on_move(args) {
+	on_reset(props) {
 
-		let blox = args.blox
+		let args = props.description || this.description
+		let blox = props.blox
 
 		if(args.hasOwnProperty("reset")) {
 
@@ -399,7 +406,13 @@ export class BehaviorActionTarget {
 
 export class BehaviorActionLifespan {
 
-	on_move(args) {
+	constructor(props) {
+		this.on_reset(props)
+	}
+
+	on_reset(props) {
+		let args = props.description || this.description
+		let blox = props.blox
 		if(args && args.hasOwnProperty("lifespan")) {
 			this.move_event = args // test idea
 			if(typeof args.lifespan !== "object") {
@@ -440,7 +453,9 @@ export class BehaviorActionLifespan {
 
 		// trying an idea of refiring the event that set the lifespan - ponder this approach TODO
 		if(this.life) return
-		args.blox.on_event(this.move_event)
+
+		// try just reset all?
+		args.blox.on_event({name:"on_reset"})
 
 		// TODO introduce an idea of dying once lifespan is over
 	}
@@ -456,8 +471,14 @@ export class BehaviorActionLifespan {
 
 export class BehaviorActionTumble {
 
-	on_move(args) {
-		if(args.hasOwnProperty("tumble")) {
+	constructor(props) {
+		this.on_reset(props)
+	}
+
+	on_reset(props) {
+		let args = props.description || this.description
+		let blox = props.blox
+		if(args && args.hasOwnProperty("tumble")) {
 			this.tumble = args.tumble
 			this.tumbleTime = 0
 		}
@@ -549,17 +570,9 @@ class EffectPlayer {
 
 export class BehaviorAction {
 
-	constructor(args) {
+	constructor(props) {
 
-		// this is an approach of having a series of related behaviors compartmentalize and deliver aspects of action
-		// it has some plusses and minuses, it does pollute blox with many properties, and has some implicit assumptions
-		// it is possible alternatively that i could only add what behaviors i needed, or manage the behaviors inside this
-		// TODO look at only adding actions that I need for a given effect
-
-		args.blox.add("actionTumble")
-		args.blox.add("actionLifespan")		// a lifespan
-		args.blox.add("actionTarget")		// modify forces by targets - note several properties don't exist yet here
-		args.blox.add("actionKinetic")		// add up forces and apply to actual position - this should be run last
+		let blox = props.blox
 
 		// reset program script counters
 		this.timer_offset = -1
@@ -567,28 +580,39 @@ export class BehaviorAction {
 		this.script = 0
 
 		// save script if any or run one command now
-		if(args.description && args.description instanceof Array) {
-			this.script = args.description
-		} else if(typeof args.description === "object") {
-			args.description.name = "on_move"
-			args.blox.on_event(args.description)
+		if(props.description && props.description instanceof Array) {
+			this.script = props.description
+		} else if(typeof props.description === "object") {
+			Object.entries(props.description).forEach(([label,description])=>{
+				blox.add({label:label,description:description})
+			})
 		}
 
 	}
 
 	///
 	/// notice tick event and update
-	///
+	/// 	TODO revise the scripts to declare which behavior they are leaning on
+	///			and call the on_reset of those, or let blox do that work
 
 	on_tick(args) {
 
 		if(this.timer_offset == -1) this.timer_offset = args.interval
 
 		for(;this.script && this.counter < this.script.length; this.counter++) {
-			let s = this.script[this.counter]
-			if(args.interval < this.timer_offset + s.time) return
-			s.name = "on_move"
-			args.blox.on_event(s)
+
+			// reached next action in array?
+			let action = this.script[this.counter]
+			if(args.interval < this.timer_offset + action.time) return
+
+			// perform action
+			Object.entries(action).forEach(([label,description])=>{
+				if(label != "time") {
+					args.blox.add({label:label,description:description})
+				}
+			})
+
+			// go back to start?
 			if(this.counter >= this.script.length-1) {
 				this.timer_offset = -1
 				this.counter = 0
