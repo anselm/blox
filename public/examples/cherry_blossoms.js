@@ -12,78 +12,67 @@ export let cherry_blossoms = {
 
 	scene: 0,
 
-	group: [
-
-		{
-			name:"camera",
-			camera:{
-				position:{x:20,y:5,z:50},
-				lookat:{x:0,y:10,z:0},
-			},
-			orbit:{
-				lookat:{x:0,y:10,z:0},
-			}
+	"mycamera":	{
+		camera:{
+			position:{x:20,y:5,z:50},
+			lookat:{x:0,y:10,z:0},
 		},
+		orbit:{
+			lookat:{x:0,y:10,z:0},
+		}
+	},
 
-		// a light
-		{
-			name:"mylight",
-			light:{
-				position:{x:-30,y:40,z:-50},
-				color:0xFFFFFF,
-			}
-		},
+	"mylight": {
+		light:{
+			position:{x:-30,y:40,z:-50},
+			color:0xFFFFFF,
+		}
+	},
 
-		// a skybox
-		{
-			name:"sky",
-			sky:{
-				art:"../art/eso0932a.jpg"
-			}
-		},
+	"myskybox":	{
+		sky:{
+			art:"../art/eso0932a.jpg"
+		}
+	},
 
-		// some ground
-		{
-			name:"ground",
-			mesh:{
-				art:"sphere",
-				position:{x:0,y:-8,z:0},
-				scale:{x:300,y:1,z:300},
-				color:0x270212,
-			}
-		},
+	"myground":	{
+		mesh:{
+			art:"sphere",
+			position:{x:0,y:-8,z:0},
+			scale:{x:300,y:1,z:300},
+			color:0x270212,
+		}
+	},
 
-		{
-			name:"tree",
-			load:"../blox/cherry_tree.js", // loading a package and then changing it
-			mesh:{
-				scale:{x:5,y:5,z:5},
-			},
+	"mytree":{
+		load:"../blox/cherry_tree.js", // loading a package and then changing it
+		mesh:{
+			scale:{x:5,y:5,z:5},
 		},
+	},
 
 		// a tree
-		{
-			name:"tree",
-			mesh:{
-				art:"../art/cherry_tree",
-				position:{x:-30,y:10,z:-15},
-				scale:{x:5,y:5,z:5},
-				color:0xff0000,
-			},
+	"myothertree": {
+		mesh:{
+			art:"../art/cherry_tree",
+			position:{x:-30,y:10,z:-15},
+			scale:{x:5,y:5,z:5},
+			color:0xff0000,
 		},
+	},
 
 		// a tree
-		{
-			name:"tree",
-			mesh:{
-				art:"../art/cherry_tree",
-				position:{x:30,y:10,z:40},
-				scale:{x:5,y:5,z:5},
-				color:0xff0000,
-			},
+	"anothertree": {
+		mesh:{
+			art:"../art/cherry_tree",
+			position:{x:30,y:10,z:40},
+			scale:{x:5,y:5,z:5},
+			color:0xff0000,
 		},
+	},
 
-		// a mesh and a simple particle effects engine
+/*
+		// old effects engine
 		{
 			name:"hearts",
 
@@ -111,7 +100,65 @@ export let cherry_blossoms = {
 			},
 
 		},
+*/
 
-	]
+	"testparticle": {
+
+		heart: {
+			art:"ignore", // TODO this is a bit inelegant
+			color:0xffffff,
+			position:{x:0,y:10,z:0},
+			scale:{x:5,y:5,z:5},
+			doublesided:1,
+			transparent:1
+		},
+
+		action:{
+			// sets a position - overriding what was set in the mesh above if any
+			position:{x:0,y:10,z:0},
+
+			// sets a starting velocity and direction
+			velocity:{x:0,y:10,z:0},
+
+			// global friction acting against velocity
+			// friction:0.9
+
+			// adds a force; forces can have properties that allow them to dampen over time or be one frame events 
+			force:{name:"gravity",x:0,y:-1,z:0,friction:0,impulse:false},
+
+			// adjust the position - make it randomized over an area
+			disperse:{radius:50},
+
+			// reset the velocity - make it focused within a nozzle area
+			//nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
+
+			// this may be obsolete TODO remove
+			//speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
+
+			// randomize the color
+			color_gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
+
+			// randomize the scale
+			scale_range:{min:1,max:1,end:0},
+
+			// set in a tumble motion
+			tumble:1,
+
+			// limit lifespan; will re-run this entire action rule once this expires
+			lifespan:{min:100, max:150}
+
+		}
+	},
+
+	"petalemitter": {
+		emitter:{
+			target:"testparticle",
+			name:"petals",
+			radius:10,
+			count:15
+		}
+	},
+
+
 }
 

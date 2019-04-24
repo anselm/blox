@@ -92,7 +92,7 @@ export let myscene = {
 
 	// a separate entity that makes many first class copies of some other entity already described earlier
 	// note that the behavior packaged up here cannot easily be inside of a target entity because it would lead to a replication cascade
-	"myemitter": {
+	"floweremitter": {
 		emitter:{
 			target:"myflower",
 			name:"flowerpower",
@@ -102,6 +102,7 @@ export let myscene = {
 	},
 
 	"foxy": {
+		camera:{}, // a test of ones own camera for special controls
 		mesh:{
 			provenance:[
 				"https://sketchfab.com/3d-models/low-poly-fox-by-pixelmannen-animated-371dea88d7e04a76af5763f2a36866bc",
@@ -111,7 +112,6 @@ export let myscene = {
  			scale:{x:1,y:1,z:1},
 			color:0xff0000,
 		},
-		camera:{}, // a test of ones own camera for special controls
 		action:{}, // a test of an intent system - arguably may consolidate down into mesh
 		walk:{}, // walking behavior
 		collide: {
@@ -134,4 +134,16 @@ export let myscene = {
 		]
 	}
 }
+
+// todo
+// - consolidate gltf creation more cleanly with some kind of recycling and remove behaviorheart
+// - i think i want to consolidate effects more completely above into larger blocks associated with their code logic
+
+/*			// a particle field finds any mesh nearby and assumes that is the base of the effect
+			particles: {
+				radius:30, // starting radius
+				quantity:5000,
+				rate:0.1
+*/
+
 

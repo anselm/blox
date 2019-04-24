@@ -1,23 +1,29 @@
 // dynamic import support for firefox
 import {importModule} from '../lib/importModule.js'
 
-// Basic
+// Rendering
 import {BehaviorRenderer} from './BehaviorRenderer.js'
 import {BehaviorScene} from './BehaviorScene.js'
-import {BehaviorCamera} from './BehaviorCamera.js'
-import {BehaviorLight} from './BehaviorLight.js'
-import {BehaviorMesh} from './BehaviorMesh.js'
 
-// Some objects
-import {BehaviorSky} from './BehaviorSky.js'
-import {BehaviorHeart} from './BehaviorHeart.js'
-import {BehaviorText} from './BehaviorText.js'
-import {BehaviorTextPanel} from './BehaviorTextPanel.js'
+// Primitives
+import {BehaviorCamera} from './primitives/BehaviorCamera.js'
+import {BehaviorLight} from './primitives/BehaviorLight.js'
+import {BehaviorMesh} from './primitives/BehaviorMesh.js'
+import {BehaviorSky} from './primitives/BehaviorSky.js'
+import {BehaviorHeart} from './primitives/BehaviorHeart.js'
+import {BehaviorText} from './primitives/BehaviorText.js'
+import {BehaviorTextPanel} from './primitives/BehaviorTextPanel.js'
 
 // Motion and physics, some of this may merge together
-import {BehaviorAction,BehaviorActionKinetic,BehaviorActionTarget} from './BehaviorAction.js'
-import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
+import {BehaviorAction,
+		BehaviorActionKinetic,
+		BehaviorActionTarget,
+		BehaviorActionLifespan,
+		BehaviorActionTumble
+	} from './BehaviorAction.js'
+
 import {BehaviorCollide} from './BehaviorCollide.js'
+import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
 
 // Motion models for player
 import {BehaviorOrbit} from './BehaviorOrbit.js' // TODO this one really needs to be rewritten
@@ -25,9 +31,10 @@ import {BehaviorWalk} from './BehaviorWalk.js'
 
 // Some other behaviors
 import {BehaviorLine, BehaviorBounce, BehaviorOscillate, BehaviorWander, BehaviorStare } from './BehaviorBounce.js'
-import {BehaviorParticles} from './BehaviorParticles.js'
 import {BehaviorProton} from './BehaviorProton.js'
 import {BehaviorEmitter} from './BehaviorEmitter.js'
+
+//import {BehaviorParticles} from './BehaviorParticles.js'
 
 // Intents - which are fancy behaviors - may roll back into Mesh itself
 

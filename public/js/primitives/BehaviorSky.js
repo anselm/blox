@@ -31,5 +31,12 @@ export class BehaviorSky extends THREE.Mesh {
 		let skyBox = super(geometry, material)
 		// skyBox.scale.set(-1, 1, 1) - flipped the above sphere instead
 		skyBox.renderDepth = 1000.0
+
+		// these get exposed in blox
+		if(blox.mesh) console.error("Warning: mesh already assigned")
+		blox.mesh = this
+		blox.position = this.position
+		blox.quaternion = this.quaternion
+
 	}
 }

@@ -17,10 +17,12 @@ export class BehaviorMesh extends THREE.Mesh {
 		this.on_reset(args)
 
 		// force set these properties on the blox; by convention these become reserved for this role
-		if(args.blox) {
-			args.blox.mesh = this
-			args.blox.position = this.position
-			args.blox.quaternion = this.quaternion
+		let blox = args.blox
+		if(blox) { // TODO remove this check once behaviorparticles is removed)
+			if(blox.mesh) console.error("Warning: mesh already assigned")
+			blox.mesh = this
+			blox.position = this.position
+			blox.quaternion = this.quaternion
 		}
 
 	}

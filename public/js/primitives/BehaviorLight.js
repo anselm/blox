@@ -4,7 +4,7 @@ export class BehaviorLight extends THREE.DirectionalLight {
 		let blox = args.blox
 
 		// instance directional light
-		super(props)
+		let light = super(props)
 
 		// adjust scale and position
 		if(props.position) this.position.set(props.position.x,props.position.y,props.position.z)
@@ -18,5 +18,11 @@ export class BehaviorLight extends THREE.DirectionalLight {
 		let material = new THREE.MeshBasicMaterial( {color: color } )
 		let mesh = new THREE.Mesh(geometry,material)
 		this.add(mesh)
+
+		// these get exposed in blox
+		if(blox.mesh) console.error("Warning: mesh already assigned")
+		blox.mesh = light
+		blox.position = light.position
+		blox.quaternion = light.quaternion
 	}
 }

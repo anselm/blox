@@ -9,5 +9,12 @@ export class BehaviorCamera extends THREE.PerspectiveCamera {
 		camera.lookAt(lookat.x,lookat.y,lookat.z)
 		var light = new THREE.PointLight( 0xffffff, 1, 100 )
 		camera.add(light)
+
+		// these get exposed in blox
+
+		if(blox.mesh) console.error("Warning: mesh already assigned")
+//		blox.mesh = camera // TODO some kind of bug is related to this being assigned - forever loop
+		blox.position = camera.position
+		blox.quaternion = camera.quaternion
 	}
 }

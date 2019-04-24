@@ -4,39 +4,54 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
+/// Basic motion concepts
+///
+/// Since this modifies position and quaternion - it should typically be run last in a set of behaviors
+/// Also since it decorates the blox with features - implicitly these become reserved words... worth revisiting the approach
+///
 ///	Decorates a blox with
 ///
-///		position		alredy set from the mesh, can be changed here
+///		position		(alredy set can be changed here)
 ///		velocity 		linear velocity in meters per second
 ///		linear			linear friction
-///		impulse 		a convenience concept - linear impulse will be applied to velocity and cleared
-///		forward_impulse	convenience
 ///
-///		orientation		already set from the mesh can be changed here
+///		orientation		already set can be changed here
 ///		rotation		rotational velcoity
 ///		angular			rotational friction
 ///
-///		forces			a bucket of forces that are applied every frame and die off as per frictive forces
+///		forces			a bucket of forces that are applied every frame
 ///		mass			used to divide the impact of an impulse
 ///
+/// Extra commands
+///
+///		reset 			go back to a rest state
+///		disperse		an area to be distributed over (randomizes position in an area)
+///		nozzle			randomizes velocity in a spray area
+///		impulse 		a convenience concept - linear impulse will be applied to velocity and cleared TODO may remove
+///		forward_impulse	convenience TODO may remove (is already consolidated above in forces)
+///
+///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-///		- a few other simple behaviors are tacked on here as well for convenience
-///		- since this copies to the mesh it should be last in any sequence of behaviors that use the state here
-///		- i decided to inject state into the parent blox so multiple behaviors can use it
 
 export class BehaviorActionKinetic {
 
 	constructor(args) {
-		this.on_move({blox:args.blox})
+
+		// remember original pose
+		let blox = args.blox
+		this.original_position = blox.position.clone()
+		this.original_quaternion = blox.quaternion.clone()
+
+		// reset without passing any args for now
+		this.on_move({blox:blox})
 	}
 
 	on_move(args) {
 
 		let blox = args.blox
 
-		if(!blox.mesh || !blox.position || !blox.quaternion) {
-			console.error("blox has no mesh")
+		if(!blox.position || !blox.quaternion) {
+			console.error("blox has no position")
 			return
 		}
 
@@ -56,13 +71,14 @@ export class BehaviorActionKinetic {
 			blox.mass = 1.0
 		}
 
+		// move to a place
 		if(args.hasOwnProperty("position")) {
 			if(typeof args.position === "string") {
 				let obj = blox ? blox.query(args.position) : 0
 				if(obj) {
 					// set position and orientation from an object
-					blox.position.copy(obj.mesh.position)
-					blox.quaternion.copy(obj.mesh.quaternion)
+					blox.position.copy(obj.position)
+					blox.quaternion.copy(obj.quaternion)
 				} else {
 					console.error("Starting position object not found " + args.origin)
 				}
@@ -86,17 +102,6 @@ export class BehaviorActionKinetic {
 		if(args.hasOwnProperty("linear")) {
 			// linear friction multiplied against velocity
 			blox.linear = parseFloat(args.linear)
-		}
-
-		if(args.impulse) {
-			// convenience utility - absolute impulse
-			blox.impulse.set(args.impulse.x,args.impulse.y,args.impulse.z)
-		}
-
-		if(args.forward_impulse) {
-			// convenient utility - hit with an immediate impulse - TODO maybe remove
-			blox.impulse.set(args.forward_impulse.x,args.forward_impulse.y,args.forward_impulse.z)
-			blox.impulse.applyQuaternion( blox.quaternion )
 		}
 
 		if(args.hasOwnProperty("orientation")) {
@@ -125,14 +130,61 @@ export class BehaviorActionKinetic {
 		}
 
 
-		if(args.hasOwnProperty("gravity")) {
-			// convenience concept
-			blox.forces["gravity"] = new THREE.Vector3(args.gravity.x,args.gravity.y,args.gravity.z)
+		if(args.hasOwnProperty("force")) {
+			if(!args.force.name) console.error("forces need names")
+			blox.forces[args.force.name] = args.force
 		}
 
 		if(args.hasOwnProperty("mass")) {
 			// mass to divide impulses by
 			blox.mass = parseFloat(args.mass)
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////
+		// bonus powers
+		//////////////////////////////////////////////////////////////////////////////////////////
+
+		if(args.impulse) {
+			// convenience utility - absolute impulse -TODO may remove
+			blox.impulse.set(args.impulse.x,args.impulse.y,args.impulse.z)
+		}
+
+		if(args.forward_impulse) {
+			// convenient utility - hit with an immediate impulse - TODO maybe remove
+			blox.impulse.set(args.forward_impulse.x,args.forward_impulse.y,args.forward_impulse.z)
+			blox.impulse.applyQuaternion( blox.quaternion )
+		}
+
+
+		// disperse object over an area (usually applied after positioning)
+		if(args.hasOwnProperty("disperse")) {
+
+			// TODO this needs to be parameterized
+			let offset = args.disperse.offset || {x:0,y:0,z:0}
+			let radius = args.disperse.radius || 10
+
+			blox.position.set(
+				blox.position.x + offset.x + Math.random() * radius - radius/2,
+				blox.position.y + offset.y + Math.random() * radius - radius/2,
+				blox.position.z + offset.z + Math.random() * radius - radius/2
+				)
+
+		}
+
+		if(args.hasOwnProperty("nozzle")) {
+			// nozzle modifier to velocity - TBD 
+			let speed = Math.random() * ( args.speed.max - args.speed.min ) + args.speed.min
+			let nozzle = args.nozzle || {axis1:-10,axis2:10,spin1:0,spin2:360}
+			// get vector pointing up of the speed we want
+			let v = new THREE.Vector3(0,1*speed,0)
+			// get angle on z to rotate that by - a small range would be a small declination
+			let a = (Math.random()*(nozzle.axis2-nozzle.axis1)+nozzle.axis1)
+			// rotate it by that much
+			v.applyAxisAngle(new THREE.Vector3(0,0,1),a*Math.PI/180)
+			// now take the result and sweep it around the vertical spin axis
+			let b = (Math.random()*(nozzle.spin2-nozzle.spin1)+nozzle.spin1)
+			v.applyAxisAngle(new THREE.Vector3(0,1,0),b*Math.PI/180)
+			blox.velocity = v
 		}
 
 	}
@@ -141,8 +193,8 @@ export class BehaviorActionKinetic {
 
 		let blox = args.blox
 
-		if(!blox.mesh || !blox.position || !blox.quaternion) {
-			console.error("blox has no mesh")
+		if(!blox.position || !blox.quaternion) {
+			console.error("blox has no position")
 			return
 		}
 
@@ -151,12 +203,16 @@ export class BehaviorActionKinetic {
 		let impulse = blox.impulse
 
 		if(blox.forces) {
-			// add up linear impulse in meters per second ignoring mass and time slice
-			// TODO right now forces are linear only
+			// adds up linear impulses in meters per second ignoring mass and time slice
+			// TODO right now forces are linear only - should be able to apply angular forces also
+			// TODO support force friction
+			// TODO support relative force aligned with heading
 			Object.entries(blox.forces).forEach(([name,force])=>{
 				impulse.x += force.x
 				impulse.y += force.y
 				impulse.z += force.z
+				if(force.impulse) delete blox.forces[name] // hopefully this won't crash
+				// TODO support force based friction that dampens out a force
 			})
 		}
 
@@ -196,14 +252,16 @@ export class BehaviorActionKinetic {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
+/// Intelligent direction motion concepts
+///
 /// Decorates a blox with
 ///
-///		impulse 			strike the object along current heading with an impulse
-///		target 				an target position that can be alive, a reference to a mesh position or just an xyz
+///		impulse 			strike the object along current heading with an impulse TODO this is now kinda obsolete
+///		target 				an target position that can be alive, a reference to a position or just an xyz
 ///		height 				a height offset - later may support fancier offsets TODO
 ///		forward 			face forward along velocity vector?
 ///		faces 				face an absolute direction?
-///		lookat 				look at a position? can be a live position as a reference to a mesh position
+///		lookat 				look at a position? can be a live position as a reference to a position
 ///
 ///		TODO
 ///		tbd - tween
@@ -215,6 +273,11 @@ export class BehaviorActionKinetic {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export class BehaviorActionTarget {
+
+	constructor() {
+		// relies on features of BehaviorActionKinetic but since that is not loaded yet... don't do any init...
+		// it's worth studying if this is a good approach (implicit relationships between action behaviors) TODO
+	}
 
 	on_move(args) {
 
@@ -238,7 +301,7 @@ export class BehaviorActionTarget {
 				if(obj) {
 					// set target from an object - NOTE this live updates because it is a reference
 					blox.target_obj = obj
-					blox.target = obj.mesh.position
+					blox.target = obj.position
 				} else {
 					console.error("Target object not found " + args.origin)
 				}
@@ -268,7 +331,7 @@ export class BehaviorActionTarget {
 				// face the same way an object is facing
 				let obj = blox ? blox.query(args.faces) : 0
 				if(obj) {
-					blox.faces = obj.mesh.quaternion
+					blox.faces = obj.quaternion
 				}
 			} else if(typeof args.faces === "object" && args.faces.hasOwnProperty("x")) {
 				// faces absolute orientation
@@ -287,7 +350,7 @@ export class BehaviorActionTarget {
 				// an object to face - NOTE this live updates because it is a reference
 				let obj = blox ? blox.query(args.target) : 0
 				blox.lookat_obj = obj
-				blox.lookat = obj.mesh.position
+				blox.lookat = obj.position
 			} else if(typeof args.lookat === "object" && args.lookat.hasOwnProperty("x")) {
 				// look at absolute position
 				blox.lookat_obj = 0
@@ -328,115 +391,97 @@ export class BehaviorActionTarget {
 
 }
 
-
-/*
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-/// Set a nozzle exhaust position, velocity and direction
-///
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class EffectNozzle {
-
-	update(args) {
-
-		if(!args) return
-
-if not at time zero or if latched
-
-
-		this.gravity = props.gravity || new THREE.Vector3(0,-1,0)
-		this.linear = proxxx || new THREE.Vector3(0.9,0.9,0.9)
-
-		// starting radius cloud
-
-		let offset = props.offset || {x:0,y:0,z:0}
-		let radius = props.radius || 1
-
-		this.position = new THREE.Vector3(
-			offset.x + Math.random() * radius,
-			offset.y + Math.random() * radius,
-			offset.z + Math.random() * radius
-			)
-
-
-		// starting radius cloud
-
-		let offset = props.offset || {x:0,y:0,z:0}
-		let radius = props.radius || 1
-
-		this.position = new THREE.Vector3(
-			offset.x + Math.random() * radius,
-			offset.y + Math.random() * radius,
-			offset.z + Math.random() * radius
-			)
-
-		// starting force direction
-
-		let speed = Math.random() * ( props.speed.max - props.speed.min ) + props.speed.min
-
-		let nozzle = props.nozzle || {axis1:-10,axis2:10,spin1:0,spin2:360}
-
-		// get vector pointing up of the speed we want
-		let v = new THREE.Vector3(0,1*speed,0)
-		// get angle on z to rotate that by - a small range would be a small declination
-		let a = (Math.random()*(nozzle.axis2-nozzle.axis1)+nozzle.axis1)
-		// rotate it by that much
-		v.applyAxisAngle(new THREE.Vector3(0,0,1),a*Math.PI/180)
-		// now take the result and sweep it around the vertical spin axis
-		let b = (Math.random()*(nozzle.spin2-nozzle.spin1)+nozzle.spin1)
-		v.applyAxisAngle(new THREE.Vector3(0,1,0),b*Math.PI/180)
-		this.velocity = v
-	}
-
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 /// Lifespan
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class EffectLifespan {
+export class BehaviorActionLifespan {
 
-	update(args) {
-
-		// set new lifespan if any
-		if(args && args.hasOwnProperty(args.lifespan)) {
+	on_move(args) {
+		if(args && args.hasOwnProperty("lifespan")) {
+			this.move_event = args // test idea
 			if(typeof args.lifespan !== "object") {
-				this.life = parseInt(args.lifespan)
+				this.lifestart = this.life = parseInt(args.lifespan)
 			} else if(args.lifespan.hasOwnProperty("min") && args.lifespan.hasOwnProperty("max")) {
-				this.life = Math.random() * (args.lifespan.max-args.lifespan.min) + args.lifespan.min
+				this.lifestart = this.life = Math.floor( Math.random() * (args.lifespan.max-args.lifespan.min) + args.lifespan.min )
 			} else {
 				this.life = 0
 			}
 		}
+	}
+
+	on_tick(args) {
 
 		// count down
 		if(!this.life) return
 		this.life--
+
+		let blox = args.blox
+
+		// play with scale TODO move to a more controlled place
+		let s = Math.random() + 1
+		blox.mesh.scale.set(s,s,s)
+
+		// play with color TODO parameterize and move to more controlled place
+		{
+			let r = Math.floor(Math.random()*100 + 135)
+			let g = Math.floor(Math.random()*100 + 19)
+			let b = Math.floor(Math.random()*100 + 101)
+			let c = r *65536 + g * 256 + b
+			blox.mesh.material.color.setHex( c )
+		}
+		//var colorHSL = this.colorTween.lerp( this.age );
+		//this.color = new THREE.Color().setHSL( colorHSL.x, colorHSL.y, colorHSL.z );
+
+		// play with opacity TODO make optional
+		args.blox.mesh.material.opacity = 1-(this.lifestart-this.life)/this.lifestart
+
+		// trying an idea of refiring the event that set the lifespan - ponder this approach TODO
 		if(this.life) return
-		args.blox.mesh.visible = false
-		args.blox.mesh.position.set(0,0,0)
-		// - reset?
+		args.blox.on_event(this.move_event)
+
+		// TODO introduce an idea of dying once lifespan is over
 	}
 
-	update() {
-		// lifespan
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// tumble
+///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export class BehaviorActionTumble {
+
+	on_move(args) {
+		if(args.hasOwnProperty("tumble")) {
+			this.tumble = args.tumble
+			this.tumbleTime = 0
+		}
+	}
+
+	on_tick(args) {
+		if(!this.tumble)return
+		if(--this.tumbleTime<0) {
+			this.tumbleTime = Math.floor(Math.random()*50)
+			this.tumbleAxis = new THREE.Vector3(Math.random()*10,Math.random()*10,Math.random*10).normalize()
+		}
+		args.blox.mesh.rotateOnAxis(this.tumbleAxis,0.1)
 	}
 }
 
 
-	list.push(new EffectLifespan())
-	element.update(args)
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-///
+/// Hiding TODO TBD
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 class EffectPlayer {
 	/// rules like "hide behind" use the player
 	effect_player(args) {
@@ -452,37 +497,15 @@ class EffectPlayer {
 		}
 	}
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-///
-///
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class EffectTumble {
-	effect_tumble() {
-		// pick a tumble orientation
-
-		this.tumbleTime = 0
-
-		// tumble
-
-		if(--this.tumbleTime<0 || !this.tumbleAxis) {
-			this.tumbleTime = Math.floor(Math.random()*50)
-			this.tumbleAxis = new THREE.Vector3(Math.random()*10,Math.random()*10,Math.random*10).normalize()
-		}
-		this.mesh.rotateOnAxis(this.tumbleAxis,0.1)
-
-	}
-}
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-/// ik
+/// More IK TODO TBD
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 		this.modifier_eyelevel = 0
 		this.modifier_ground = 0
 		this.modifier_wall = 0
@@ -516,36 +539,6 @@ class EffectTumble {
 
 		// TODO - NEAR, ABOVE, BELOW, INSIDE, BEHIND, FACING, STARE
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-/// color
-///
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class EffectColor {
-
-
-	effect_color() {
-		// fiddle with scale and color - TODO later get from params
-		let r = Math.floor(Math.random()*100 + 135)
-		let g = Math.floor(Math.random()*100 + 19)
-		let b = Math.floor(Math.random()*100 + 101)
-		let c = r *65536 + g * 256 + b
-		let s = Math.random() + 1
-		// build up properties to write
-		let modifiers = {
-			art:"ignore",
-			color:c,
-			scale:{ x:s, y:s, z:s },
-			doublesided:1,
-			transparent:1,
-		}
-		// modify the mesh
-		this.blox.mesh.on_reset({description:modifiers})
-	}
-
-}
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -558,16 +551,27 @@ export class BehaviorAction {
 
 	constructor(args) {
 
-		args.blox.add("actionTarget")		// modify forces by targets
-		args.blox.add("actionKinetic")		// add up forces and apply to actual mesh position
+		// this is an approach of having a series of related behaviors compartmentalize and deliver aspects of action
+		// it has some plusses and minuses, it does pollute blox with many properties, and has some implicit assumptions
+		// it is possible alternatively that i could only add what behaviors i needed, or manage the behaviors inside this
+		// TODO look at only adding actions that I need for a given effect
 
-		// save script if any
+		args.blox.add("actionTumble")
+		args.blox.add("actionLifespan")		// a lifespan
+		args.blox.add("actionTarget")		// modify forces by targets - note several properties don't exist yet here
+		args.blox.add("actionKinetic")		// add up forces and apply to actual position - this should be run last
+
+		// reset program script counters
+		this.timer_offset = -1
+		this.counter = 0
+		this.script = 0
+
+		// save script if any or run one command now
 		if(args.description && args.description instanceof Array) {
-			this.timer_offset = -1
-			this.counter = 0
 			this.script = args.description
-		} else {
-			// handle single arg todo
+		} else if(typeof args.description === "object") {
+			args.description.name = "on_move"
+			args.blox.on_event(args.description)
 		}
 
 	}
@@ -596,5 +600,4 @@ export class BehaviorAction {
 
 }
 
-// TODO get rid of behavior particles by adding lifespan, tumble and color and fade and nozzle to this
 
