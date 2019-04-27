@@ -15,7 +15,8 @@ export class BehaviorText extends BehaviorMesh {
 		super(props,blox)
 		this.props = props
 		var loader = new THREE.FontLoader();
-		loader.load( 'fonts/helvetiker_bold.typeface.json', this.attachText.bind(this) )
+		let font = props && props.font ? props.font : 'fonts/helvetiker_bold.typeface.json'
+		loader.load( font, this.attachText.bind(this) )
 	}
 
 	attachText(font) {
