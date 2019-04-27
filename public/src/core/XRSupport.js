@@ -17,10 +17,11 @@ export class XRSupport {
 		this.canvas = args.canvas
 		this.renderXR = args.renderXR
 
-		// start polyfill loading
-		let s = document.createElement( 'script' )
-		s.onload = this.handleGoButtonSetup.bind(this)
-		s.setAttribute( 'src', "../lib/webxr.js" )
+		// only load polyfill if in xr mode
+		let script = document.createElement( 'script' )
+		script.onload = this.handleGoButtonSetup.bind(this)
+		script.src = "../lib/webxr.js"
+		document.head.appendChild(script);
 
 	}
 
@@ -54,15 +55,15 @@ export class XRSupport {
 		}
 
 		// a canvas for the pass through camera
-		const xrCanvas = document.createElement('canvas')
-		xrCanvas.setAttribute('class', 'xr-canvas')
-		const xrContext = xrCanvas.getContext('xrpresent')
-		if(!xrContext){
-			console.error('No XR context', xrCanvas)
+		this.xrCanvas = document.createElement('canvas')
+		this.xrCanvas.setAttribute('class', 'xr-canvas')
+		this.xrContext = this.xrCanvas.getContext('xrpresent')
+		if(!this.xrContext){
+			console.error('No XR context', this.xrCanvas)
 			return
 		}
 
-		this.device.requestSession({ outputContext: xrContext })
+		this.device.requestSession({ outputContext: this.xrContext })
 			.then(this.sessionFound.bind(this))
 			.catch(err => {
 				console.error('Session setup error', err)
@@ -73,15 +74,15 @@ export class XRSupport {
 		this.session = xrSession
 
 		// webxr-ios paints the camera live display here
-		document.body.insertBefore(xrCanvas, document.body.firstChild)
+		// TODO needed?
+		document.body.insertBefore(this.xrCanvas, document.body.firstChild)
 
 		// the canvas you supplied in the constructor
-		const canvas = this.canvas
-		var glContext = canvas.getContext('webgl', { compatibleXRDevice: this.device })
+		var glContext = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
 		if(!glContext) throw new Error('Could not create a webgl context')
 
 		// Set up the base layer
-		this.session.baseLayer = new XRWebGLLayer(session, glContext)
+		this.session.baseLayer = new XRWebGLLayer(this.session, glContext)
 
 		// head-model is the coordinate system that tracks the position of the display
 		this.session.requestFrameOfReference('head-model').then(frameOfReference =>{

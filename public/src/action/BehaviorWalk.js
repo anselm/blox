@@ -2,13 +2,16 @@
 ///
 /// Associates keyboard control with a mesh
 ///
-/// Typically I expect the user to add a camera nearby
-///
 
 export class BehaviorWalk {
 
 	constructor(args) {
 		document.addEventListener("keydown", this.onKeyDown.bind(this), false)
+
+		// kind of a hack - look for the camera
+		this.camera = args.blox.parent.query({property:"isPerspectiveCamera"})
+		this.mesh = args.blox.query({instance:THREE.Object3D})
+
 	}
 
 	onKeyDown(event) {
@@ -38,28 +41,22 @@ export class BehaviorWalk {
 
 	on_tick(args) {
 
-		let blox = args.blox
+		// hack if in xr mode just get out
+		let xrmode = typeof window.webkit !== 'undefined'
+		if(xrmode) return
 
-		if(!blox.parent.camera || !blox.mesh) {
+		if(!this.camera || !this.mesh) {
 			console.error("Needs its own camera and mesh for now")
 		}
 
-		let xrmode = typeof window.webkit !== 'undefined'
-
-// TODO TESTING XR - IMPROVE
-		// if in vr mode then move camera to us
-		if(!xrmode) {
-//			this.material.visible = false
-//			this.visible = false
-			// find a position behind the object
-			let v = new THREE.Vector3(0,3,-10)
-			v.applyMatrix4(blox.mesh.matrixWorld)
-			blox.parent.camera.position.set(v.x,v.y,v.z)
-			// look at the target
-			blox.parent.camera.lookAt(blox.mesh.position)
-		} else {
-			// move this to the camera TODO TBD
-		}
+		//this.material.visible = false
+		//this.visible = false
+		// find a position behind the object
+		let v = new THREE.Vector3(0,3,-10)
+		v.applyMatrix4(this.mesh.matrixWorld)
+		this.camera.position.set(v.x,v.y,v.z)
+		// look at the target
+		this.camera.lookAt(this.mesh.position)
 	}
 }
 

@@ -1,9 +1,12 @@
 
-import {XRSupport} from "../../lib/XRSupport.js"
+import {XRSupport} from "./XRSupport.js"
 
 export class BehaviorRenderer extends THREE.WebGLRenderer {
 
 	constructor() {
+
+		//const canvas = document.createElement('canvas')
+		//var glContext = canvas.getContext('webgl', { compatibleXRDevice: device })
 
 		super({antialias:true,alpha:false}) // XRSupport.supportsARKit() TODO?
 
@@ -50,18 +53,22 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
 
 		// TODO needed?
-		this.renderer.autoClear = false
+		this.autoClear = false
 
 		this.camera.matrixAutoUpdate = false
 		this.camera.matrix.fromArray(viewMatrix)
 		this.camera.updateMatrixWorld()
 		this.camera.projectionMatrix.fromArray(projectionMatrix)
 
-		// TODO why?
-		//this.setSize(this.domElement.width, this.domElement.height, false)
-
-		//const viewport = view.getViewport(this.session.baseLayer)
-		this.setViewport(viewport.x, viewport.y, viewport.width, viewport.height)
+		// TODO why does this get reset to 0?
+		let width = this.xr.session.baseLayer.framebufferWidth
+		let height = this.xr.session.baseLayer.framebufferHeight
+		if(width <10 || height < 10 ) {
+			width = window.innerWidth
+			height = window.innerHeight
+		}
+		this.setSize(width,height,false)
+		this.setViewport(0,0,width,height) //viewport.x, viewport.y, viewport.width, viewport.height)
 
 		// TODO needed? this.clear()?
 
