@@ -326,7 +326,35 @@ export class BehaviorActionTarget {
 			// ik - height displacement modifier
 			blox.height = parseFloat(args.height)
 		}
+/*
+		if(args.hasOwnProperty("ground")) {
+			if(!blox.raycaster) blox.raycaster = new THREE.RayCaster()
+			// start at self
+			let src = new THREE.Vector3(blox.position.x,blox.position.y,blox.position.z)
+			// aim down
+			let dir = new THREE.Vector3(0,-1,0)
+			raycaster.set(src,dir)
+			// TODO need a better scene mechanism
+			var intersects = raycaster.intersectObjects( blox.parent.scene.children )
 
+// get to bottom of me
+
+			if(intersects.length) {
+				let obj = intersects[ 0 ]
+				obj.material.color.set( 0xff0000 )
+				if(obj.uuid == blox.mesh) continue
+				// take highest
+				if(obj.position.y > h) h = obj.position.y
+			}
+			// get bounds
+			const box = new THREE.Box3().setFromObject(mesh);
+const center = box.getCenter(new THREE.Vector3());
+
+			// either be at height height above ground or at ground
+			blox.height = blox.height ? blox.height + y : y
+			// TODO need to add bounding box
+		}
+*/
 		if(args.hasOwnProperty("forward")) {
 			// ik - turn face forward off or on
 			blox.forward = args.forward

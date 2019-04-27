@@ -10,13 +10,16 @@
 
 export let cherry_blossoms = {
 
+	// this one line does a remarkable amount of heavy lifting; blox itself knows nothing about 3js...
 	scene: 0,
 
+	// this camera is ignored in xr mode
 	"mycamera":	{
 		camera:{
 			position:{x:20,y:5,z:50},
 			lookat:{x:0,y:10,z:0},
 		},
+		// technically this orbit control is still running in xr mode - arguably i shouldn't bother doing that
 		orbit:{
 			lookat:{x:0,y:10,z:0},
 		}
@@ -45,13 +48,13 @@ export let cherry_blossoms = {
 	},
 
 	"mytree":{
-		load:"../blox/cherry_tree.js", // loading a package and then changing it
+		load:"../blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
 		mesh:{
 			scale:{x:5,y:5,z:5},
 		},
 	},
 
-		// a tree
+	// another tree - they need unique names because this is a hash, but you could use group: [] children ...
 	"myothertree": {
 		mesh:{
 			art:"../art/cherry_tree",
@@ -71,39 +74,9 @@ export let cherry_blossoms = {
 		},
 	},
 
-/*
-		// old effects engine
-		{
-			name:"hearts",
-
-			// add any kind of object to this clump as a prototype of what to re-use, will find it and use it
-			heart: {
-				art:"ignore",
-				color:0xffffff,
-				position:{x:0,y:10,z:0},
-				scale:{x:1,y:1,z:1},
-				doublesided:1
-			},
-
-			// a particle field finds any mesh nearby and assumes that is the base of the effect
-			particles: {
-				gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
-				size:{min:1,max:1,end:0}, // minimum size, maximum size, ending size
-				speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
-				radius:30, // starting radius
-				nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
-				gravity:{x:0,y:-8,z:0},
-				friction:{x:0.95,y:0.95,z:0.95},
-				longevity:{min:100,max:310}, // minimum and maximum lifespan
-				quantity:5000,
-				rate:0.1
-			},
-
-		},
-*/
-
 	"testparticle": {
 
+		// a piece of art - it also sets some globals on blox such as blox.mesh blox.position blox.quaternion
 		heart: {
 			art:"ignore", // TODO this is a bit inelegant
 			color:0xffffff,
@@ -113,54 +86,53 @@ export let cherry_blossoms = {
 			transparent:1
 		},
 
-		// an action is another way of declaring behaviors that are applied to the parent blox
-		// if a behavior already exists then effectively the action is resetting the behavior
-		// actions can also be arranged in timewise arrays to do actions over time
-		//action:{
+		// a behavior that does tumbling
+		actionTumble: {
+			// set in a tumble motion
+			tumble:1,
+		},
 
-			actionTumble: {
-				// set in a tumble motion
-				tumble:1,
-			},
+		// a behavior that does a lifespan with reset - when done it calls on_reset() on this entire blox
+		actionLifespan: {
+			// limit lifespan; will re-run this entire action rule once this expires
+			lifespan:{min:100, max:150},
 
-			actionLifespan: {
-				// limit lifespan; will re-run this entire action rule once this expires
-				lifespan:{min:100, max:150},
+			// randomize the color
+			color_gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
 
-				// randomize the color
-				color_gradient:{min:0x00ff0000,max:0x00ff0000,end:0x00000000}, // minimum color, maximum color, end color
+			// randomize the scale
+			scale_range:{min:1,max:1,end:0},
+		},
 
-				// randomize the scale
-				scale_range:{min:1,max:1,end:0},
-			},
+		// a behavior with a variety of simple physics
+		actionKinetic: {
+			// sets a position - overriding what was set in the mesh above if any
+			position:{x:0,y:10,z:0},
 
-			actionKinetic: {
-				// sets a position - overriding what was set in the mesh above if any
-				position:{x:0,y:10,z:0},
+			// sets a starting velocity and direction
+			velocity:{x:0,y:10,z:0},
 
-				// sets a starting velocity and direction
-				velocity:{x:0,y:10,z:0},
+			// global friction acting against velocity - by default it is 0.9
+			// friction:0.9
 
-				// global friction acting against velocity
-				// friction:0.9
+			// adds a force; forces can have properties that allow them to dampen over time or be one frame events 
+			force:{name:"gravity",x:0,y:-1,z:0,friction:0,impulse:false},
 
-				// adds a force; forces can have properties that allow them to dampen over time or be one frame events 
-				force:{name:"gravity",x:0,y:-1,z:0,friction:0,impulse:false},
+			// adjust the position - make it randomized over an area
+			disperse:{radius:50},
 
-				// adjust the position - make it randomized over an area
-				disperse:{radius:50},
+			// set the velocity (would override above) - make it focused within a nozzle area and direction
+			//nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
 
-				// reset the velocity - make it focused within a nozzle area
-				//nozzle:{axis1:-50,axis2:50,spin1:0,spin2:360},
+			// this may be obsolete TODO remove
+			//speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
 
-				// this may be obsolete TODO remove
-				//speed:{min:0.4,max:0.5,end:-1}, // minimum start speed, maximum start speed, ending speed if any }
+		},
 
-			},
-
-		//}
 	},
 
+	// an emitter that spawns some objects
+	// TODO it should emit them at a time rate instead of all at once
 	"petalemitter": {
 		emitter:{
 			target:"testparticle",
@@ -172,4 +144,3 @@ export let cherry_blossoms = {
 
 
 }
-

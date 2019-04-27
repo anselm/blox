@@ -2,8 +2,8 @@
 import {importModule} from '../lib/importModule.js'
 
 // Rendering
-import {BehaviorRenderer} from './BehaviorRenderer.js'
-import {BehaviorScene} from './BehaviorScene.js'
+import {BehaviorRenderer} from './core/BehaviorRenderer.js'
+import {BehaviorScene} from './primitives/BehaviorScene.js'
 
 // Primitives
 import {BehaviorCamera} from './primitives/BehaviorCamera.js'
@@ -14,33 +14,33 @@ import {BehaviorHeart} from './primitives/BehaviorHeart.js' // TODO this may go 
 import {BehaviorText} from './primitives/BehaviorText.js'
 import {BehaviorTextPanel} from './primitives/BehaviorTextPanel.js'
 
-// Collision support
-import {BehaviorCollide} from './BehaviorCollide.js'
-
 // Motion and physics, some of this may merge together
 import {BehaviorAction,
 		BehaviorActionKinetic,
 		BehaviorActionTarget,
 		BehaviorActionLifespan,
 		BehaviorActionTumble
-	} from './animation/BehaviorAction.js'
+	} from './action/BehaviorAction.js'
 
 import {BehaviorLine,
 		BehaviorBounce,
 		BehaviorOscillate,
 		BehaviorWander,
 		BehaviorStare
-	} from './animation/BehaviorBounce.js'
+	} from './action/BehaviorBounce.js'
 
-import {BehaviorEmitter} from './animation/BehaviorEmitter.js'
+import {BehaviorEmitter} from './action/BehaviorEmitter.js'
 
-import {BehaviorPhysics, BehaviorPhysical} from './animation/BehaviorPhysics.js'
+import {BehaviorPhysics, BehaviorPhysical} from './action/BehaviorPhysics.js'
 
-import {BehaviorOrbit} from './animation/BehaviorOrbit.js' // TODO this one really needs to be rewritten
-import {BehaviorWalk} from './animation/BehaviorWalk.js'
+import {BehaviorOrbit} from './action/BehaviorOrbit.js' // TODO this one really needs to be rewritten
+import {BehaviorWalk} from './action/BehaviorWalk.js'
 
 // Particles
-import {BehaviorProton} from './BehaviorProton.js'
+import {BehaviorProton} from './action/BehaviorProton.js'
+
+// Collision support
+import {BehaviorCollide} from './action/BehaviorCollide.js'
 
 //import {BehaviorParticles} from './animation/BehaviorParticles.js'
 

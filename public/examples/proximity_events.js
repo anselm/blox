@@ -102,7 +102,6 @@ export let myscene = {
 	},
 
 	"foxy": {
-		camera:{}, // a test of ones own camera for special controls
 		mesh:{
 			provenance:[
 				"https://sketchfab.com/3d-models/low-poly-fox-by-pixelmannen-animated-371dea88d7e04a76af5763f2a36866bc",
@@ -113,7 +112,7 @@ export let myscene = {
 			color:0xff0000,
 		},
 		actionKinetic:{},
-		walk:{}, // walking behavior
+		walk:{}, // walking behavior relies on actionKinetic
 		collide: {
 			gaze: true,
 			click: true,

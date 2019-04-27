@@ -1,198 +1,127 @@
 
-//let XRSession = window.XRSession || polyfill.global.XRSession
-//let XRWebGLLayer = window.XRWebGLLayer || polyfill.global.XRWebGLLayer
-
-///
-/// XR Support
-///
-/// The WebXR exposes an API for talking to various XR devices in a standards based way.
-/// This code is a wrapper to isolate some of the setup into one place.
-///
-///
-
-class XRSupport {
+export class XRSupport {
 
 	static supportsARKit() {
 		return typeof window.webkit !== 'undefined'
 	}
 
 	constructor(args) {
-		// load the polyfill here rather than statically because the polyfill injects an overlay into the DOM even if not used
+
+		// bail if unsupported
+		if(!window.webkit) {
+			console.error("This can only run on webxr-ios")
+			return 0
+		}
+
+		// stash args
+		this.canvas = args.canvas
+		this.renderXR = args.renderXR
+
+		// start polyfill loading
 		let s = document.createElement( 'script' )
-		s.setAttribute( 'src', "lib/webxr-polyfill.js" )
-		s.onload = () => { this.prepare(args) }
-	}
-
-	prepare(args) {
-
-		// caller must provide some parameters
-		this.canvas = args.canvas ? args.canvas : args.renderer.domElement
-		this.context = args.context ? args.context : args.renderer.getContext()
-		this.renderer = args.renderer
-		this.updatePOV = args.updatePOV || 0
-		this.updateCamera = args.updateCamera || 0
-		this.updateScene = args.updateScene || 0
-		this.renderScene = args.renderScene || 0
-
-		// avoid clearing color and depth since both are apparently over-written by the xr pass through camera
-		this.renderer.autoClear = false
-
-		// caller may provide a message handler for some convenience messages
-		this.showMessage = args.showMessage || this.defaultShowMessage
-
-		// Set during the XR.getDisplays call below
-		this.displays = null
-
-		// Set during this.startSession below		
-		this.display = null
-		this.session = null
-
-		// Useful for setting up the requestAnimationFrame callback
-		this._boundHandleFrame = this._handleFrame.bind(this)
-
-		// WebXR present at all?
-		if(typeof navigator.XR === 'undefined'){
-			this.showMessage('No WebXR API found, usually because the WebXR polyfill has not loaded')
-			return
-		}
-
-		// Get displays and then request a session
-		navigator.XR.getDisplays().then(displays => {
-			if(displays.length == 0) {
-				this.showMessage('No displays are available')
-				return
-			}
-			this.displays = displays
-			this._startSession(args)
-		}).catch(err => {
-			console.error('Error getting XR displays', err)
-			this.showMessage('Could not get XR displays')
-		})
+		s.onload = this.handleGoButtonSetup.bind(this)
+		s.setAttribute( 'src', "../lib/webxr.js" )
 
 	}
 
-	_startSession(args){
+	handleGoButtonSetup() {
+		let btn = document.createElement("button")
+		btn.setAttribute('id', 'go-button')
+		btn.innerHTML = "CLICKME"
+		document.body.appendChild(btn)
+		btn.addEventListener('click', this.deviceSearch.bind(this), true)
+		btn.addEventListener('touchstart', this.handleGoButtonTouch.bind(this), true)
+	}
 
-		let sessionInitParameters = {
-			exclusive: args.createVirtualReality,
-			type: args.createVirtualReality ? XRSession.REALITY : XRSession.AUGMENTATION,
-			videoFrames: args.useComputerVision,    //computer_vision_data
-			alignEUS: args.alignEUS,
-			worldSensing: args.worldSensing
-		}
+	handleGoButtonTouch(event) { 
+		event.stopPropagation()
+	}
 
-		for(let display of this.displays) {
-			if(display.supportsSession(sessionInitParameters)) {
-				this.display = display
-				break
-			}
-		}
-
-		if(this.display === null) {
-			this.showMessage('Could not find a display for this type of session')
-			return
-		}
-
-		this.display.requestSession(sessionInitParameters).then(session => {
-			this.session = session
-			this.session.depthNear = 0.1
-			this.session.depthFar = 1000.0
-
-			if(args.shouldStartPresenting) {
-				// VR Displays need startPresenting called due to input events like a click
-				this.startPresenting()
-			}
-		}).catch(err => {
-			console.error('Error requesting session', err)
-			this.showMessage('Could not initiate the session')
+	deviceSearch(ev) {
+		navigator.xr.requestDevice().then( this.deviceFound.bind(this)
+		).catch(err => {
+			console.error('Error', err)
 		})
 	}
 
-	// WebVR 1.1 displays require that the call to requestPresent be a direct result of an input event like a click.
-	// If you're trying to set up a VR display, you'll need to pass false in the shouldStartPresenting parameter of the constructor
-	// and then call this.startPresenting() inside an input event handler.
-	startPresenting(){
-		if(this.session === null){
-			this.showMessage('Can not start presenting without a session')
-			throw new Error('Can not start presenting without a session')
+	deviceFound(xrDevice) {
+
+		this.device = xrDevice
+
+		if(this.device === null){
+			console.error('No xr device')
+			return
 		}
 
-		// Set the session's base layer into which the app will render
-		this.session.baseLayer = new XRWebGLLayer(this.session, this.context)
-
-		// kickstart updates
-		this.session.requestFrame(this._boundHandleFrame)
-	}
-
-	_handleFrame(frame){
-		const nextFrameRequest = this.session.requestFrame(this._boundHandleFrame)
-
-		// a clock
-		if(!this.clock) this.clock = new THREE.Clock()
-        let time = this.clock.getElapsedTime()
-
-		// callback to update the 3js scenegraph
-		if(this.updateScene) this.updateScene(time,this.session,frame)
-
-		let width = this.session.baseLayer.framebufferWidth || window.innerWidth
-		let height = this.session.baseLayer.framebufferHeight || window.innerHeight
-
-		// Render each view into session.baseLayer.context - there is only 1 view on arkit for an ios device
-		for(const view of frame.views) {
-
-			// Update POV based on view
-			if(this.updatePOV) this.updatePOV(view.viewMatrix)
-
-			// Each XRView has its own projection matrix, so set the camera to use that
-			if(this.updateCamera) this.updateCamera(view.projectionMatrix)
-
-			// Prep THREE.js for the render of each XRView
-			this.renderer.autoClear = false
-			this.renderer.setSize(width,height, false)
-			this.renderer.clear() // TODO this may not be needed
-
-			// Set up the renderer to the XRView's viewport and then render
-			this.renderer.clearDepth()
-
-			// set paint target
-			const viewport = view.getViewport(this.session.baseLayer)
-			this.renderer.setViewport(viewport.x, viewport.y, viewport.width, viewport.height)
-
-			// paint
-			if(this.renderScene) this.renderScene()
+		// a canvas for the pass through camera
+		const xrCanvas = document.createElement('canvas')
+		xrCanvas.setAttribute('class', 'xr-canvas')
+		const xrContext = xrCanvas.getContext('xrpresent')
+		if(!xrContext){
+			console.error('No XR context', xrCanvas)
+			return
 		}
+
+		this.device.requestSession({ outputContext: xrContext })
+			.then(this.sessionFound.bind(this))
+			.catch(err => {
+				console.error('Session setup error', err)
+			})
 	}
 
-	///
-	/// a div with the message text, and shows a button to test rendering the scene
-	///
-	defaultShowMessage(messageText) {
-		let messages = document.getElementsByClassName('common-message')
-		if(messages.length > 0){
-			var message = messages[0]
-		} else {
-			var message = document.createElement('div')
-			message.setAttribute('class', 'common-message')
-			document.body.append(message)
+	sessionFound(xrSession){
+		this.session = xrSession
+
+		// webxr-ios paints the camera live display here
+		document.body.insertBefore(xrCanvas, document.body.firstChild)
+
+		// the canvas you supplied in the constructor
+		const canvas = this.canvas
+		var glContext = canvas.getContext('webgl', { compatibleXRDevice: this.device })
+		if(!glContext) throw new Error('Could not create a webgl context')
+
+		// Set up the base layer
+		this.session.baseLayer = new XRWebGLLayer(session, glContext)
+
+		// head-model is the coordinate system that tracks the position of the display
+		this.session.requestFrameOfReference('head-model').then(frameOfReference =>{
+			this.headFrameOfReference = frameOfReference
+		})
+		.catch(err => {
+			console.error('Error finding head frame of reference', err)
+		})
+
+		// bind
+		this.handleAnimationFrame = this.handleAnimationFrame.bind(this)
+
+		// get eye level and kickstart system
+		this.session.requestFrameOfReference('eye-level').then(frameOfReference => {
+			this.eyeLevelFrameOfReference = frameOfReference
+			this.session.requestAnimationFrame(this.handleAnimationFrame)
+		})
+		.catch(err => {
+			console.error('Error finding eye frame of reference', err)
+		})
+	}
+
+	handleAnimationFrame(t, frame){
+		if(!this.session || this.session.ended) return
+		this.session.requestAnimationFrame(this.handleAnimationFrame)
+
+		let pose = frame.getDevicePose(this.eyeLevelFrameOfReference)
+		if(!pose){
+			console.log('No pose')
+			return
 		}
-		let div = document.createElement('div')
-		div.innerHTML = messageText
-		message.appendChild(div)
-	}
 
-	///
-	/// helper
-	///
-	popupWarning() {
-	  let url = "https://itunes.apple.com/us/app/webxr-viewer/id1295998056?mt=8"
-	  document.body.innerHTML =
-	    `<br/><br/><center>
-	     <div style="color:white;width:80%;background:#400;border:3px solid red">
-	     Please use the WebXR iOS browser to experience this app.
-	     <br/><br/>
-	     <a href="https://itunes.apple.com/us/app/webxr-viewer/id1295998056?mt=8">
-	     https://itunes.apple.com/us/app/webxr-viewer/id1295998056?mt=8</a></div>
-	   `
+		for (let view of frame.views) {
+			this.renderXR(
+				this.session.baseLayer.getViewport(view),
+				view.projectionMatrix,
+				pose.getViewMatrix(view),
+			)
+			break
+		}
 	}
 
 }

@@ -40,7 +40,7 @@ export class BehaviorWalk {
 
 		let blox = args.blox
 
-		if(!blox.camera || !blox.mesh) {
+		if(!blox.parent.camera || !blox.mesh) {
 			console.error("Needs its own camera and mesh for now")
 		}
 
@@ -54,9 +54,9 @@ export class BehaviorWalk {
 			// find a position behind the object
 			let v = new THREE.Vector3(0,3,-10)
 			v.applyMatrix4(blox.mesh.matrixWorld)
-			blox.camera.position.set(v.x,v.y,v.z)
+			blox.parent.camera.position.set(v.x,v.y,v.z)
 			// look at the target
-			blox.camera.lookAt(blox.mesh.position)
+			blox.parent.camera.lookAt(blox.mesh.position)
 		} else {
 			// move this to the camera TODO TBD
 		}
