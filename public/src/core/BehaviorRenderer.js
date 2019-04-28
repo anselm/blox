@@ -1,31 +1,26 @@
 
 import {XRSupport} from "./XRSupport.js"
 
-export class BehaviorRenderer extends THREE.WebGLRenderer {
+export class BehaviorRenderer {
 
 	constructor() {
 
-		//const canvas = document.createElement('canvas')
-		//var glContext = canvas.getContext('webgl', { compatibleXRDevice: device })
-
-		super({antialias:true,alpha:false}) // XRSupport.supportsARKit() TODO?
-
-		// TODO is this needed?
-		this.setSize( window.innerWidth, window.innerHeight )
-
-		this.canvas = this.domElement
-		this.clock = new THREE.Clock()
 		this.scene = 0
 		this.camera = 0
+		this.clock = new THREE.Clock()
 
-		if(!XRSupport.supportsARKit()) {
-			// desktop render loop
-			document.body.appendChild( this.domElement )
-			this.setAnimationLoop( this.renderDesktop.bind(this) )
-			return
+		if(XRSupport.supportsARKit()) {
+			this.xr = new XRSupport(this.renderXR.bind(this))
 		} else {
-			// webxr-ios render loop
-			this.xr = new XRSupport({ canvas:this.domElement, renderXR:this.renderXR.bind(this) })
+			this.device = 0
+			this.canvas = document.createElement('canvas')
+			this.context = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
+			this.renderer = new THREE.WebGLRenderer({canvas:this.canvas,context:this.context,antialias:false,alpha:false})
+			this.renderer.setSize( window.innerWidth, window.innerHeight )
+			this.renderer.autoClear = false
+			this.renderer.setPixelRatio(1)
+			document.body.appendChild( this.renderer.domElement )
+			this.renderer.setAnimationLoop( this.renderDesktop.bind(this) )
 		}
 	}
 
@@ -42,18 +37,25 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 	}
 
 	renderDesktop() {
-		if(!this.scene || !this.camera) return
+		if(!this.renderer || !this.scene || !this.camera) return
 		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
-		this.render(this.scene,this.camera)
+		this.renderer.render(this.scene,this.camera)
 	}
 
-	renderXR(viewport,viewMatrix,projectionMatrix) {
+	renderXR(canvas,context,viewport,projectionMatrix,viewMatrix) {
 
-		if(!this.scene || !this.camera) return
+		if(!this.renderer) {
+			this.device = 0
+			this.canvas = canvas
+			this.context = context
+			this.renderer = new THREE.WebGLRenderer({canvas:canvas,context:context,antialias:true,alpha:false})
+			this.renderer.setSize( window.innerWidth, window.innerHeight )
+			this.renderer.autoClear = false
+			this.renderer.setPixelRatio(1)
+		}
+
+		if(!this.renderer || !this.scene || !this.camera) return
 		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
-
-		// TODO needed?
-		this.autoClear = false
 
 		this.camera.matrixAutoUpdate = false
 		this.camera.matrix.fromArray(viewMatrix)
@@ -67,14 +69,14 @@ export class BehaviorRenderer extends THREE.WebGLRenderer {
 			width = window.innerWidth
 			height = window.innerHeight
 		}
-		this.setSize(width,height,false)
-		this.setViewport(0,0,width,height) //viewport.x, viewport.y, viewport.width, viewport.height)
+		this.renderer.setSize(width,height,false)
+		this.renderer.setViewport(0,0,width,height) //viewport.x, viewport.y, viewport.width, viewport.height)
 
-		// TODO needed? this.clear()?
+	this.renderer.clear()
 
-		this.clearDepth()
+		this.renderer.clearDepth()
 
-		this.render(this.scene, this.camera)
+		this.renderer.render(this.scene, this.camera)
 	}
 
 

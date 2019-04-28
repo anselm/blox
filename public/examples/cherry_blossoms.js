@@ -31,7 +31,7 @@ export let cherry_blossoms = {
 			color:0xFFFFFF,
 		}
 	},
-
+/*
 	"myskybox":	{
 		sky:{
 			art:"../art/eso0932a.jpg"
@@ -46,7 +46,7 @@ export let cherry_blossoms = {
 			color:0x270212,
 		}
 	},
-
+*/
 	"mytree":{
 		load:"../blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
 		mesh:{

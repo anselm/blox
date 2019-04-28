@@ -5,24 +5,12 @@ export class XRSupport {
 		return typeof window.webkit !== 'undefined'
 	}
 
-	constructor(args) {
-
-		// bail if unsupported
-		if(!window.webkit) {
-			console.error("This can only run on webxr-ios")
-			return 0
-		}
-
-		// stash args
-		this.canvas = args.canvas
-		this.renderXR = args.renderXR
-
-		// only load polyfill if in xr mode
+	constructor(renderXR) {
+		this.renderXR = renderXR
 		let script = document.createElement( 'script' )
 		script.onload = this.handleGoButtonSetup.bind(this)
 		script.src = "../lib/webxr.js"
 		document.head.appendChild(script);
-
 	}
 
 	handleGoButtonSetup() {
@@ -39,8 +27,7 @@ export class XRSupport {
 	}
 
 	deviceSearch(ev) {
-		navigator.xr.requestDevice().then( this.deviceFound.bind(this)
-		).catch(err => {
+		navigator.xr.requestDevice().then( this.deviceFound.bind(this) ).catch(err => {
 			console.error('Error', err)
 		})
 	}
@@ -49,12 +36,6 @@ export class XRSupport {
 
 		this.device = xrDevice
 
-		if(this.device === null){
-			console.error('No xr device')
-			return
-		}
-
-		// a canvas for the pass through camera
 		this.xrCanvas = document.createElement('canvas')
 		this.xrCanvas.setAttribute('class', 'xr-canvas')
 		this.xrContext = this.xrCanvas.getContext('xrpresent')
@@ -74,15 +55,27 @@ export class XRSupport {
 		this.session = xrSession
 
 		// webxr-ios paints the camera live display here
-		// TODO needed?
 		document.body.insertBefore(this.xrCanvas, document.body.firstChild)
 
-		// the canvas you supplied in the constructor
-		var glContext = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
-		if(!glContext) throw new Error('Could not create a webgl context')
+		// following the same recipe - make a canvas after the device
+		this.canvas = document.createElement('canvas')
+
+		this.context = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
+		//	document.body.appendChild( this.canvas )
+
+// TEST
+this.canvas.width = this.context.drawingBufferWidth
+this.canvas.height = this.context.drawingBufferHeight
 
 		// Set up the base layer
-		this.session.baseLayer = new XRWebGLLayer(this.session, glContext)
+		this.session.baseLayer = new XRWebGLLayer(this.session, this.context)
+
+// TEST
+if(!this.canvas.height || !this.canvas.width) {
+	console.error("Canvas width and height should be correct by now and they are not")
+	this.canvas.width = this.context.drawingBufferWidth
+	this.canvas.height = this.context.drawingBufferHeight
+}
 
 		// head-model is the coordinate system that tracks the position of the display
 		this.session.requestFrameOfReference('head-model').then(frameOfReference =>{
@@ -117,6 +110,8 @@ export class XRSupport {
 
 		for (let view of frame.views) {
 			this.renderXR(
+				this.canvas,
+				this.context,
 				this.session.baseLayer.getViewport(view),
 				view.projectionMatrix,
 				pose.getViewMatrix(view),
