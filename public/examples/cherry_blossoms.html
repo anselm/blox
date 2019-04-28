@@ -22,10 +22,13 @@
 
 <body>
 <a href="https://github.com/anselm/blox/blob/master/public/examples/cherry_blossoms.js" style="border:3px solid gray; position:absolute;top:0;right:0;background:white;font-size:1em;text-decoration:none;border-radius:8px;margin:4px;padding:3px">View Source</a>
+<script>
+	if(window.webkit) import("../lib/webxr.js")
+</script>
 <script type=module>
-import {Blox} from "../src/Blox.js"
-let filename = "./cherry_blossoms.js"
-let blox = new Blox({description:filename})
+	import {Blox} from "../src/Blox.js"
+	let filename = "./cherry_blossoms.js"
+	let blox = new Blox({description:filename})
 </script>
 </body>
 

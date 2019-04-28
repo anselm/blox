@@ -5,16 +5,15 @@ export class XRSupport {
 		return typeof window.webkit !== 'undefined'
 	}
 
-	constructor(renderXR) {
+	constructor(canvas,context,renderXR) {
+		this.canvas = canvas
+		this.context = context
 		this.renderXR = renderXR
-		let script = document.createElement( 'script' )
-		script.onload = this.handleGoButtonSetup.bind(this)
-		script.src = "../lib/webxr.js"
-		document.head.appendChild(script);
+		this.handleGoButtonSetup()
 	}
 
-	handleGoButtonSetup() {
-		let btn = document.createElement("button")
+	async handleGoButtonSetup() {
+		let btn = this.btn = document.createElement("button")
 		btn.setAttribute('id', 'go-button')
 		btn.innerHTML = "CLICKME"
 		document.body.appendChild(btn)
@@ -27,6 +26,9 @@ export class XRSupport {
 	}
 
 	deviceSearch(ev) {
+		document.body.removeChild(this.btn)
+		this.xrCanvas = document.createElement('canvas')
+		this.xrCanvas.setAttribute('class', 'xr-canvas')
 		navigator.xr.requestDevice().then( this.deviceFound.bind(this) ).catch(err => {
 			console.error('Error', err)
 		})
@@ -36,8 +38,6 @@ export class XRSupport {
 
 		this.device = xrDevice
 
-		this.xrCanvas = document.createElement('canvas')
-		this.xrCanvas.setAttribute('class', 'xr-canvas')
 		this.xrContext = this.xrCanvas.getContext('xrpresent')
 		if(!this.xrContext){
 			console.error('No XR context', this.xrCanvas)
@@ -54,28 +54,16 @@ export class XRSupport {
 	sessionFound(xrSession){
 		this.session = xrSession
 
-		// webxr-ios paints the camera live display here
-		document.body.insertBefore(this.xrCanvas, document.body.firstChild)
+		// webxr-ios paints the camera live display here...
+		// TODO why don't we need this?
+		// document.body.insertBefore(this.xrCanvas, document.body.firstChild)
 
-		// following the same recipe - make a canvas after the device
-		this.canvas = document.createElement('canvas')
-
-		this.context = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
-		//	document.body.appendChild( this.canvas )
-
-// TEST
-this.canvas.width = this.context.drawingBufferWidth
-this.canvas.height = this.context.drawingBufferHeight
+		// make a canvas here for painting threejs content into
+		if(!this.canvas) this.canvas = document.createElement('canvas')
+		if(!this.context) this.context = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
 
 		// Set up the base layer
 		this.session.baseLayer = new XRWebGLLayer(this.session, this.context)
-
-// TEST
-if(!this.canvas.height || !this.canvas.width) {
-	console.error("Canvas width and height should be correct by now and they are not")
-	this.canvas.width = this.context.drawingBufferWidth
-	this.canvas.height = this.context.drawingBufferHeight
-}
 
 		// head-model is the coordinate system that tracks the position of the display
 		this.session.requestFrameOfReference('head-model').then(frameOfReference =>{
