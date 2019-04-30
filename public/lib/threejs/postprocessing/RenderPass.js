@@ -24,7 +24,7 @@ THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
 	constructor: THREE.RenderPass,
 
-	render: function ( renderer, writeBuffer, readBuffer, delta, maskActive ) {
+	render: function ( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
 
 		var oldAutoClear = renderer.autoClear;
 		renderer.autoClear = false;
@@ -48,7 +48,13 @@ THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
 		}
 
-		renderer.render( this.scene, this.camera, this.renderToScreen ? null : readBuffer, this.clear );
+		renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
+
+		// TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+		if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+
+		if(this.scene && this.camera)
+		renderer.render( this.scene, this.camera );
 
 		if ( this.clearColor ) {
 
@@ -58,6 +64,7 @@ THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
 		this.scene.overrideMaterial = null;
 		renderer.autoClear = oldAutoClear;
+
 	}
 
 } );

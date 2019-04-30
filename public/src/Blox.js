@@ -1,18 +1,19 @@
 // dynamic import support for firefox
 import {importModule} from '../lib/importModule.js'
 
+
 // Rendering
-import {BehaviorRenderer} from './core/BehaviorRenderer.js'
-import {BehaviorScene} from './primitives/BehaviorScene.js'
+import {BehaviorRenderer} from './BehaviorRenderer.js'
+import {BehaviorScene} from './BehaviorScene.js'
 
 // Primitives
-import {BehaviorCamera} from './primitives/BehaviorCamera.js'
-import {BehaviorLight} from './primitives/BehaviorLight.js'
-import {BehaviorMesh} from './primitives/BehaviorMesh.js'
-import {BehaviorSky} from './primitives/BehaviorSky.js'
-import {BehaviorHeart} from './primitives/BehaviorHeart.js' // TODO this may go away - it's an idea
-import {BehaviorText} from './primitives/BehaviorText.js'
-import {BehaviorTextPanel} from './primitives/BehaviorTextPanel.js'
+import {BehaviorCamera} from './BehaviorCamera.js'
+import {BehaviorLight} from './BehaviorLight.js'
+import {BehaviorMesh} from './BehaviorMesh.js'
+import {BehaviorSky} from './BehaviorSky.js'
+import {BehaviorHeart} from './BehaviorHeart.js' // TODO this may go away - it's an idea
+import {BehaviorText} from './BehaviorText.js'
+import {BehaviorTextPanel} from './BehaviorTextPanel.js'
 
 // Motion and physics, some of this may merge together
 import {BehaviorAction,
@@ -20,29 +21,33 @@ import {BehaviorAction,
 		BehaviorActionTarget,
 		BehaviorActionLifespan,
 		BehaviorActionTumble
-	} from './action/BehaviorAction.js'
+	} from './BehaviorAction.js'
 
 import {BehaviorLine,
 		BehaviorBounce,
 		BehaviorOscillate,
 		BehaviorWander,
 		BehaviorStare
-	} from './action/BehaviorBounce.js'
+	} from './BehaviorBounce.js'
 
-import {BehaviorEmitter} from './action/BehaviorEmitter.js'
+import {BehaviorEmitter} from './BehaviorEmitter.js'
 
-import {BehaviorPhysics, BehaviorPhysical} from './action/BehaviorPhysics.js'
+import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
 
-import {BehaviorOrbit} from './action/BehaviorOrbit.js' // TODO this one really needs to be rewritten
-import {BehaviorWalk} from './action/BehaviorWalk.js'
+import {BehaviorOrbit} from './BehaviorOrbit.js' // TODO this one really needs to be rewritten
+import {BehaviorWalk} from './BehaviorWalk.js'
 
 // Particles
-import {BehaviorProton} from './action/BehaviorProton.js'
+import {BehaviorProton} from './BehaviorProton.js'
 
 // Collision support
-import {BehaviorCollide} from './action/BehaviorCollide.js'
+import {BehaviorCollide} from './BehaviorCollide.js'
 
 //import {BehaviorParticles} from './animation/BehaviorParticles.js'
+
+// some ux
+import {BehaviorPlacementUX} from './BehaviorPlacementUX.js'
+
 
 // Intents - which are fancy behaviors - may roll back into Mesh itself
 
@@ -282,7 +287,7 @@ export class Blox {
 		// this.functions.push({label:"on_event",handler:this.behaviors.group.on_event,owner:this.behaviors.group})
 
 		// might as well use the local machinery to do the above work
-		this.add({label:"group"})
+		this.addCapability({label:"group"})
 
 		// inject properties - a blox generally consists of a bucket of behaviors, go ahead and populate this blox
 		this.on_behaviors({description:this.description,parent:this.parent})
@@ -338,7 +343,7 @@ export class Blox {
 				if(keys.length && module[keys[0]]) {
 					let behaviors_package = module[keys[0]]
 					Object.entries(behaviors_package).forEach(([label,description])=>{
-						this.add({label:label,description:description})
+						this.addCapability({label:label,description:description})
 					})
 				}
 			}
@@ -346,9 +351,10 @@ export class Blox {
 		}
 
 		// add the normal behaviors
-		Object.entries(behaviors).forEach(([label,description])=>{
-			this.add({label:label,description:description})
-		})
+		for(let label in behaviors) {
+			let description = behaviors[label]
+			this.addCapability({label:label,description:description})
+		}
 
 		// notify children of this blox that this blox is itself ready - TODO maybe not needed?
 		this.on_event({ name:"on_loaded", blox:this, loaded:this} )
@@ -363,7 +369,7 @@ export class Blox {
 	/// Add a child property of some kind
 	///
 
-	add(args) {
+	addCapability(args) {
 
 		if(typeof args === "string") args = { label:args }
 
@@ -428,6 +434,11 @@ export class Blox {
 		// Try find a class constructor for what appears to be a behavior
 		if(!classInst) {
 			try {
+				if(className != "BehaviorGroup") {
+					// i would like to allow user defined behaviors to be dynamically inhaled - do i need a registry? TODO
+		//			let module = await importModule(behaviors)
+		//			let results = await import("./"+className+".js")
+				}
 				classRef = eval(className)
 			} catch(e) {
 				classRef = 0
@@ -486,13 +497,18 @@ export class Blox {
 			// pass this back
 			return classInst
 		} else {
-			// New feature - let you directly inject entire children blox without having to declare group[]
-			description.name = label
-			if(!this.behaviors.group) {
-				console.error("Blox:: injecting children directly is missing a group")
+			if(!description || typeof description !== "object") {
+				console.error("Unrecognized child " + description )
+				return 0
+			} else {
+				// New feature - let you directly inject entire children blox without having to declare group[]
+				description.name = label
+				if(!this.behaviors.group) {
+					console.error("Blox:: injecting children directly is missing a group")
+				}
+				let blox = this.behaviors.group.push(description)
+				return blox
 			}
-			let blox = this.behaviors.group.push(description)
-			return blox
 		}
 	}
 

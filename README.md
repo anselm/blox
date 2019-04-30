@@ -136,6 +136,7 @@ var blox = new Blox(myscene)
 	[ ] Goto
 	[ ] EyeLevel
 	[ ] Floor
+	[ ] Aligned with surface
 	[ ] Follow
 	[ ] Wall
 	[ ] Billboard

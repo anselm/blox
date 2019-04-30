@@ -12,7 +12,7 @@ export class BehaviorText extends BehaviorMesh {
 		let props = args.description
 		let blox = args.blox
 		props.art = "sphere" // temporary
-		super(props,blox)
+		super(args)
 		this.props = props
 		var loader = new THREE.FontLoader();
 		loader.load( 'fonts/helvetiker_bold.typeface.json', this.attachText.bind(this) )

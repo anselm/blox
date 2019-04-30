@@ -2,48 +2,28 @@
 export class XRSupport {
 
 	static supportsARKit() {
-		return typeof window.webkit !== 'undefined'
+		if(typeof window.webkit === 'undefined' || !navigator.xr) return false
+		return true
 	}
 
-	constructor(canvas,context,renderXR) {
+	constructor(renderXR,canvas=0,context=0) {
+		this.device = 0
+		this.session = 0
+		this.xrCanvas = 0
+		this.xrContext = 0
 		this.canvas = canvas
 		this.context = context
 		this.renderXR = renderXR
-		this.handleGoButtonSetup()
-	}
-
-	async handleGoButtonSetup() {
-		let btn = this.btn = document.createElement("button")
-		btn.setAttribute('id', 'go-button')
-		btn.innerHTML = "CLICKME"
-		document.body.appendChild(btn)
-		btn.addEventListener('click', this.deviceSearch.bind(this), true)
-		btn.addEventListener('touchstart', this.handleGoButtonTouch.bind(this), true)
-	}
-
-	handleGoButtonTouch(event) { 
-		event.stopPropagation()
-	}
-
-	deviceSearch(ev) {
-		document.body.removeChild(this.btn)
 		this.xrCanvas = document.createElement('canvas')
-		this.xrCanvas.setAttribute('class', 'xr-canvas')
+		this.xrContext = this.xrCanvas.getContext('xrpresent')
+		// document.body.insertBefore(this.xrCanvas, document.body.firstChild) <- not needed?
 		navigator.xr.requestDevice().then( this.deviceFound.bind(this) ).catch(err => {
 			console.error('Error', err)
 		})
 	}
 
 	deviceFound(xrDevice) {
-
 		this.device = xrDevice
-
-		this.xrContext = this.xrCanvas.getContext('xrpresent')
-		if(!this.xrContext){
-			console.error('No XR context', this.xrCanvas)
-			return
-		}
-
 		this.device.requestSession({ outputContext: this.xrContext })
 			.then(this.sessionFound.bind(this))
 			.catch(err => {
@@ -54,40 +34,36 @@ export class XRSupport {
 	sessionFound(xrSession){
 		this.session = xrSession
 
-		// webxr-ios paints the camera live display here...
-		// TODO why don't we need this?
-		// document.body.insertBefore(this.xrCanvas, document.body.firstChild)
-
-		// make a canvas here for painting threejs content into
+		// context has to be made with the device
 		if(!this.canvas) this.canvas = document.createElement('canvas')
 		if(!this.context) this.context = this.canvas.getContext('webgl', { compatibleXRDevice: this.device })
 
-		// Set up the base layer
+		// ?
 		this.session.baseLayer = new XRWebGLLayer(this.session, this.context)
 
 		// head-model is the coordinate system that tracks the position of the display
 		this.session.requestFrameOfReference('head-model').then(frameOfReference =>{
 			this.headFrameOfReference = frameOfReference
-		})
-		.catch(err => {
+		}).catch(err => {
 			console.error('Error finding head frame of reference', err)
 		})
 
 		// bind
 		this.handleAnimationFrame = this.handleAnimationFrame.bind(this)
 
-		// get eye level and kickstart system
+		// get eye level which is somehow different from head level?
 		this.session.requestFrameOfReference('eye-level').then(frameOfReference => {
 			this.eyeLevelFrameOfReference = frameOfReference
 			this.session.requestAnimationFrame(this.handleAnimationFrame)
-		})
-		.catch(err => {
+		}).catch(err => {
 			console.error('Error finding eye frame of reference', err)
 		})
 	}
 
 	handleAnimationFrame(t, frame){
+
 		if(!this.session || this.session.ended) return
+
 		this.session.requestAnimationFrame(this.handleAnimationFrame)
 
 		let pose = frame.getDevicePose(this.eyeLevelFrameOfReference)
@@ -108,4 +84,10 @@ export class XRSupport {
 		}
 	}
 
+	getAnchor(xyz) {
+		// returns a promise
+		return this.session.addAnchor(xyz, this.headFrameOfReference)
+	}
+
 }
+

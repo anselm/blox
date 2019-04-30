@@ -1,20 +1,27 @@
 
 ///
-/// This artist created scene demonstrates high level declarations of simple behaviors with 'packages' and particle effects.
+/// This is an instance of a blox and demonstrates the kinds of things an artist can express
 ///
-/// A cherry tree is defined in a separate package that is stored in a blox folder as blox/cherry_tree.js.
-/// That description loads up a gltf of a Cherry Tree from SketchFab.
-/// [ from the artist https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876 ].
-/// There is also a simple particle effects engine attached.
+
+///
+/// The name of this blox is defined here as well as its properties
 ///
 
 export let cherry_blossoms = {
 
-	// this one line does a remarkable amount of heavy lifting; blox itself knows nothing about 3js...
+	// a rendering engine
+	// does a fair amount of work, it starts up a threejs renderer, a display and a render loop
+	renderer:0,
+
+	// decorate the blox with a scene behavior
 	scene: 0,
 
-	// this camera is ignored in xr mode
-	"mycamera":	{
+	// define a child blox
+	// the namespace holds properties (like the above) and it also holds children (like this)
+	// in this case the child blox is named mycamera, which is not a reserved term, so the assumption is that it is a child blox
+	// this actual blox itself contains a BehaviorCamera
+	// the pose of this camera is taken over if you are running in webxr (augmented reality) mode
+	mycamera:	{
 		camera:{
 			position:{x:20,y:5,z:50},
 			lookat:{x:0,y:10,z:0},
@@ -25,13 +32,15 @@ export let cherry_blossoms = {
 		}
 	},
 
-	"mylight": {
+	mylight: {
 		light:{
 			position:{x:-30,y:40,z:-50},
 			color:0xFFFFFF,
 		}
 	},
+
 /*
+	// might be nice to only run these in non webxr mode
 	"myskybox":	{
 		sky:{
 			art:"../art/eso0932a.jpg"
@@ -47,17 +56,22 @@ export let cherry_blossoms = {
 		}
 	},
 */
-	"mytree":{
-		load:"../blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
+
+	// a blox that is a cherry tree
+	// note each child has to be named uniquely if they are included in this way
+	tree1:{
+		load:"./blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
 		mesh:{
+			provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
 			scale:{x:5,y:5,z:5},
 		},
 	},
 
 	// another tree - they need unique names because this is a hash, but you could use group: [] children ...
-	"myothertree": {
+	tree2: {
 		mesh:{
-			art:"../art/cherry_tree",
+			art:"./art/cherry_tree",
+			provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
 			position:{x:-30,y:10,z:-15},
 			scale:{x:5,y:5,z:5},
 			color:0xff0000,
@@ -65,16 +79,17 @@ export let cherry_blossoms = {
 	},
 
 		// a tree
-	"anothertree": {
+	tree3: {
 		mesh:{
-			art:"../art/cherry_tree",
+			art:"./art/cherry_tree",
+			provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
 			position:{x:30,y:10,z:40},
 			scale:{x:5,y:5,z:5},
 			color:0xff0000,
 		},
 	},
 
-	"testparticle": {
+	mypetal: {
 
 		// a piece of art - it also sets some globals on blox such as blox.mesh blox.position blox.quaternion
 		heart: {
@@ -133,14 +148,36 @@ export let cherry_blossoms = {
 
 	// an emitter that spawns some objects
 	// TODO it should emit them at a time rate instead of all at once
-	"petalemitter": {
+	mypetalemitter: {
 		emitter:{
-			target:"testparticle",
+			target:"mypetal",
 			name:"petals",
 			radius:10,
 			count:15
 		}
 	},
 
+	// text floating
+	mytext: {
+		text:{
+			color:0x00FFFF,
+			scale:{x:10,y:10,z:1},
+			say:"hello"
+		}
+	},
+
+	// text panel
+	mytext2: {
+		textPanel:{
+			color:0x00FFFF,
+			scale:{x:10,y:10,z:1},
+			say:"I have eaten the plums that were in the icebox and which you were probably saving for breakfast. Forgive me they were delicious, so sweet, and so cold"
+		}
+	},
+
+	someux: {
+		placementUX: {
+		}
+	},
 
 }

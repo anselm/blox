@@ -612,7 +612,7 @@ export class BehaviorAction {
 			this.script = props.description
 		} else if(typeof props.description === "object") {
 			Object.entries(props.description).forEach(([label,description])=>{
-				blox.add({label:label,description:description})
+				blox.addCapability({label:label,description:description})
 			})
 		}
 
@@ -636,7 +636,7 @@ export class BehaviorAction {
 			// perform action
 			Object.entries(action).forEach(([label,description])=>{
 				if(label != "time") {
-					args.blox.add({label:label,description:description})
+					args.blox.addCapability({label:label,description:description})
 				}
 			})
 

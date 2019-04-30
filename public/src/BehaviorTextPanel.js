@@ -6,7 +6,7 @@ export class BehaviorTextPanel extends BehaviorMesh {
 		let props = args.description
 		let blox = args.blox
 		props.art = "sphere" // temporary
-		super(props,blox)
+		super(args)
 		this.props = props
 
 		let material = this.makeMaterial(props.say || "hello")

@@ -1,108 +1,133 @@
-# NOTES AND IDEAS
 
-# - rename "on_*" to "do_*" ? as in do_reset or do_goto or do_event? just for clarity?
+many small fixes
 
+	- get webxr into general editor
+	- play with behaviors in that framework too
+	* xrsupport simplification -> moved the button out
+	* webxr loading -> had to load it earlier sadly; does create a bit of code specialization unfortunately
+	* both desktop and webxr bind to the multipass support argh
+	* BehaviorPlacementUX is a newer high level ux component that lets me have pretty art, and I can use it to trigger creations
+			- make it responsible for setting something as outlined or not
+			- maybe can also add the move twist controls to this
+	* BehaviorAnchor -> test
+
+	x try load behaviors by name -> revisit this idea later... some issues right now with paths or something
+	- right now camera pose does get overridden by webxr, but i would also it to control a physical object like me for proximity
+		- letting you use the camera pose to also position an object
+		- letting you have a hand on the front of the camera; i guess this is similar...
+
+	- consider renaming all objects into a named hierachy
+
+	- right now collision is a built in feature, could it be made something more specialized?
+
+	- webxr
+		- only send messages in general and on_tick to active objects, so have a deeper concept of active or not
+		- when i recognize an image send an event so that i can toggle scenes off and on
+		- 
+
+	- behaviornetwork
+		on_tick
+			- broadcast changes periodically
+		- some simple multiplayer
+		- what are strategies to get two players to see each other?
+				- they could just share their local coordinate system directly...
+					- slightly different elevations and orientations... that's just the way it is?
+					- objects might pop as their authoritative position is changed due to anchor changes...
+				- maybe common objects in both worlds like a qrcode could be used as a parent of any other objects
+
+
+	- rename "on_*" to "do_*" ? as in do_reset or do_goto or do_event? just for clarity?
 		i am now specially reserving the word on_* to look for events...
 
-# - I did want to copy blox.functions.on_something handlers directly up to blox.on_something ...
-
+	- I did want to copy blox.functions.on_something handlers directly up to blox.on_something ...
 		this would purely be nice for document level scripting, it makes it simpler to say "thing.do_something"
 
-# - small but curious bug with camera declaring blox.mesh - study?
+	- small but curious bug with camera declaring blox.mesh - study?
 
-# - could shorten the name to the various BehaviorAction* utilities... and also maybe not pollute Blox namespace so much
+	 - could shorten the name to the various BehaviorAction* utilities... and also maybe not pollute Blox namespace so much
 
-# - change behaviorwalk to use new impulse method and remove impulse hacks from behavioraction
+	 - change behaviorwalk to use new impulse method and remove impulse hacks from behavioraction
 
-# - kinematic motion model improvements
+	 - kinematic motion model improvements
+		- tends to keep sliding sideways; i really want something that feels more precise for the pov movement; like set destination
+		- destinations tend to be overshot in the ik model
+		- should really use real physics engine again; and integrate physics with my motion model too
 
-	- tends to keep sliding sideways; i really want something that feels more precise for the pov movement; like set destination
-	- destinations tend to be overshot in the ik model
-	- should really use real physics engine again; and integrate physics with my motion model too
+	 - continue to improve semantic choreography
 
-# - continue to improve semantic choreography
+			This tries to strike a balance between high level story telling and simplicity in a declarative grammar.
+			It will probably have a lot of verbs.
+			It's currently merged with sequencing of events over time - which arguably it should be distinct from
 
-	This tries to strike a balance between high level story telling and simplicity in a declarative grammar.
-	It will probably have a lot of verbs.
-	It's currently merged with sequencing of events over time - which arguably it should be distinct from
+			The approach I've been taking is to define a BehaviorIntent which accepts a single event filled with lots of hints.
+			The event can be a single request or an array of requests - that get played back over time.
+			These are the powers I want:
 
-	The approach I've been taking is to define a BehaviorIntent which accepts a single event filled with lots of hints.
-	The event can be a single request or an array of requests - that get played back over time.
-	These are the powers I want:
+			linear kinematic
+				* accelerate in general
 
-	linear kinematic
-		* accelerate in general
+			linear inverse kinematic
+				* go to entity
+				* go to xyz
+				* be at a height regardless of other stuff, like a height above ground
+				- go to be in front of player
+				- go behind (player sets what is behind)
+				- go above (look at thing and get height)
+				- go below
+				- go generally nearish
+				- be pinned to a wall at a height at a position
 
-	linear inverse kinematic
-		* go to entity
-		* go to xyz
-		* be at a height regardless of other stuff, like a height above ground
-		- go to be in front of player
-		- go behind (player sets what is behind)
-		- go above (look at thing and get height)
-		- go below
-		- go generally nearish
-		- be pinned to a wall at a height at a position
+			angular
+				* face forward [ this is not working as well as I would like although it does work ]
+				- face a certain direction
+				- face a relative direction (look left) waggle
+				- face player ( billboard )
+				- tilt { for waddling, or cartoon effects - like tilt left or tilt right }
+				- spin in general
 
-	angular
-		* face forward [ this is not working as well as I would like although it does work ]
-		- face a certain direction
-		- face a relative direction (look left) waggle
-		- face player ( billboard )
-		- tilt { for waddling, or cartoon effects - like tilt left or tilt right }
-		- spin in general
+			collision?
+				- fire an event when goal is reached?
 
-	collision?
-		- fire an event when goal is reached?
+			- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
 
-	- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
+			hornet: {
+				intent: { 
+					destination:"joe"
+					height:3,
+					above:true,
+					near:true,
+				}
+			}
 
-	hornet: {
-		intent: { 
-			destination:"joe"
-			height:3,
-			above:true,
-			near:true,
-		}
-	}
+			hornet: {
+				intent: [ 
+					{ time:1, target:"joe",height:2, wall:2, forward:1, billboard:1, behind:1, above:1, below:1, near:1 }
+					{ time:2, tilt:1, face:1, }
+					{ time:3, reset:1 }
+				]
+			}
 
-	hornet: {
-		intent: [ 
-			{ time:1, target:"joe",height:2, wall:2, forward:1, billboard:1, behind:1, above:1, below:1, near:1 }
-			{ time:2, tilt:1, face:1, }
-			{ time:3, reset:1 }
-		]
-	}
+	 - choreography of groups [ LOWER PRIORITY RIGHT NOW ]
 
-# - choreography of groups [ LOWER PRIORITY RIGHT NOW ]
+		- the easiest way to time things is just write code
+		- i don't want to replace javascript, but i want to pull out or emphasize the timeline itself
+		- so where appropriate a grammar can be story level?
+		- i want to separate verbs from nouns, so they can be applied to anything or i can group or find similar things
+		- mass or group behavior - make 50 things do one dance together
+		- any reasonable separation of behavior from being overly bound to objects
+		- I'd like to be able to have a sequence or program made up out of successive intentions; a choreography
+		- maybe i can give these little sequences names and save them the same way i save meshes and then refer to them like macros
+		- although branching and turning completeness is risky, maybe events and resets are reasonable so a thing can loop behavior
 
-	- the easiest way to time things is just write code
-	- i don't want to replace javascript, but i want to pull out or emphasize the timeline itself
-	- so where appropriate a grammar can be story level?
-	- i want to separate verbs from nouns, so they can be applied to anything or i can group or find similar things
-	- mass or group behavior - make 50 things do one dance together
-	- any reasonable separation of behavior from being overly bound to objects
-	- I'd like to be able to have a sequence or program made up out of successive intentions; a choreography
-	- maybe i can give these little sequences names and save them the same way i save meshes and then refer to them like macros
-	- although branching and turning completeness is risky, maybe events and resets are reasonable so a thing can loop behavior
+		// a live query
 
-	// a live query
-
-	group = blox.query({monsters,all})
-	group.add_behavior(intent) // - if i could save behaviors for later, and then apply them by reference this is doable
-
-
-# - XR SUPPORT broken?
-# - gltf load consolidation to avoid duplicate loads?
-# - move the demos apart and make as separate files with links to source ( partially done )
-# - documentation
-
-	- document examples of events better; i did this a bit
-	- demonstrate scene switching
-	- explore an idea of loading and unloading scenes and a scene counter
+		group = blox.query({monsters,all})
+		group.add_behavior(intent) // - if i could save behaviors for later, and then apply them by reference this is doable
 
 
-# - other todos
+	 - gltf load consolidation to avoid duplicate loads?
+
+# OTHER
 
 	- make a tamagotchi as a demo
 
@@ -283,4 +308,31 @@
 		- maybe ignore the second ’scene’ if it shows up? should scene be special?
 
 	- packages?- does not really handle children though? maybe it does?
+
+# [DONE] 2d UX (good enough for now)
+
+UX capabilities - Design Thoughts May 1 2019
+
+It is not totally clear to me if 2D UX elements should be done IN ThreeJS or just exploit the power of the DOM.
+I decided that exploiting the full DOM is better and a good exercise.
+
+It's also not clear to me if a Behavior should be this specialized or abstract.
+Arguably a sufficiently rich json file could declare all of the UX and behavior here.
+In this case I decided I might as well consolidate it as a behavior - it could be part of an editor UX.
+
+It's not clear if it should add itself directly to the DOM or should have a router.
+Probably a shared router is a good idea but for now I'll just add it directly here.
+
+It's not clear if it should talk to the anchor system or XR features at all?
+I think I am leaning towards producing a blox and then letting that blox update itself.
+That would reduce the burden on this code from knowing anything.
+Also this code is not making the blox inside the on_tick method so it doesn't have access to the renderer easily.
+
+I think the right idea is to just make a blox right now - from a description?
+Maybe blox can have property sheet schemas so that they can be generically edited.
+
+- later pull up an editor - for now just make the default
+
+
+
 
