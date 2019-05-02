@@ -1,3 +1,70 @@
+
+import {XRInputManager} from '../lib/XRInputManager.js'
+
+export class BehaviorPlacementUX {
+	constructor() {
+		const inputManager = new XRInputManager(this.handleXRInput.bind(this))
+	}
+
+	handleXRInput(eventName, details){
+		switch(eventName){
+			case 'normalized-touch':
+				this.hitTestWithScreenCoordinates(...details.normalizedCoordinates)
+					.then(this.handleHitResults.bind(this))
+					.catch(err => {
+						console.error('Error testing hits', err)
+					})
+				break
+			default:
+				console.error('unknown xr input event', eventName, details)
+				break
+		}
+	}
+		
+	handleHitResults(hits) {
+		let size = 0.05;
+		let hit = hits[0]
+		let session = this.blox.parent.renderer.xr.session
+		let headFrameOfReference = this.blox.parent.renderer.xr.headFrameOfReference
+		session.addAnchor(hit, headFrameOfReference).then(anchor => {
+
+			let description = {
+				name:"test",
+				mesh:"./art/hornet",
+				anchor:anchor
+			}
+			let fresh = this.blox.parent.group.push(description)
+
+		}).catch(err => {
+			console.error('Error adding anchor', err)
+		})
+	}
+
+
+
+	hitTestWithScreenCoordinates(normalizedX, normalizedY){
+		let session = this.blox.parent.renderer.xr.session
+		let headFrameOfReference = this.blox.parent.renderer.xr.headFrameOfReference
+		let projectionMatrix = this.blox.parent.renderer.camera.projectionMatrix
+		if(session === null){
+			console.log('No session for hit testing')
+			return Promise.reject()
+		}
+		if(headFrameOfReference === null){
+			console.log('No frame of reference')
+			return Promise.reject()
+		}
+		// Convert the screen coordinates into head-model origin/direction for hit testing
+		const [origin, direction] = XRInputManager.convertScreenCoordinatesToRay(normalizedX, normalizedY,projectionMatrix)
+
+		return session.requestHitTest(origin, direction, headFrameOfReference)
+	}
+
+
+}
+
+/*
+
 export class BehaviorPlacementUX extends HTMLElement {
 
 	content() {
@@ -32,9 +99,6 @@ export class BehaviorPlacementUX extends HTMLElement {
 		// observe button events
 		let callback = (e) => {
 			e.preventDefault()
-
-// - 
-
 			console.log("got event")
 		    //this.dispatchEvent( new CustomEvent('router_push', { bubbles: true, detail: e.target.alt }) )
 			//window.history.push(e.target.alt)
@@ -57,10 +121,11 @@ export class BehaviorPlacementUX extends HTMLElement {
 			art:"./art/hornet",
 			anchor:0
 		}
-		let fresh = target.parent.group.push(description)
+		let fresh = this.blox.parent.group.push(description)
 	}
 }
 
 customElements.define('behavior-placementux', BehaviorPlacementUX)
 
+*/
 

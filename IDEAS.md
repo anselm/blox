@@ -1,15 +1,25 @@
 
-many small fixes
-
-	- get webxr into general editor
-	- play with behaviors in that framework too
+done
 	* xrsupport simplification -> moved the button out
 	* webxr loading -> had to load it earlier sadly; does create a bit of code specialization unfortunately
 	* both desktop and webxr bind to the multipass support argh
-	* BehaviorPlacementUX is a newer high level ux component that lets me have pretty art, and I can use it to trigger creations
+
+todo
+	- webxr
+		- test out the idea of a basic anchor
+
+	- try that plugin blair suggested https://www.npmjs.com/package/three-web-layer
+
+	- general editor
+		- get webxr into general editor
+		- play with behaviors in that framework too
+
+*
+
+	x BehaviorPlacementUX is a newer high level ux component that lets me have pretty art, and I can use it to trigger 
 			- make it responsible for setting something as outlined or not
 			- maybe can also add the move twist controls to this
-	* BehaviorAnchor -> test
+			- blair says everything has to be 3d completely
 
 	x try load behaviors by name -> revisit this idea later... some issues right now with paths or something
 	- right now camera pose does get overridden by webxr, but i would also it to control a physical object like me for proximity

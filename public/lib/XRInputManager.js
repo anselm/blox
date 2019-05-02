@@ -1,11 +1,11 @@
-import * as mat4 from '/test/libs/gl-matrix/mat4.js'
-import * as vec3 from '/test/libs/gl-matrix/vec3.js'
+import * as mat4 from './gl-matrix/mat4.js'
+import * as vec3 from './gl-matrix/vec3.js'
 
 const _workingMatrix1 = mat4.create()
 const _workingMatrix2 = mat4.create()
 const _workingMatrix3 = mat4.create()
 
-export default class XRInputManager {
+export class XRInputManager {
 	constructor(listener=null, targetElement=document){
 		this._listener = listener
 		this._handleTouchEvent = this._handleTouchEvent.bind(this);

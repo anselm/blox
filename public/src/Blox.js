@@ -48,6 +48,7 @@ import {BehaviorCollide} from './BehaviorCollide.js'
 // some ux
 import {BehaviorPlacementUX} from './BehaviorPlacementUX.js'
 
+import {BehaviorAnchor} from './BehaviorAnchor.js'
 
 // Intents - which are fancy behaviors - may roll back into Mesh itself
 
