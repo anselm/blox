@@ -166,17 +166,16 @@ export class BehaviorActionKinetic {
 
 			// TODO this needs to be parameterized
 			let offset = args.disperse.offset || {x:0,y:0,z:0}
-			let radius = args.disperse.radius || 10
+			let radius = args.disperse.radius || {x:0,y:0,z:0}
 
 			blox.position.set(
-				blox.position.x + offset.x + Math.random() * radius - radius/2,
-				blox.position.y + offset.y + Math.random() * radius - radius/2,
-				blox.position.z + offset.z + Math.random() * radius - radius/2
+				blox.position.x + offset.x + (Math.random() - 0.5) * radius.x,
+				blox.position.y + offset.y + (Math.random() - 0.5) * radius.y,
+				blox.position.z + offset.z + (Math.random() - 0.5) * radius.z
 				)
-
 		}
 
-		if(args.hasOwnProperty("nozzle")) {
+		if(args.hasOwnProperty("nozzle")) { // TODO needs testing
 			// nozzle modifier to velocity - TBD 
 			let speed = Math.random() * ( args.speed.max - args.speed.min ) + args.speed.min
 			let nozzle = args.nozzle || {axis1:-10,axis2:10,spin1:0,spin2:360}
@@ -606,16 +605,8 @@ export class BehaviorAction {
 		this.timer_offset = -1
 		this.counter = 0
 		this.script = 0
-
-		// save script if any or run one command now
-		if(props.description && props.description instanceof Array) {
-			this.script = props.description
-		} else if(typeof props.description === "object") {
-			Object.entries(props.description).forEach(([label,description])=>{
-				blox.addCapability({label:label,description:description})
-			})
-		}
-
+		this.script = props.description
+console.log(props.description)
 	}
 
 	///
@@ -629,15 +620,17 @@ export class BehaviorAction {
 
 		for(;this.script && this.counter < this.script.length; this.counter++) {
 
-			// reached next action in array?
+			// get next action
 			let action = this.script[this.counter]
+
+			// is it time for the action?
 			if(args.interval < this.timer_offset + action.time) return
 
 			// perform action
+			// TODO could even add some conditionals etc
 			Object.entries(action).forEach(([label,description])=>{
-				if(label != "time") {
-					args.blox.addCapability({label:label,description:description})
-				}
+				if(label == "time") return // this slot is just the time we are at - don't run it as a command
+				args.blox.addCapability({label:label,description:description}) // but run everything else
 			})
 
 			// go back to start?

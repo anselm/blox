@@ -37,6 +37,7 @@ export class BehaviorSky extends THREE.Mesh {
 		blox.mesh = this
 		blox.position = this.position
 		blox.quaternion = this.quaternion
+		this.visible = props.visible ? true : false
 
 	}
 }

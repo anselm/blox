@@ -1,32 +1,88 @@
 
-done
-	* xrsupport simplification -> moved the button out
-	* webxr loading -> had to load it earlier sadly; does create a bit of code specialization unfortunately
-	* both desktop and webxr bind to the multipass support argh
+	- have conditional things that don't show up in xr
 
-todo
-	- webxr
-		- test out the idea of a basic anchor
+	- have the desktop view work for the example; navigation, camera etc
 
-	- try that plugin blair suggested https://www.npmjs.com/package/three-web-layer
+	- see the flowers in the xr view -> do i need a "ground" concept? should i attach everything to a world origin anchor?
 
-	- general editor
-		- get webxr into general editor
-		- play with behaviors in that framework too
+	- attach a navigator concept to me
 
-*
+	- implement be in front with text that is always readable, and have it be a kind of placeable popup object that is smart
+			maybe try an arrow also
 
-	x BehaviorPlacementUX is a newer high level ux component that lets me have pretty art, and I can use it to trigger 
-			- make it responsible for setting something as outlined or not
-			- maybe can also add the move twist controls to this
-			- blair says everything has to be 3d completely
+# STORIES
+
+	What is a good fun story that I can tell? That shows how it is easy and useful to tell rich stories?
+	Can I put this in the hands of experimenters? What do I need to do to show the utility? Maybe a medium post on this?
+	I need more feedback, content, art and support for this work.
+
+	[ basics ]
+
+		- [basics] can you move in VR - and orbit with a camera?
+
+		- [basics] can you move in AR and move an avatar?
+
+<<<		- [collisions] having flowers pop up when you get near them; i need to introduce way of attaching an avatar to a camera
+
+		- [sequencing] having bees move from flower to flower - turn this back on -> the motion model could be refined a bit more
+
+		- [effects] having a big tree with particles coming from it -> effects need to emit more gracefully
+
+<<<		- [tagalong] have a menu that keeps floating to the front, or some kind of hovering avatar with helpful hints
+
+			- [text] -> show text that is ALWAYS legible, and ALWAYS in front of you -> maybe arrows also
+
+		- [tamagotchi] have a pet that you have to feed, and that hops around on the ground - stays on ground
+
+		- [image tag] have something attached to an image, have an image force a scene transition
+
+		- [transition] have a scene transition -> ie, recognizing an image sends a message that can be used to force a transition
+
+		- *[multiplayer] *[hosted on glitch]
+
+	[WebXR Powers]
+
+		- [gazed based placement with ray - test more]
+
+		- [gaze based highlighting]
+
+		- [gaze based dragging]
+
+		- [gaze based editing]
+
+		- https://www.npmjs.com/package/three-web-layer
+
+
+# OTHER
+
+	- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
+	- sound! can i also do sound synthesis and wire sound things together?
+
+	- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
+	- multiplayer; think harder about this
+
+	- need a virtual hand
+	- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
+
+	- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
+	- make a powerpoint on this whole app
+
+	- animate the gltfs
+	- i would like an orbit camera than can attach to other kinds of cameras
+	- i would like to fix up the camera so it does not flicker
+
+
+
+****
+
 
 	x try load behaviors by name -> revisit this idea later... some issues right now with paths or something
+
 	- right now camera pose does get overridden by webxr, but i would also it to control a physical object like me for proximity
 		- letting you use the camera pose to also position an object
 		- letting you have a hand on the front of the camera; i guess this is similar...
 
-	- consider renaming all objects into a named hierachy
+	- [search and namespaces] consider renaming all objects into a named hierachy
 
 	- right now collision is a built in feature, could it be made something more specialized?
 
@@ -100,22 +156,6 @@ todo
 
 			- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
 
-			hornet: {
-				intent: { 
-					destination:"joe"
-					height:3,
-					above:true,
-					near:true,
-				}
-			}
-
-			hornet: {
-				intent: [ 
-					{ time:1, target:"joe",height:2, wall:2, forward:1, billboard:1, behind:1, above:1, below:1, near:1 }
-					{ time:2, tilt:1, face:1, }
-					{ time:3, reset:1 }
-				]
-			}
 
 	 - choreography of groups [ LOWER PRIORITY RIGHT NOW ]
 
@@ -137,25 +177,8 @@ todo
 
 	 - gltf load consolidation to avoid duplicate loads?
 
-# OTHER
 
-	- make a tamagotchi as a demo
 
-	- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
-	- sound! can i also do sound synthesis and wire sound things together?
-
-	- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
-	- multiplayer; think harder about this
-
-	- need a virtual hand
-	- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
-
-	- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
-	- make a powerpoint on this whole app
-
-	- animate the gltfs
-	- i would like an orbit camera than can attach to other kinds of cameras
-	- i would like to fix up the camera so it does not flicker
 
 # - a a story to try
 
@@ -167,6 +190,40 @@ todo
 		- he wandered off!
 		- and then you can look around and try find it? i guess?
 		- and if you tap it then you get some end sequence? 
+
+# - DOCS -> should put these somewhere
+
+		Blox
+			behaviors
+			functions
+			group
+			<- behaviors also appear directly in the namespace - a blox with a BehaviorScene can be dereferenced blox.scene
+			<- variables also get added here, there are some conventions
+
+		Behaviors
+
+			Scene
+			Camera
+			Light
+			Mesh
+			Audio
+
+			Sky
+			Heart
+			Text
+			* halfdome tbd
+
+			Hand
+
+			Anchor
+
+			Action
+			Physics
+			Bounce
+			Collide
+			Emitter
+
+
 
 # - [DONE] BehaviorAction event pipeline improvements
 
