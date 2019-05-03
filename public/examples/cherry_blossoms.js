@@ -213,7 +213,7 @@ export let cherry_blossoms = {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// a child blox
-	"myflower":{
+	"flower":{
 		// a typical behavior for a mesh
 		// randomize art - a bit nicer if this is declared before the mesh to be invoked
 		on_behavior_will_add: function(args) {
@@ -272,22 +272,21 @@ export let cherry_blossoms = {
 	// note that the behavior packaged up here cannot easily be inside of a target entity because it would lead to a replication cascade
 	"floweremitter": {
 		emitter:{
-			target:"myflower",
+			target:"flower",
 			name:"flowerpower",
 			radius:10,
 			count:15
 		}
 	},
 
+	// a bee - unfortunately it targets the petals often... maybe there's a way to do wildcard search options TODO
 	"bettybumblebee":{
 		mesh:"./art/hornet",
-
 		actionKinetic:{},
-
 		action:[
-			{ time:  6, actionTarget:{ target:"*",height:1} },
-			{ time:  9, actionTarget:{ target:"*",height:1} },
-			{ time: 12, actionTarget:{ target:"*",height:1} },
+			{ time:  6, actionTarget:{ target:"regex:flower",height:3} },
+			{ time:  9, actionTarget:{ target:"regex:flower",height:3} },
+			{ time: 12, actionTarget:{ target:"regex:flower",height:3} },
 			{ time: 15, actionTarget:{ target:"tree",height:5} },
 		]
 	},

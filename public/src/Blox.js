@@ -524,6 +524,19 @@ export class Blox {
 		// as a service to users, if a query is just a single string then search a global namespace for that blox.name
 		if(typeof args == 'string') {
 
+			if(args.startsWith("regex:")) {
+				let regex = args.substring(6)
+				let keys = Object.keys(global_blox_namespace)
+				let keys2 = []
+				for(let i = 0; i < keys.length; i++) {
+					let key = keys[i]
+					if(key.match(regex))keys2.push(key)
+				}
+				if(!keys2.length) return 0
+				let which = Math.floor(keys2.length * Math.random() )
+				return global_blox_namespace[keys2[which]]
+			}
+
 			if(args == "*") {
 				let keys = Object.keys(global_blox_namespace)
 				let which = Math.floor(keys.length * Math.random() )
