@@ -1,12 +1,4 @@
 
-
-	- see the flowers in the xr view -> do i need a "ground" concept? should i attach everything to a world origin anchor?
-
-	- attach a navigator concept to me
-
-	- implement be in front with text that is always readable, and have it be a kind of placeable popup object that is smart
-			maybe try an arrow also
-
 # STORIES
 
 	What is a good fun story that I can tell? That shows how it is easy and useful to tell rich stories?
@@ -19,9 +11,9 @@
 
 		* [art] show that you can load art assets
 
-		- [basics] can you move in VR - and orbit with a camera? <<< - i hate the default orbit camera - please replace it
+<<<		- [basics] can you move in VR - and orbit with a camera? <<< - i hate the default orbit camera - please replace it
 
-		- [basics] can you move in AR and move an avatar?
+<<<		- [basics] can you move in AR and move an avatar? Movement seems slow? Also it needs embodiment to trigger things
 
 <<<		- [collisions] having flowers pop up when you get near them <<< i need to introduce way of attaching an avatar to a camera
 

@@ -9,7 +9,7 @@ export class BehaviorWalk {
 		document.addEventListener("keydown", this.onKeyDown.bind(this), false)
 
 		// kind of a hack - look for the camera
-		this.camera = args.blox.parent.query({property:"isPerspectiveCamera"})
+		this.camera = args.blox.parent.renderer.camera // query({property:"isPerspectiveCamera"})
 		this.mesh = args.blox.query({instance:THREE.Object3D})
 
 	}

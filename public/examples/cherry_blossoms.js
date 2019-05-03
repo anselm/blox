@@ -238,7 +238,7 @@ export let cherry_blossoms = {
 		},
 		mesh:{
 			art:"sphere",
-			position:{x:0,y:2,z:0},
+			position:{x:0,y:0,z:0},
 			scale:{x:1,y:1,z:1},
 			color:0xff0212,
 		},
@@ -259,7 +259,9 @@ export let cherry_blossoms = {
 			if(args.blox.mesh.position.y < 3) args.blox.mesh.position.y += 0.1
 		},
 		//on_enter: function() { console.log("enter") }, // TODO it would be nice to fire off messages as well
-		//on_exit: function() { console.log("exit") },
+		on_exit: function(args) {
+			args.blox.mesh.position.y = 0
+		},
 		// animate art
 		on_tick: function(args) {
 			args.blox.mesh.rotateY(0.01)
@@ -293,7 +295,7 @@ export let cherry_blossoms = {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// controls - vr controls to control a fox, and ar controls to place objects
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
 	"foxy": {
 		mesh:{
 			provenance:[
@@ -311,9 +313,10 @@ export let cherry_blossoms = {
 			click: true,
 			proximity:1,
 			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
+			filter:0
 		},
 	},
-*/
+
 	someux: {
 		placementUX: {
 		}
