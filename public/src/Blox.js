@@ -1,21 +1,20 @@
 // dynamic import support for firefox
 import {importModule} from '../lib/importModule.js'
 
-
-// Rendering
+// Basic
 import {BehaviorRenderer} from './BehaviorRenderer.js'
 import {BehaviorScene} from './BehaviorScene.js'
-
-// Primitives
 import {BehaviorCamera} from './BehaviorCamera.js'
 import {BehaviorLight} from './BehaviorLight.js'
 import {BehaviorMesh} from './BehaviorMesh.js'
+
+// Some graphics
 import {BehaviorSky} from './BehaviorSky.js'
 import {BehaviorHeart} from './BehaviorHeart.js' // TODO this may go away - it's an idea
 import {BehaviorText} from './BehaviorText.js'
 import {BehaviorTextPanel} from './BehaviorTextPanel.js'
 
-// Motion and physics, some of this may merge together
+// Motion - kinetic physics without collision
 import {BehaviorAction,
 		BehaviorActionKinetic,
 		BehaviorActionTarget,
@@ -23,6 +22,7 @@ import {BehaviorAction,
 		BehaviorActionTumble
 	} from './BehaviorAction.js'
 
+// More motion effects; may merge some of these with above
 import {BehaviorLine,
 		BehaviorBounce,
 		BehaviorOscillate,
@@ -30,29 +30,27 @@ import {BehaviorLine,
 		BehaviorStare
 	} from './BehaviorBounce.js'
 
-import {BehaviorEmitter} from './BehaviorEmitter.js'
-
-import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
-
-import {BehaviorOrbit} from './BehaviorOrbit.js' // TODO this one really needs to be rewritten
-import {BehaviorWalk} from './BehaviorWalk.js'
-
-// Particles
-import {BehaviorProton} from './BehaviorProton.js'
-
-// Collision support
+// Collision support for the kinetics system
 import {BehaviorCollide} from './BehaviorCollide.js'
 
-//import {BehaviorParticles} from './animation/BehaviorParticles.js'
+// Constraint based physics with its own collision support
+import {BehaviorPhysics, BehaviorPhysical} from './BehaviorPhysics.js'
+
+// A helper class to manufacture instances
+import {BehaviorEmitter} from './BehaviorEmitter.js'
+
+// Helpers to navigate the scene
+import {BehaviorOrbit} from './BehaviorOrbit.js'
+import {BehaviorWalk} from './BehaviorWalk.js'
+
+// Particles - not really used yet - may remove
+import {BehaviorProton} from './BehaviorProton.js'
 
 // some ux
 import {BehaviorPlacementUX} from './BehaviorPlacementUX.js'
 
+// webxr support
 import {BehaviorAnchor} from './BehaviorAnchor.js'
-
-// Intents - which are fancy behaviors - may roll back into Mesh itself
-
-// BehaviorAudio TBD
 
 //
 // This is a list of blox in a single flat namespace

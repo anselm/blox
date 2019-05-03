@@ -28,12 +28,12 @@ export class BehaviorPlacementUX {
 		let headFrameOfReference = this.blox.parent.renderer.xr.headFrameOfReference
 		session.addAnchor(hit, headFrameOfReference).then(anchor => {
 
-			let description = {
-				name:"test",
-				mesh:"./art/hornet",
-				anchor:anchor
-			}
-			let fresh = this.blox.parent.group.push(description)
+		let description = {
+			name:"test",
+			mesh:"./art/hornet",
+			anchor:anchor
+		}
+		let fresh = this.blox.parent.group.push(description)
 
 		}).catch(err => {
 			console.error('Error adding anchor', err)

@@ -4,19 +4,25 @@ import {XRSupport} from "./XRSupport.js"
 export class BehaviorRenderer {
 
 	constructor() {
-		this.scene = 0
-		this.camera = 0
+
 		this.clock = new THREE.Clock()
 		this.canvas = document.createElement('canvas')
-		this.context = 0
+		this.scene = 0
+		this.camera = 0
 		this.composer = 0
 		this.selectedObjects = []
 
 		if(XRSupport.supportsARKit()) {
-			this.xr = new XRSupport(this.paintXR.bind(this),this.canvas,this.context)
+			this.xr = new XRSupport()
+			this.xr.getContext(this.canvas).then((context) => {
+				this.setupRenderer(0,this.canvas,context)
+				this.xr.setAnimationLoop( this.animateCamera.bind(this) )
+			}).catch(err => {
+				console.error('Error', err)
+			})
 		} else {
-			this.composerSetup(0,this.canvas,this.context)
-			this.renderer.setAnimationLoop( this.paint.bind(this) )
+			this.setupRenderer(0,this.canvas,0)
+			this.renderer.setAnimationLoop( this.animate.bind(this) )
 			document.body.appendChild( this.canvas )
 		}
 	}
@@ -29,7 +35,7 @@ export class BehaviorRenderer {
 		this.camera = camera
 	}
 
-	paint() {
+	animate() {
 		if(!this.scene || !this.camera) return
 		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
 		this.outlinePass.renderScene = this.renderPass.scene = this.scene
@@ -37,34 +43,16 @@ export class BehaviorRenderer {
 		this.composer.render()
 	}
 
-	paintXR(canvas,context,viewport,projectionMatrix,viewMatrix) {
-
+	animateCamera(bounds,projectionMatrix,viewMatrix) {
 		if(!this.scene || !this.camera) return
-
-		let x = 0
-		let y = 0
-		let width = viewport.width
-		let height = viewport.height
-
-		if(!this.composer) {
-			this.composerSetup(viewport,canvas,context)
-		}
-
-		if(this.canvas.width != width || this.canvas.height != height) {
-			console.error("resizing canvas from " + this.canvas.height + " to " + height)
-			this.canvas.width = width
-			this.canvas.height = height
-		}
-
 		this.camera.matrixAutoUpdate = false
 		this.camera.matrix.fromArray(viewMatrix)
 		this.camera.updateMatrixWorld()
 		this.camera.projectionMatrix.fromArray(projectionMatrix)
-
-		this.paint()
+		this.animate()
 	}
 
-	composerSetup(bounds,canvas,context) {
+	setupRenderer(bounds,canvas,context) {
 
 		let width = bounds ? bounds.width : window.innerWidth
 		let height = bounds ? bounds.height : window.innerHeight
