@@ -606,7 +606,6 @@ export class BehaviorAction {
 		this.counter = 0
 		this.script = 0
 		this.script = props.description
-console.log(props.description)
 	}
 
 	///

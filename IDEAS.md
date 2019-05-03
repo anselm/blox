@@ -1,7 +1,4 @@
 
-	- have conditional things that don't show up in xr
-
-	- have the desktop view work for the example; navigation, camera etc
 
 	- see the flowers in the xr view -> do i need a "ground" concept? should i attach everything to a world origin anchor?
 
@@ -18,15 +15,19 @@
 
 	[ basics ]
 
-		- [basics] can you move in VR - and orbit with a camera?
+		* [example] a simple file that shows document based authoring, with variables, custom event handling and other basics
+
+		* [art] show that you can load art assets
+
+		- [basics] can you move in VR - and orbit with a camera? <<< - i hate the default orbit camera - please replace it
 
 		- [basics] can you move in AR and move an avatar?
 
-<<<		- [collisions] having flowers pop up when you get near them; i need to introduce way of attaching an avatar to a camera
+<<<		- [collisions] having flowers pop up when you get near them <<< i need to introduce way of attaching an avatar to a camera
 
-		- [sequencing] having bees move from flower to flower - turn this back on -> the motion model could be refined a bit more
+		- [sequencing] having bees move from flower to flower - turn this back on <<<< the motion model could be refined a bit more
 
-		- [effects] having a big tree with particles coming from it -> effects need to emit more gracefully
+		- [effects] having a big tree with particles coming from it <<<< effects need to emit more gracefully I need an emit start offset
 
 <<<		- [tagalong] have a menu that keeps floating to the front, or some kind of hovering avatar with helpful hints
 
