@@ -4,18 +4,18 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-/// Basic motion concepts
+/// This class provides basic kinetic motion, velocity, forces, instant impulses, friction... but does not provide collision.
 ///
-/// Since this modifies position and quaternion - it should typically be run last in a set of behaviors
-/// Also since it decorates the blox with features - implicitly these become reserved words... worth revisiting the approach
+/// As a design principle behaviormesh has already added position and orientation into the blox as blox.position etc.
+/// And this class then adds some more fields globally - so that a series of actions can work together nicely.
+/// All the variables it adds to global scope effectively become reserved - it's worth re-examining that philosophy.
+/// Also this class should be last in a sequence so that the on_tick() method updates the real position last from all other forces
 ///
-///	Decorates a blox with
+///	It decorates a blox with these new variables:
 ///
-///		position		(alredy set can be changed here)
 ///		velocity 		linear velocity in meters per second
 ///		linear			linear friction
 ///
-///		orientation		already set can be changed here
 ///		rotation		rotational velcoity
 ///		angular			rotational friction
 ///
@@ -38,16 +38,20 @@ export class BehaviorActionKinetic {
 	constructor(props) {
 
 		// remember original pose
-		if(props.blox) {
+		if(props.blox && props.blox.position && props.blox.quaternion) {
 			this.original_position = props.blox.position.clone()
 			this.original_quaternion = props.blox.quaternion.clone()
+		} else {
+			console.error("This blox needs a mesh attached to it prior to attaching this behavior")
 		}
 
 		this.on_reset(props)
 	}
 
 	on_move(props) {
+		// TODO - behavior walk uses this - later just have it send impulses via reset
 		this.on_reset({blox:this.blox,description:props})
+		return true
 	}
 
 	on_reset(props) {
@@ -56,8 +60,8 @@ export class BehaviorActionKinetic {
 		let blox = props.blox
 
 		if(!blox.position || !blox.quaternion) {
-			console.error("blox has no position")
-			return
+			console.error("blox has no position yet")
+			return true
 		}
 
 		if(!blox.velocity || args.hasOwnProperty("reset")) {
@@ -76,8 +80,8 @@ export class BehaviorActionKinetic {
 			blox.mass = 1.0
 		}
 
-		// move to a place
 		if(args.hasOwnProperty("position")) {
+			// be instantly to be at a given xyz or another entity by name
 			if(typeof args.position === "string") {
 				let obj = blox ? blox.query(args.position) : 0
 				if(obj) {
@@ -96,7 +100,7 @@ export class BehaviorActionKinetic {
 		}
 
 		if(args.hasOwnProperty("velocity")) {
-			// linear velocity to be at
+			// linear velocity to be at right now instantaneously
 			if(typeof args.velocity === "object" && args.velocity.hasOwnProperty("x")) {
 				blox.velocity.set(args.velocity.x,args.velocity.y,args.velocity.z)
 			} else {
@@ -105,19 +109,22 @@ export class BehaviorActionKinetic {
 		}
 
 		if(args.hasOwnProperty("linear")) {
-			// linear friction multiplied against velocity
+			// linear friction multiplied against velocity to use to dampen velocity in general
 			blox.linear = parseFloat(args.linear)
 		}
 
 		if(args.hasOwnProperty("orientation")) {
-			// orientation to be at
+			// orientation to be at right now instantaneously
 			let value = args.orientation
 			let euler = new THREE.Euler(value.x * Math.PI/180.0, value.y * Math.PI/180.0, value.z * Math.PI/180.0 )
 			blox.quaternion.setFromEuler(euler)
 		}
 
 		if(args.hasOwnProperty("rotation")) {
-			// angular velocity to be at - TODO currently is hammering the orientation... not the right thing
+			// angular velocity to be at
+			// TODO currently is hammering the orientation... not the right thing
+			// TODO actually just revise this to do this in the update loop
+			// TODO I'm leaning more towards storing angular forces as euler
 			if(typeof args.rotation === "object" && args.rotation.hasOwnProperty("x")) {
 				let value = args.rotation
 				let e = new THREE.Euler(value.x * Math.PI/180.0, value.y * Math.PI/180.0, value.z * Math.PI/180.0 )
@@ -150,18 +157,18 @@ export class BehaviorActionKinetic {
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		if(args.impulse) {
-			// convenience utility - absolute impulse -TODO may remove
+			// convenience utility - a one frame impulse to apply to velocity on the next frame - TODO may remove... this is just an idea
 			blox.impulse.set(args.impulse.x,args.impulse.y,args.impulse.z)
 		}
 
 		if(args.forward_impulse) {
-			// convenient utility - hit with an immediate impulse - TODO maybe remove
+			// convenient utility apply impulse forward - TODO maybe remove? again just an idea
 			blox.impulse.set(args.forward_impulse.x,args.forward_impulse.y,args.forward_impulse.z)
 			blox.impulse.applyQuaternion( blox.quaternion )
 		}
 
 
-		// disperse object over an area (usually applied after positioning)
+		// disperse object over an area - set xyz to something random in area (must be applied after positioning)
 		if(args.hasOwnProperty("disperse")) {
 
 			// TODO this needs to be parameterized
@@ -191,6 +198,7 @@ export class BehaviorActionKinetic {
 			blox.velocity = v
 		}
 
+		return true
 	}
 
 	on_tick(args) {
@@ -199,7 +207,7 @@ export class BehaviorActionKinetic {
 
 		if(!blox.position || !blox.quaternion) {
 			console.error("blox has no position")
-			return
+			return true
 		}
 
 		let lapsedTimeSlice = 60.0/1000.0 // TODO hack - assume 60fps
@@ -227,6 +235,9 @@ export class BehaviorActionKinetic {
 			blox.velocity.z += impulse.z / blox.mass
 		}
 
+		// clear the convenience impulse
+		blox.impulse.set(0,0,0)
+
 		if(blox.linear) {
 			// dampen linear velocity by friction over time slice
 			blox.velocity.x -= blox.velocity.x * blox.linear * lapsedTimeSlice
@@ -245,32 +256,33 @@ export class BehaviorActionKinetic {
 			// rotate current orientation by angular forces
 			// TODO is not considering the angular friction over time
 			// TODO angular forces are not damping - TODO maybe we should do these in euler space? also could test for 0
-		//	this.quaternion.multiply(blox.rotation)
+			//	this.quaternion.multiply(blox.rotation)
 		}
 
-		// clear the convenience impulse
-		blox.impulse.set(0,0,0)
+		return true
 	}
 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-/// Intelligent direction motion concepts
+/// This class adds intentional motion such as 'go to a place' or 'be at eye level'
 ///
 /// Decorates a blox with
 ///
-///		impulse 			strike the object along current heading with an impulse TODO this is now kinda obsolete
 ///		target 				an target position that can be alive, a reference to a position or just an xyz
 ///		height 				a height offset - later may support fancier offsets TODO
 ///		forward 			face forward along velocity vector?
-///		faces 				face an absolute direction?
+///		faces 				face an absolute direction? this can be used to billboard also (if the observer is the target)
 ///		lookat 				look at a position? can be a live position as a reference to a position
+///		infrontof			be in front of something, this can be for tagalong for now (if the observer is the target)
 ///
 ///		TODO
-///		tbd - tween
-///		tbd - tilt
-///		tbd - offset richer offset concept
+///				- linear tweening rather than using forces
+///				- wobble and tilt for some fun stylistic powers
+///				- stick to a wall or other surface
+///				- behind (fairly complex because it requires knowing about the user)
+///				- be near
 ///
 /// TODO needs to watch for object delete events to clear these live introspections
 ///
@@ -289,42 +301,86 @@ export class BehaviorActionTarget {
 		let args = props.description || this.description
 		let blox = props.blox
 
+		if(!blox || !blox.mesh) {
+			console.error("needs a mesh")
+			return true
+		}
+
 		if(args.hasOwnProperty("reset")) {
 
-			// some super powers that are simple enough to put here
-			blox.target = 0	 // use physics to go to a target
-			blox.height = 0		// amount to be above destination
-
-			blox.forward = 0	// face forward in direction of travel
-			blox.faces = 0		// use physics to face an absolute direction
-			blox.lookat = 0		// look at something
+			blox.target = 0		// use physics to go to a target
+			blox.height = 0		// amount to be above target
+			blox.infrontof = 0	// how far to be in front of target
+			blox.forward = 0	// face forward in direction of travel?
+			blox.lookat = 0		// look at target?
+			//blox.faces = 0		// use physics to face an absolute direction
 		}
 
 		if(args.hasOwnProperty("target")) {
-			// ik - try end up at this target
+			// set a target entity or point
 			if(typeof args.target === "string") {
-				let obj = blox ? blox.query(args.target) : 0
-				if(obj) {
-					// set target from an object - NOTE this live updates because it is a reference
-					blox.target_obj = obj
-					blox.target = obj.position
-				} else {
-					console.error("Target object not found " + args.origin)
-				}
+				blox.target = blox.query(args.target)
 			} else if(typeof args.target === "object" && args.target.hasOwnProperty("x")) {
-				// set target from xyz but don't set direction facing - do that separately
-				blox.target_obj = 0
 				blox.target = new THREE.Vector3(args.target.x,args.target.y,args.target.z)
 			} else {
-				blox.target_obj = 0
 				blox.target = 0
 			}
 		}
 
 		if(args.hasOwnProperty("height")) {
-			// ik - height displacement modifier
+			// set height target
 			blox.height = parseFloat(args.height)
 		}
+
+		if(args.hasOwnProperty("infrontof")) {
+			if(!blox.target.quaternion) {
+				console.log("target must be an object not a point")
+				blox.infrontof = 0
+			} else {
+				blox.infrontof = args.infrontof
+			}
+		}
+
+		if(args.hasOwnProperty("forward")) {
+			// ik - turn face forward off or on
+			blox.forward = args.forward
+		}
+
+		if(args.hasOwnProperty("lookat")) {
+			// set a lookat target
+			if(typeof args.lookat === "string") {
+				blox.lookat = blox.query(args.lookat)
+			} else if(typeof args.lookat === "object" && args.lookat.hasOwnProperty("x")) {
+				blox.lookat = new THREE.Vector3(args.lookat.x,args.lookat.y,args.lookat.z)
+			} else {
+				blox.lookat = 0
+			}
+		}
+
+
+/*
+		// TODO faces is not very useful - remove? or possibly subsume into base class where position/orientation can be from some other obj
+		// TODO it might be nice to have a wobble concept, to end up say akuakuing
+		if(args.hasOwnProperty("faces")) {
+			if(typeof args.faces === "string") {
+				// face the same way an object is facing
+				let obj = blox ? blox.query(args.faces) : 0
+				if(obj) {
+					blox.faces = obj.quaternion
+				}
+			} else if(typeof args.faces === "object" && args.faces.hasOwnProperty("x")) {
+				// faces absolute orientation
+				let value = args.faces
+				let euler = new THREE.Euler(value.x * Math.PI/180.0, value.y * Math.PI/180.0, value.z * Math.PI/180.0 )
+				blox.faces = new THREE.Quaternion()
+				blox.faces.setFromEuler(euler)
+			} else {
+				blox.faces = 0
+			}
+		}
+*/
+
+
 /*
 		if(args.hasOwnProperty("ground")) {
 			if(!blox.raycaster) blox.raycaster = new THREE.RayCaster()
@@ -354,73 +410,72 @@ const center = box.getCenter(new THREE.Vector3());
 			// TODO need to add bounding box
 		}
 */
-		if(args.hasOwnProperty("forward")) {
-			// ik - turn face forward off or on
-			blox.forward = args.forward
-		}
-
-		// TODO faces is not very useful
-		if(args.hasOwnProperty("faces")) {
-			if(typeof args.faces === "string") {
-				// face the same way an object is facing
-				let obj = blox ? blox.query(args.faces) : 0
-				if(obj) {
-					blox.faces = obj.quaternion
-				}
-			} else if(typeof args.faces === "object" && args.faces.hasOwnProperty("x")) {
-				// faces absolute orientation
-				let value = args.faces
-				let euler = new THREE.Euler(value.x * Math.PI/180.0, value.y * Math.PI/180.0, value.z * Math.PI/180.0 )
-				blox.faces = new THREE.Quaternion()
-				blox.faces.setFromEuler(euler)
-			} else {
-				blox.faces = 0
-			}
-		}
-
-		if(args.hasOwnProperty("lookat")) {
-			// ik - set a lookat target
-			if(typeof args.lookat === "string") {
-				// an object to face - NOTE this live updates because it is a reference
-				let obj = blox ? blox.query(args.target) : 0
-				blox.lookat_obj = obj
-				blox.lookat = obj.position
-			} else if(typeof args.lookat === "object" && args.lookat.hasOwnProperty("x")) {
-				// look at absolute position
-				blox.lookat_obj = 0
-				blox.lookat = new THREE.Vector3(args.lookat.x,args.lookat.y,args.lookat.z)
-			} else {
-				blox.lookat_obj = 0
-				blox.lookat = 0
-			}
-		}
-
-
+		return true
 	}
 
 	on_tick(args) {
 
 		let blox = args.blox
+		if(!blox.position || !blox.quaternion || !blox.impulse) {
+			console.error("This blox needs to be decorated with a Mesh and a KineticAction")
+			return true
+		}
 
-		let lapsedTimeSlice = 60.0/1000.0 // TODO hack - assume 60fps
+		let lapsedTimeSlice = 60.0/1000.0 // TODO hack - assume 60fps - use supplied please
 
-		if(blox.target && blox.position) {
+		if(blox.target) {
+
+			let pos = (typeof blox.target === THREE.Vector3) ? blox.target : blox.target.position
+			if(!pos) {
+				console.error("illegal position")
+				return true
+			}
+
 			// add a instantaneous impulse to pursue a target (this is before any mass considerations or timing slices)
-			let y = blox.height || 0 // a bit of a hack, stick in height offset modifier right now
-			blox.impulse.x += (blox.target.x + 0 - blox.position.x) / 20 // TODO 20 is a hack, need to correctly compute force to apply
-			blox.impulse.y += (blox.target.y + y - blox.position.y) / 20
-			blox.impulse.z += (blox.target.z + 0 - blox.position.z) / 20
+			let vec = new THREE.Vector3(0,0,0)
+
+			if(blox.hasOwnProperty("infrontof")) {
+				// be in front of - but do not change current height whatever it is
+				let dist = blox.infrontof || 2
+				vec = new THREE.Vector3( 0, 0, dist )
+				vec.applyQuaternion( blox.target.quaternion )
+				vec.y = blox.position.y
+			}
+
+			if(blox.hasOwnProperty("height")) {
+				// if height is specified then pursue that absolute height; ground is always arranged to be at 0
+				vec.y = blox.height || 0
+			}
+
+			// TODO 20 is a hack, need to correctly compute force to apply - right now it overshoots!
+			// the way to compute this is probably something like looking at the distance remaining and computing exact force to cover it
+			// it is probably ok to accelerate hard early but as we get close to counter accelerate
+			let rate = 20
+
+			// adjust impulses to go there
+			blox.impulse.x += (pos.x + vec.x - blox.position.x) / rate
+			blox.impulse.y += (pos.y + vec.y - blox.position.y) / rate
+			blox.impulse.z += (pos.z + vec.z - blox.position.z) / rate
 		}
 
 		if(blox.forward) {
+			// orient forward
 			// TODO should do it with forces not by hammering direction on the orientation
-			// face forward stay upright
-			let dir = new THREE.Vector3(-blox.velocity.x,0,-blox.velocity.z).normalize()
-			var mx = new THREE.Matrix4().lookAt(dir,new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0))
+			let dir = new THREE.Vector3(blox.velocity.x,0,blox.velocity.z).normalize()
+			var mx = new THREE.Matrix4().lookAt(new THREE.Vector3(),dir,new THREE.Vector3(0,1,0))
 			let q = new THREE.Quaternion().setFromRotationMatrix(mx)
 			blox.quaternion.rotateTowards(q,lapsedTimeSlice)
 		}
 
+		if(blox.lookat) {
+			// orient to face something that may itself be moving
+			let pos = (typeof blox.lookat === THREE.Vector3) ? blox.lookat : blox.lookat.position
+			var mx = new THREE.Matrix4().lookAt(blox.position,pos,new THREE.Vector3(0,1,0))
+			let quat = new THREE.Quaternion().setFromRotationMatrix(mx)
+			blox.quaternion.rotateTowards(quat,lapsedTimeSlice)
+		}
+
+		return true
 	}
 
 }
@@ -428,6 +483,8 @@ const center = box.getCenter(new THREE.Vector3());
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 /// Lifespan
+///
+/// Also adds scale and color and alpha transparency over lifespan since these are commonly associated
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -450,12 +507,13 @@ export class BehaviorActionLifespan {
 				this.life = 0
 			}
 		}
+		return true // allow event to be passed onwards
 	}
 
 	on_tick(args) {
 
 		// count down
-		if(!this.life) return
+		if(!this.life) return true
 		this.life--
 
 		let blox = args.blox
@@ -479,12 +537,13 @@ export class BehaviorActionLifespan {
 		args.blox.mesh.material.opacity = 1-(this.lifestart-this.life)/this.lifestart
 
 		// trying an idea of refiring the event that set the lifespan - ponder this approach TODO
-		if(this.life) return
+		if(this.life) return true
 
 		// try just reset all?
 		args.blox.on_event({name:"on_reset"})
 
-		// TODO introduce an idea of dying once lifespan is over
+		// TODO introduce an idea of dying forever once lifespan is over
+		return true // allow event to be passed onwards
 	}
 
 }
@@ -492,7 +551,7 @@ export class BehaviorActionLifespan {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-/// tumble
+/// tumble - a random tumble behavior
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -509,89 +568,23 @@ export class BehaviorActionTumble {
 			this.tumble = args.tumble
 			this.tumbleTime = 0
 		}
+		return true
 	}
 
 	on_tick(args) {
-		if(!this.tumble)return
+		if(!this.tumble)return true
 		if(--this.tumbleTime<0) {
 			this.tumbleTime = Math.floor(Math.random()*50)
 			this.tumbleAxis = new THREE.Vector3(Math.random()*10,Math.random()*10,Math.random*10).normalize()
 		}
 		args.blox.mesh.rotateOnAxis(this.tumbleAxis,0.1)
+		return true
 	}
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-/// Hiding TODO TBD
-///
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-class EffectPlayer {
-	/// rules like "hide behind" use the player
-	effect_player(args) {
-		if(args) {
-			// initialize
-			this.player = 0
-			if(args.hasOwnProperty("player")) {
-				this.player = blox ? blox.query(args.player) : 0
-			}
-		}
-		else if(this.player) {
-			// update
-		}
-	}
-}
-*/
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-/// More IK TODO TBD
-///
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-		this.modifier_eyelevel = 0
-		this.modifier_ground = 0
-		this.modifier_wall = 0
-		this.modifier_billboard = 0
-		this.modifier_tagalong = 0
-
-		// inverse kinematics speed ratio; 1 = 1m/s - a number like 100000 would mean move very fast to destination
-		if(props.hasOwnProperty("speed")) {
-			this.speed = props.speed
-		}
-
-		// ik modifier - seek a height level based on a target or number (this is a modifier on a destination)
-		if(props.hasOwnProperty("height")) {
-			this.modifier_height = props.height
-		}
-
-		// ik modifier - seek some elevation on wall
-		if(props.hasOwnProperty("wall")) {
-			this.modifier_wall = props.wall
-		}
-
-		// ik modifier - be in some position relative to a user - like in front of user
-		if(props.hasOwnProperty("tagalong")) {
-			this.modifier_tagalong = props.eyelevel
-		}
-
-		// ik modifier - billboard to face some angle with respect to a third party such as the user
-		if(props.hasOwnProperty("billboard")) {
-			this.modifier_billboard = props.eyelevel
-		}
-
-		// TODO - NEAR, ABOVE, BELOW, INSIDE, BEHIND, FACING, STARE
-
-*/
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-///
+/// Lightweight internal scripting over time - simply attaches behaviors to an object over time - loops right now
 ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -623,16 +616,16 @@ export class BehaviorAction {
 			let action = this.script[this.counter]
 
 			// is it time for the action?
-			if(args.interval < this.timer_offset + action.time) return
+			if(args.interval < this.timer_offset + action.time) return true
 
 			// perform action
-			// TODO could even add some conditionals etc
+			// TODO could even add some conditionals etc (less critical)
 			Object.entries(action).forEach(([label,description])=>{
 				if(label == "time") return // this slot is just the time we are at - don't run it as a command
 				args.blox.addCapability({label:label,description:description}) // but run everything else
 			})
 
-			// go back to start?
+			// go back to start? TODO later consider just stopping
 			if(this.counter >= this.script.length-1) {
 				this.timer_offset = -1
 				this.counter = 0
@@ -640,6 +633,7 @@ export class BehaviorAction {
 			}
 		}
 
+		return true
 	}
 
 }

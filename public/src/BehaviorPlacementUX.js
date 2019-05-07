@@ -26,12 +26,18 @@ export class BehaviorPlacementUX {
 		let hit = hits[0]
 		let session = this.blox.parent.renderer.xr.session
 		let headFrameOfReference = this.blox.parent.renderer.xr.headFrameOfReference
-		session.addAnchor(hit, headFrameOfReference).then(anchor => {
+
+console.log("dsiabled")
+return
+
+		session.addAnchor(hit, headFrameOfReference).then(myanchor => {
 
 		let description = {
 			name:"test",
 			mesh:"./art/hornet",
-			anchor:anchor
+			anchor: {
+				raw: myanchor
+			}
 		}
 		let fresh = this.blox.parent.group.push(description)
 

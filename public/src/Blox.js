@@ -95,15 +95,16 @@ export class BehaviorGroup {
 	///
 	on_reset(args) {
 		let description = args.description // TODO fails to deal with appending
-		if(!description) return
+		if(!description) return true
 		if(description.constructor != Array) {
 			// TODO later support loading children off disk
 			console.error("Error: args must be an array")
-			return
+			return true
 		}
 		for(let i = 0; i < description.length; i++) {
 			this.push(description[i])
 		}
+		return true
 	}
 
 	///
@@ -115,20 +116,23 @@ export class BehaviorGroup {
 	push(description) {
 		let child = new Blox({description:description,parent:this.blox})
 		this.children.push(child)
-		console.log("Group added a child " + child.name)
+		console.log("A blox named " + this.blox.name + " added a child blox named " + child.name)
 		return child
 	}
 
 	///
-	/// Forward events to child blox
+	/// Forward events to child blox unless one of them terminates the activity
 	///
 
 	on_event(args) {
 		this.children.forEach((child) => {
 			// set the blox to current scope always
 			args.blox = child
-			child.on_event(args)
+			if(!child.on_event(args)) {
+				return false
+			}
 		})
+		return true
 	}
 
 }
@@ -178,11 +182,18 @@ class BehaviorFunctions {
 		if(this.debug)console.log("functions:: propagating " + args.name + " from " + this.blox.name )
 
 		// look for specifically named events in local scope and call them
-		this._on_specific_named_event(args.name,args)	
+		if(!this._on_specific_named_event(args.name,args)) {
+			return false
+		}
 
-		// also, pass any specialized events to any listeners generic on_event catch all
-		if(args.name == "on_event") return
-		this._on_specific_named_event("on_event",args)	
+		// also, pass any specialized events to any listeners generic on_event catch all - except on_event itself which was just done above
+		if(args.name != "on_event") {
+			if(!this._on_specific_named_event("on_event",args)) {
+				return false
+			}
+		}
+
+		return true
 	}
 
 	_on_specific_named_event(name,args) {
@@ -193,9 +204,12 @@ class BehaviorFunctions {
 		if(chain) {
 			for(let i = 0; i < chain.length;i++) {
 				let myhandle = chain[i]
-				myhandle(args) // TODO arguably 0 could mean stop propagation OR I could make users make their own chains?
+				if(!myhandle(args)) {
+					return false
+				}
 			}
 		}
+		return true
 	}
 
 	push(args) {
@@ -310,6 +324,7 @@ export class Blox {
 
 		// deal with a file off disk
 		if(typeof behaviors == 'string') {
+			console.log("loading a module named " + behaviors)
 			let module = await importModule(behaviors)
 			if(!module) {
 				console.error("Cannot load module")
@@ -321,6 +336,10 @@ export class Blox {
 				return
 			}
 			behaviors = module[keys[0]] // rewrite
+			if(!behaviors.name) {
+				console.log("setting the name of the behavior collection to " + keys[0])
+				behaviors.name = keys[0]
+			}
 		}
 
 		// any work to do?
@@ -336,6 +355,7 @@ export class Blox {
 
 		// peek ahead at 'load' which is a reserved behavior right now due to annoying async issues TODO
 		if(behaviors.load) {
+			console.log("intercepting a load request for a package " + behaviors.load)
 			let module = await importModule(behaviors.load)
 			if(module) {
 				let keys = Object.keys(module)
@@ -349,16 +369,24 @@ export class Blox {
 			delete behaviors.load
 		}
 
-		// add the normal behaviors
+		// inject functions early so that events fire even if in random order
 		for(let label in behaviors) {
 			let description = behaviors[label]
+			if(typeof description !== "function") continue
+			this.functions.push({label:label,handler:description,owner:this.functions})
+		}
+
+		// add the other behaviors that are not functions
+		for(let label in behaviors) {
+			let description = behaviors[label]
+			if(typeof description === "function") continue
 			this.addCapability({label:label,description:description})
 		}
 
 		// notify children of this blox that this blox is itself ready - TODO maybe not needed?
 		this.on_event({ name:"on_loaded", blox:this, loaded:this} )
 
-		// notify everybody globally that this blox is loaded
+		// notify parent scope that this blox is now a child of it
 		if(this.parent) {
 			this.parent.on_event({ name:"on_blox_added", child:this })
 		}
@@ -459,7 +487,7 @@ export class Blox {
 					console.error("Blox:: could not create behavior " + className + " for " + label )
 					return
 				}
-				// I'm trying an idea of promoting all behavior functions into the functions collection
+				// I'm trying an idea of promoting all behavior functions from source code into the functions collection
 				for (let label of Object.getOwnPropertyNames(Object.getPrototypeOf(classInst))) {
 					let handler = classInst[label]
 					if(label.startsWith("on_") && handler instanceof Function) {

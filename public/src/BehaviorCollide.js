@@ -56,6 +56,7 @@ export class BehaviorCollide {
 				}
 			}
 		}
+		return true // allow event to be passed onwards
 	}
 }
 

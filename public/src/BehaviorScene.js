@@ -6,8 +6,17 @@ export class BehaviorScene extends THREE.Scene {
 		let props = args.description || {}
 		let blox = args.blox
 		super()
-		//this.renderer = blox.add({label:"renderer"})
-		//this.camera = blox.add({label:"camera"}) // add a default camera - any camera the user supplies will override this one
+
+		// this is optional - just make it less work for users to setup scenes by declaring the renderer if it is not around yet
+		if(!blox.renderer) blox.addCapability({label:"renderer"})
+
+		// also go ahead and inject a camera behavior directly on the root of the scene graph as well; TODO this is a bit more hacky
+		if(blox.renderer && !blox.renderer.camera) blox.addCapability({label:"camera"})
+
+		if(!blox.renderer) {
+			console.error("renderer must be attached first")
+			return
+		}
 		blox.renderer.set_scene(this)
 	}
 	on_blox_added(args) {
@@ -21,6 +30,7 @@ export class BehaviorScene extends THREE.Scene {
 				blox.renderer.set_camera(value)
 			}
 		})
+		return false // don't echo forwards
 	}
 }
 

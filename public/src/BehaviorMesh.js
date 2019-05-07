@@ -33,7 +33,7 @@ export class BehaviorMesh extends THREE.Mesh {
 		let props = args.description || this.description
 		if(!props) {
 			console.error("need to pass some args to reset a mesh")
-			return
+			return true // allow event to be passed onwards
 		}
 
 		// support a single parameter - to the art
@@ -49,14 +49,14 @@ export class BehaviorMesh extends THREE.Mesh {
 			let mat = new THREE.MeshPhongMaterial( {color: c, transparent: a, side: s, map: t } )
 			if(this.material) this.material.dispose()
 			this.material = mat
-			console.log("updated material")
+			//console.log("updated material")
 		}
 
 		// set or reset geometry if changed
 		if(!this.madeGeometry || (this.description && props.art && this.description.art != props.art)) {
 			if(props.hasOwnProperty("art"))
 				this.geometry = this.setGeometryFromString(props.art)
-			console.log("updated geometry to " + props.art)
+			//console.log("updated geometry to " + props.art)
 		}
 
 		let mesh = this
@@ -74,7 +74,7 @@ export class BehaviorMesh extends THREE.Mesh {
 		}
 
 		if(typeof props.visible !== 'undefined') {
-			mesh.visible = props.visible ? true : false
+			this.material.visible = props.visible ? true : false
 		}
 
 	}
@@ -174,10 +174,17 @@ export class BehaviorMesh extends THREE.Mesh {
 	/// notice when any children blox show up and add to 3js
 	///
 
-	on_add(args) {
+	on_blox_added(args) {
+		console.log("*******  mesh named " + args.blox.name + " adding child named " + args.child.name)
+		return false
+		let blox = args.blox
+		let child = args.child
 		let mesh = this
-		let children = args.blox.query({instance:THREE.Object3D,all:true})
-		children.forEach((child) => { mesh.add(child) })
+		let children = child.query({instance:THREE.Object3D,all:true})
+		children.forEach((value)=>{
+			mesh.add(value)
+		})
+		return false // don't continue to pass this fact on
 	}
 
 }

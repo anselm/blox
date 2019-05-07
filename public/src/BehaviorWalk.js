@@ -11,7 +11,6 @@ export class BehaviorWalk {
 		// kind of a hack - look for the camera
 		this.camera = args.blox.parent.renderer.camera // query({property:"isPerspectiveCamera"})
 		this.mesh = args.blox.query({instance:THREE.Object3D})
-
 	}
 
 	onKeyDown(event) {
@@ -43,7 +42,7 @@ export class BehaviorWalk {
 
 		// hack if in xr mode just get out
 		let xrmode = typeof window.webkit !== 'undefined'
-		if(xrmode) return
+		if(xrmode) return true
 
 		if(!this.camera || !this.mesh) {
 			console.error("Needs its own camera and mesh for now")
@@ -57,6 +56,7 @@ export class BehaviorWalk {
 		this.camera.position.set(v.x,v.y,v.z)
 		// look at the target
 		this.camera.lookAt(this.mesh.position)
+		return true // allow event to be passed onwards
 	}
 }
 

@@ -11,6 +11,12 @@
 <a href="https://github.com/anselm/blox/blob/master/public/examples/cherry_blossoms.js" style="border:3px solid gray; position:absolute;top:0;right:0;background:white;font-size:1em;text-decoration:none;border-radius:8px;margin:4px;padding:3px">View Source</a>
 <!-- optionally ask the user if they want to go into XR mode or not; disabled for now -->
 <button style="display:none;padding:20px; margin: 20px; font-size:2em; border:3px solid green;" id="go-button">Use XR Mode?</button>
+
+
+<div id="hubs" style="width: 100px; display: none">
+	<img id="hubs-image" src="hubs.png" >
+</div>
+
 </body>
 </html>
 
@@ -36,6 +42,8 @@
 <script src="./three.js/examples/js/postprocessing/RenderPass.js"></script>
 <script src="./three.js/examples/js/postprocessing/ShaderPass.js"></script>
 <script src="./three.js/examples/js/postprocessing/OutlinePass.js"></script>
+
+<script module src="./lib/webxr.js"></script>
 
 <!-- make a blox -->
 <script type=module>

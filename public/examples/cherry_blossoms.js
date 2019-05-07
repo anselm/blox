@@ -17,33 +17,13 @@ let useful_place = {x:0,y:0,z:0}
 
 export let cherry_blossoms = {
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Scene Setup
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// a name is ripped from the declaration above - but can also be set here
+	name:"really_my_cherry_blossoms",
 
-	// a rendering engine
-	// does a fair amount of work, it starts up a threejs renderer, a display and a render loop
-	renderer:0,
-
-	// decorate the blox with a scene behavior
+	// decorate the blox with a scene behavior - this is mandatory if you are doing a 3d engine view
 	scene: 0,
 
-	// define a child blox that happens to itself contain a camera
-	// the namespace holds properties (like the above) and it also holds children (like this)
-	// in this case the child blox is named mycamera, which is not a reserved term, so the assumption is that it is a child blox
-	// this actual blox itself contains a BehaviorCamera
-	// the pose of this camera is taken over if you are running in webxr (augmented reality) mode
-	mycamera:	{
-		camera:{
-			position:{x:0,y:2,z:10},
-			lookat:{x:0,y:10,z:0},
-		},
-		// technically this orbit control is still running in xr mode - arguably i shouldn't bother doing that
-		orbit:{
-			lookat:{x:0,y:2,z:0},
-		}
-	},
-
+	// an optional light
 	mylight: {
 		light:{
 			position:{x:-30,y:40,z:-50},
@@ -55,23 +35,20 @@ export let cherry_blossoms = {
 	// Stars, Trees, Ground and falling blossoms
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// might be nice to only run these in non webxr mode
 	"myskybox":	{
-		on_behavior_added: function(args) {
-			// hack - hide in xr
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.visible = true
-		},
 		sky:{
 			art:"./art/eso0932a.jpg",
 			visible:false
 		},
+		on_behavior_added: function(args) {
+			// hack - only show if not in xr mode
+			console.log("detect xr")
+			if(!window.webkit && args.blox.mesh) args.blox.mesh.material.visible = true
+			return true
+		},
 	},
 
 	"myground":	{
-		on_behavior_added: function(args) {
-			// hack - hide in xr
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.visible = true
-		},
 		mesh:{
 			art:"sphere",
 			position:useful_place,
@@ -80,31 +57,25 @@ export let cherry_blossoms = {
 			//texture:"./art/carnations.jpg"
 			visible:false
 		},
+		on_behavior_added: function(args) {
+			// hack - only show if not in xr mode
+			console.log("detect xr")
+			if(!window.webkit && args.blox.mesh) args.blox.mesh.material.visible = true
+			return true
+		},
 	},
 
-/*
-	// a blox that is a cherry tree
+	// a demonstration of loading a blox off disk
 	// note each child has to be named uniquely if they are included in this way
-	tree1:{
-		load:"../blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
-		mesh:{
-			provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
-			position:{x:30,y:10,z:-15},
-			scale:{x:5,y:5,z:5},
-		},
-	},
+	//tree1:{
+	//	load:"../blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
+	//	mesh:{
+	//		provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
+	//		position:{x:30,y:10,z:-15},
+	//		scale:{x:5,y:5,z:5},
+	//	},
+	//},
 
-	// another tree - they need unique names because this is a hash, but you could use group: [] children ...
-	tree2: {
-		mesh:{
-			art:"./art/cherry_tree",
-			provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
-			position:{x:-30,y:10,z:-15},
-			scale:{x:5,y:5,z:5},
-			color:0xff0000,
-		},
-	},
-*/
 	// a tree
 	tree: {
 		mesh:{
@@ -116,7 +87,7 @@ export let cherry_blossoms = {
 		},
 	},
 
-	mypetal: {
+	"mypetal": {
 
 		// a piece of art - it also sets some globals on blox such as blox.mesh blox.position blox.quaternion
 		heart: {
@@ -173,10 +144,14 @@ export let cherry_blossoms = {
 
 	},
 
-	// an emitter that spawns some objects
-	// TODO it should emit them at a time rate instead of all at once
-	mypetalemitter: {
+	// an emitter is a behavior that subclasses a mesh
+	// it can make a bunch of children from a reference object and it puts the children inside itself
+	// as a scripting hack I am looking for anything that starts with the word "flower" - these are all prefixed with that word
+	"emitterofpetals": {
 		emitter:{
+			art:"sphere",
+			color:0xFFFF00,
+			visible:false,
 			target:"mypetal",
 			name:"petals",
 			radius:10,
@@ -213,6 +188,7 @@ export let cherry_blossoms = {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// a child blox
+	// as a scripting hack I am searching for anything that starts with the word "flower" for the bumblebee to visit
 	"flower":{
 		// a typical behavior for a mesh
 		// randomize art - a bit nicer if this is declared before the mesh to be invoked
@@ -268,10 +244,14 @@ export let cherry_blossoms = {
 		},
 	},
 
-	// a separate entity that makes many first class copies of some other entity already described earlier
-	// note that the behavior packaged up here cannot easily be inside of a target entity because it would lead to a replication cascade
-	"floweremitter": {
+	// an emitter is a behavior that subclasses a mesh
+	// it can make a bunch of children from a reference object and it puts the children inside itself
+	// as a scripting hack I am looking for anything that starts with the word "flower" - these are all prefixed with that word
+	"emitterofflowers": {
 		emitter:{
+			art:"box",
+			color:0x0000FF,
+			visible:false,
 			target:"flower",
 			name:"flowerpower",
 			radius:10,
@@ -282,9 +262,10 @@ export let cherry_blossoms = {
 	// a bee - unfortunately it targets the petals often... maybe there's a way to do wildcard search options TODO
 	"bettybumblebee":{
 		mesh:"./art/hornet",
+		actionTarget:{},
 		actionKinetic:{},
 		action:[
-			{ time:  6, actionTarget:{ target:"regex:flower",height:3} },
+			{ time:  6, actionTarget:{ target:"regex:flower",height:3, forward: 1} },
 			{ time:  9, actionTarget:{ target:"regex:flower",height:3} },
 			{ time: 12, actionTarget:{ target:"regex:flower",height:3} },
 			{ time: 15, actionTarget:{ target:"tree",height:5} },
@@ -306,7 +287,7 @@ export let cherry_blossoms = {
 			color:0xff0000,
 		},
 		actionKinetic:{},
-		walk:{}, // walking behavior relies on actionKinetic
+//		walk:{}, // walking behavior relies on actionKinetic
 		collide: {
 			gaze: true,
 			click: true,
@@ -314,6 +295,24 @@ export let cherry_blossoms = {
 			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
 			filter:0
 		},
+	},
+
+	"imageanchor":{
+		mesh:"./art/hornet",
+		anchor:{
+			art:"hubs-image"
+		}
+	},
+
+	"infobox":{
+		mesh:"./art/hornet",
+		actionTarget:{
+			target:"foxy",
+			lookat:"foxy",
+			infrontof:4,
+			height:2
+		},
+		actionKinetic:{},
 	},
 
 	someux: {

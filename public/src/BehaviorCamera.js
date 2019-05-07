@@ -16,5 +16,10 @@ export class BehaviorCamera extends THREE.PerspectiveCamera {
 //		blox.mesh = camera // TODO some kind of bug is related to this being assigned - forever loop
 		blox.position = camera.position
 		blox.quaternion = camera.quaternion
+
+		// TODO hack - this line is only needed if I am directly decorating the root of the scene graph with a raw camera behavior
+		// I'm thinking that I'd like some formalism for letting any new camera attach itself to the renderer
+		// The normal way cameras are attached to the renderer is by the scene noticing them show up and telling the renderer itself
+		if(blox.renderer) blox.renderer.set_camera(this)
 	}
 }

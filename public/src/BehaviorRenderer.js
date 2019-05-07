@@ -3,7 +3,10 @@
 export class XRSupport {
 
 	static supportsARKit() {
-		if(typeof window.webkit === 'undefined' || !navigator.xr) return false
+		if(typeof window.webkit === 'undefined' || !navigator.xr) {
+			return false
+		}
+		console.log("*** webxr will be used ***")
 		return true
 	}
 
@@ -18,7 +21,13 @@ export class XRSupport {
 				this.xrCanvas = document.createElement('canvas')
 				this.xrContext = this.xrCanvas.getContext('xrpresent')
 				//document.body.insertBefore(this.xrCanvas, document.body.firstChild)
-				this.device.requestSession({ outputContext: this.xrContext }).then((xrSession)=>{
+				this.device.requestSession({
+						outputContext: this.xrContext,
+						worldSensing: true,
+						//computerVision: true,
+						alignEUS: true,
+					}
+				).then((xrSession)=>{
 					this.session = xrSession
 					this.session.baseLayer = new XRWebGLLayer(this.session, this.context)
 					resolve(this.context)
@@ -88,7 +97,6 @@ export class XRSupport {
 
 }
 
-
 export class BehaviorRenderer {
 
 	constructor() {
@@ -104,7 +112,7 @@ export class BehaviorRenderer {
 			this.xr = new XRSupport()
 			this.xr.getContext(this.canvas).then((context) => {
 				this.setupRenderer(0,this.canvas,context)
-				this.xr.setAnimationLoop( this.animateCamera.bind(this) )
+				this.xr.setAnimationLoop( this.animateWithCamera.bind(this) )
 			}).catch(err => {
 				console.error('Error', err)
 			})
@@ -113,40 +121,6 @@ export class BehaviorRenderer {
 			this.renderer.setAnimationLoop( this.animate.bind(this) )
 			document.body.appendChild( this.canvas )
 		}
-	}
-
-	set_scene(scene) {
-		this.scene = scene
-	}
-
-	set_camera(camera) {
-		this.camera = camera
-	}
-
-	animate() {
-		if(!this.scene || !this.camera) return
-		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
-		this.outlinePass.renderScene = this.renderPass.scene = this.scene
-		this.outlinePass.renderCamera = this.renderPass.camera = this.camera
-		this.composer.render()
-	}
-
-	animateCamera(bounds,projectionMatrix,viewMatrix,modelMatrix) {
-		if(!this.scene || !this.camera) return
-		this.camera.matrixAutoUpdate = false
-		this.camera.matrix.fromArray(viewMatrix)
-		this.camera.updateMatrixWorld()
-		this.camera.projectionMatrix.fromArray(projectionMatrix)
-
-
-var translation = new THREE.Vector3(),
-rotation = new THREE.Quaternion(),
-scale = new THREE.Vector3();
-this.camera.matrix.decompose(translation, rotation, scale);
-console.log(translation.x + " " + translation.z)
-
-
-		this.animate()
 	}
 
 	setupRenderer(bounds,canvas,context) {
@@ -160,10 +134,10 @@ console.log(translation.x + " " + translation.z)
 		this.renderer = new THREE.WebGLRenderer({canvas:this.canvas,context:this.context,antialias:false,alpha:false})
 		this.renderer.autoClear = false
 		this.renderer.setPixelRatio(1)
-		this.renderer.setSize(width,height)
+		this.renderer.setSize(width,height) // TODO this may not be needed? test
 
 		this.composer = new THREE.EffectComposer( this.renderer )
-        this.composer.setSize( width, height );
+        this.composer.setSize( width, height ) // TODO this may not be needed?
 
 		this.renderPass = new THREE.RenderPass( this.scene, this.camera )
 		this.composer.addPass( this.renderPass )
@@ -192,8 +166,34 @@ console.log(translation.x + " " + translation.z)
 
 	}
 
-	selected(mesh) {
+	set_scene(scene) {
+		this.scene = scene
+	}
+
+	set_camera(camera) {
+		this.camera = camera
+		this.camera.matrixAutoUpdate = false
+	}
+
+	set_selected(mesh) {
 		this.selectedObjects.push(mesh)
+	}
+
+	animate() {
+		if(!this.scene || !this.camera) return
+		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
+		this.outlinePass.renderScene = this.renderPass.scene = this.scene
+		this.outlinePass.renderCamera = this.renderPass.camera = this.camera
+		this.composer.render()
+	}
+
+	animateWithCamera(bounds,projectionMatrix,viewMatrix,modelMatrix) {
+		if(!this.scene || !this.camera) return
+		this.camera.matrix.fromArray(viewMatrix)
+		this.camera.matrixWorldNeedsUpdate = true
+		this.camera.updateMatrixWorld()
+		this.camera.projectionMatrix.fromArray(projectionMatrix)
+		this.animate()
 	}
 
 }
