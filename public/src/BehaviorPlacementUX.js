@@ -1,72 +1,7 @@
 
-import {XRInputManager} from '../lib/XRInputManager.js'
 
 export class BehaviorPlacementUX {
-	constructor() {
-		const inputManager = new XRInputManager(this.handleXRInput.bind(this))
-	}
-
-	handleXRInput(eventName, details){
-		switch(eventName){
-			case 'normalized-touch':
-				this.hitTestWithScreenCoordinates(...details.normalizedCoordinates)
-					.then(this.handleHitResults.bind(this))
-					.catch(err => {
-						console.error('Error testing hits', err)
-					})
-				break
-			default:
-				console.error('unknown xr input event', eventName, details)
-				break
-		}
-	}
 		
-	handleHitResults(hits) {
-		let size = 0.05;
-		let hit = hits[0]
-		let session = this.blox.parent.renderer.xr.session
-		let headFrameOfReference = this.blox.parent.renderer.xr.headFrameOfReference
-
-console.log("dsiabled")
-return
-
-		session.addAnchor(hit, headFrameOfReference).then(myanchor => {
-
-		let description = {
-			name:"test",
-			mesh:"./art/hornet",
-			anchor: {
-				raw: myanchor
-			}
-		}
-		let fresh = this.blox.parent.group.push(description)
-
-		}).catch(err => {
-			console.error('Error adding anchor', err)
-		})
-	}
-
-
-
-	hitTestWithScreenCoordinates(normalizedX, normalizedY){
-		let session = this.blox.parent.renderer.xr.session
-		let headFrameOfReference = this.blox.parent.renderer.xr.headFrameOfReference
-		let projectionMatrix = this.blox.parent.renderer.camera.projectionMatrix
-		if(session === null){
-			console.log('No session for hit testing')
-			return Promise.reject()
-		}
-		if(headFrameOfReference === null){
-			console.log('No frame of reference')
-			return Promise.reject()
-		}
-		// Convert the screen coordinates into head-model origin/direction for hit testing
-		const [origin, direction] = XRInputManager.convertScreenCoordinatesToRay(normalizedX, normalizedY,projectionMatrix)
-
-		return session.requestHitTest(origin, direction, headFrameOfReference)
-	}
-
-
 }
 
 /*

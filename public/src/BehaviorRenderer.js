@@ -1,4 +1,5 @@
 
+import {XRInputManager} from '../lib/XRInputManager.js'
 
 export class XRSupport {
 
@@ -13,7 +14,7 @@ export class XRSupport {
 	getContext(canvas=0) {
 		this.canvas = canvas
 		this.context = 0
-		let p = new Promise((resolve, reject) => {
+		let prom = new Promise((resolve, reject) => {
 			navigator.xr.requestDevice().then((xrDevice)=>{
 				this.device = xrDevice
 				if(!this.canvas) this.canvas = document.createElement('canvas')
@@ -40,12 +41,11 @@ export class XRSupport {
 				reject()
 			})
 		})
-		return p
+		return prom
 	}
 
 	setAnimationLoop(userAnimationCallback) {
 		this.userAnimationCallback = userAnimationCallback
-		this.__handleAnimationFrame = this._handleAnimationFrame.bind(this)
 		this.headFrameOfReference = 0
 		this.eyeLevelFrameOfReference = 0
 
@@ -63,10 +63,13 @@ export class XRSupport {
 			console.error('Error finding eye frame of reference', err)
 		})
 
-		this.session.requestAnimationFrame(this.__handleAnimationFrame)
+		//this.inputManager = new XRInputManager(this.handleXRInput.bind(this))
+		this._handleAnimationFrame = this._handleAnimationFrame.bind(this)
+
+		this.session.requestAnimationFrame(this._handleAnimationFrame)
 	}
 
-	_handleAnimationFrame(time=0, frame=0){
+	_handleAnimationFrame(time,frame){
 
 		if(!this.session || this.session.ended) return
 		if(!this.eyeLevelFrameOfReference || !this.headFrameOfReference) return
@@ -77,22 +80,222 @@ export class XRSupport {
 			return
 		}
 
+		this._resolvePendingAnchors(frame)
+
 		for (let view of frame.views) {
 			this.userAnimationCallback(
 				this.session.baseLayer.getViewport(view),
 				view.projectionMatrix,
-				pose.getViewMatrix(view),
-				pose.poseModelMatrix
+				pose.getViewMatrix(view)
 			)
 			break
 		}
 
-		this.session.requestAnimationFrame(this.__handleAnimationFrame)
+		this.session.requestAnimationFrame(this._handleAnimationFrame)
 	}
 
-	getAnchor(xyz) {
-		// returns a promise
-		return this.session.addAnchor(xyz, this.headFrameOfReference)
+	///////////////////////////////////////////////////////////////////////////////
+	// anchors
+	///////////////////////////////////////////////////////////////////////////////
+
+	addAnchor(info) {
+		// store them till engine is ready for them
+		if(!this.pendingAnchors) {
+			this.pendingAnchors = []
+		}
+		if(!this._anchoredNodes) {
+			this._anchoredNodes = new Map() // { XRAnchorOffset, Three.js Object3D }			
+		}
+		this.pendingAnchors.push(info)
+	}
+
+	_resolvePendingAnchors(frame) {
+		while(this.pendingAnchors && this.pendingAnchors.length) {
+			let info = this.pendingAnchors.shift()
+			if(info.art) {
+				this.addImageAnchoredNode(info)
+			} else if(info.hasOwnProperty("latitude")) {
+				this.addGeoAnchoredNode(info)
+			} else if(info.anchor) {
+				this.addAnchoredNode(info)
+			}
+		}
+	}
+
+	addImageAnchoredNode(info) {
+
+		console.log("adding an image recognizer")
+
+		if(!info.art || !info.node) {
+			console.error("Missing image or threejs node")
+			return
+		}
+
+		var img = new Image()
+		img.onload = (x) => {
+			info.image = img
+			this.addImageAnchoredNode2(info)
+		}
+		img.src = info.art
+	}
+
+	addImageAnchoredNode2(info) {
+
+		let image = info.image
+		let imageRealworldWidth = info.imageRealworldWidth || 0.1
+		let node = info.node
+
+		let canvas = document.createElement('canvas')
+		let context = canvas.getContext('2d')
+		canvas.width = image.width
+		canvas.height = image.height
+		context.drawImage(image,0,0)
+		image.data = context.getImageData(0,0,image.width,image.height)
+
+		// TODO examine
+		// random name from https://gist.github.com/6174/6062387
+		image.name = [...Array(10)].map(i=>(~~(Math.random()*36)).toString(36)).join('')
+
+		// Attach image observer handler
+		this.session.nonStandard_createDetectionImage(image.name, image.data.data, image.width, image.height, 0.2).then(() => {
+			this.session.nonStandard_activateDetectionImage(image.name).then(anchor => {
+				// this gets invoked after the image is seen for the first time
+				node.anchorName = image.name
+				this.addAnchoredNode({anchor:anchor,node:node})
+			}).catch(error => {
+				console.error("error activating detection image: " + error)
+			})
+		}).catch(error => {
+			console.error("error creating detection image: " + error)
+		})
+	}
+
+	addGeoAnchoredNode(info) {
+
+		console.log("adding a geo recognizer")
+
+		if(!info.node) {
+			console.error("Missing threejs node")
+			return
+		}
+
+		let node = info.node
+
+		// Preferentially use a supplied place if any
+
+		if(info.hasOwnProperty("latitude") && info.hasOwnProperty("longitude")) {
+
+			// use supplied altitude?
+
+			if(info.hasOwnProperty("useAltitude") && info.useAltitude) {
+				let lla = new Cesium.Cartographic(info.longitude, info.latitude, info.altitude )
+				XRGeospatialAnchor.createGeoAnchor(lla).then(anchor => {
+						this.addAnchoredNode({anchor:anchor,node:node})
+				})
+			} else {
+				XRGeospatialAnchor.getDeviceElevation().then(altitude => {
+					console.log("device elevation: ", altitude)
+					let lla = new Cesium.Cartographic(info.longitude, info.latitude, altitude )
+					XRGeospatialAnchor.createGeoAnchor(lla).then(anchor => {
+						this.addAnchoredNode({anchor:anchor,node:node})
+					})
+				})
+			}
+		}
+
+		// else find current position
+
+		else {
+			XRGeospatialAnchor.getDeviceCartographic().then(cartographic => {
+				XRGeospatialAnchor.getDeviceElevation().then(altitude => {
+					console.log("device elevation: ", altitude)
+					let lla = new Cesium.Cartographic(cartographic.longitude, cartographic.latitude, altitude )
+					XRGeospatialAnchor.createGeoAnchor(lla).then(anchor => {
+						this.addAnchoredNode({anchor:anchor,node:node})
+					})
+				})
+			})
+		}
+	}
+
+	addAnchoredNode(info){
+		let anchor = info.anchor
+		let node = info.node
+		if (!anchor || !anchor.uid) {
+			console.error("not a valid anchor", anchor)
+			return;
+		}
+		this._anchoredNodes.set(anchor.uid, { anchor: anchor, node: node })
+		node.matrixAutoUpdate = false
+		node.matrix.fromArray(anchor.modelMatrix)
+		node.updateMatrixWorld(true)
+		anchor.addEventListener("update", this._handleAnchorUpdate.bind(this))
+		anchor.addEventListener("removed", this._handleAnchorDelete.bind(this))
+	}
+
+	_handleAnchorDelete(details) {
+		let anchor = details.source
+		const anchoredNode = this._anchoredNodes.get(anchor.uid)
+		if (anchoredNode) {
+			anchoredNode.node.matrixAutoUpdate = true
+			// NOTIFY SOMEBODY? TODO
+			this._anchoredNodes.delete(anchor.uid)
+		}
+	}
+
+	_handleAnchorUpdate(details) {
+		const anchor = details.source
+		const anchoredNode = this._anchoredNodes.get(anchor.uid)
+		if (anchoredNode) {
+			const node = anchoredNode.node
+			node.matrix.fromArray(anchor.modelMatrix)
+			node.updateMatrixWorld(true)
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// xr input
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	handleXRInput(eventName, details){
+		if(!this.session || !this.headFrameOfReference || !this.projectionMatrix) {
+			return
+		}
+		if(eventName != 'normalized-touch') {
+			console.error('unknown xr input event', eventName, details)
+			return
+		}
+		let x = details.normalizedCoordinates.normalizedX
+		let y = details.normalizedCoordinates.normalizedY
+		// Convert the screen coordinates into head-model origin/direction for hit testing
+		const [origin, direction] = XRInputManager.convertScreenCoordinatesToRay(x,y,this.projectionMatrix)
+		this.session.requestHitTest(origin, direction, this.headFrameOfReference)
+			.then(this.handleHitResults.bind(this))
+			.catch(err => {
+				console.error('Error testing hits', err)
+			})
+	}
+
+	handleHitResults(hits) {
+
+		// TEST - TODO move to user land because no access to blox from here
+
+		let size = 0.05;
+		let hit = hits[0]
+
+		this.session.addAnchor(hit, this.headFrameOfReference).then(myanchor => {
+
+			let description = {
+				mesh:"./art/hornet",
+				anchor: {
+					anchor: myanchor
+				}
+			}
+			let fresh = this.blox.group.push(description)
+
+		}).catch(err => {
+			console.error('Error adding anchor', err)
+		})
 	}
 
 }
@@ -100,6 +303,9 @@ export class XRSupport {
 export class BehaviorRenderer {
 
 	constructor() {
+
+		// make this globally available
+		document.blox_renderer = this
 
 		this.clock = new THREE.Clock()
 		this.canvas = document.createElement('canvas')
@@ -137,7 +343,7 @@ export class BehaviorRenderer {
 		this.renderer.setSize(width,height) // TODO this may not be needed? test
 
 		this.composer = new THREE.EffectComposer( this.renderer )
-        this.composer.setSize( width, height ) // TODO this may not be needed?
+		this.composer.setSize( width, height ) // TODO this may not be needed?
 
 		this.renderPass = new THREE.RenderPass( this.scene, this.camera )
 		this.composer.addPass( this.renderPass )
@@ -163,7 +369,6 @@ export class BehaviorRenderer {
 		this.effectFXAA.uniforms[ 'resolution' ].value.set( 1 / width, 1 / height );
 		this.effectFXAA.renderToScreen = true;
 		this.composer.addPass( this.effectFXAA );
-
 	}
 
 	set_scene(scene) {
@@ -172,7 +377,10 @@ export class BehaviorRenderer {
 
 	set_camera(camera) {
 		this.camera = camera
-		this.camera.matrixAutoUpdate = false
+		if(this.xr) {
+			this.camera.matrixAutoUpdate = false
+			this.xr.projectionMatrix = this.camera.projectionMatrix
+		}
 	}
 
 	set_selected(mesh) {
@@ -188,7 +396,7 @@ export class BehaviorRenderer {
 	}
 
 	animateWithCamera(bounds,projectionMatrix,viewMatrix,modelMatrix) {
-		if(!this.scene || !this.camera) return
+		if(!this.scene || !this.camera || !this.xr) return
 		this.camera.matrix.fromArray(viewMatrix)
 		this.camera.matrixWorldNeedsUpdate = true
 		this.camera.updateMatrixWorld()
@@ -196,5 +404,10 @@ export class BehaviorRenderer {
 		this.animate()
 	}
 
+	addAnchor(info) {
+		if(this.xr) {
+			this.xr.addAnchor(info)
+		}
+	}
 }
 

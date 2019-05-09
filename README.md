@@ -1,6 +1,6 @@
 # BLOX INTRODUCTION
 
-Blox is a document driven framework that lets you tell interactive 3d stories.
+Blox is a text driven approach to telling stories in 3d.
 
 You make a text file that describes 3d objects, their relationships to each other, what they do over time, and play it back as an interactive 3d experience that anybody can enjoy.
 
@@ -8,7 +8,7 @@ It's intended to be a free, simple and minimalist creative workflow tool. It is 
 
 # EXAMPLES
 
-You can see examples of both scenes and source descriptions at [https://anselm.github.io/blox/public]
+Click [here for a link to a rollup example](https://anselm.github.io/blox/public) . Also you can run the [WebXR-iOS viewer on the iPhone](https://itunes.apple.com/us/app/webxr-viewer/id1295998056?mt=8) and if you have an iPhone 8 or higher you can see the augmented reality version of the same example. Or you can also build the [WebXR-iOS version from scratch](https://github.com/mozilla-mobile/webxr-ios). Note that this is all early work and subject to arbitrary changes. It's not stable by any means yet. Also note - VR support for the Rift and Oculus is not up to date (I've been focusing on desktop and XR).
 
 # TRY IT YOURSELF
 
@@ -52,6 +52,12 @@ There are the concepts this library is built around:
 7) PACKAGES. You can dynamically load or reference 'packages' which are any collection of blox that you like to re-use over and over. There's really no difference between a package and the starting document that bootstraps your project. By convention packages are kept in a folder called 'blox' (see the example packages for more).
 
 8) FRAMEWORK. With all these pieces together this library defines a framework or general philosophy for building user experiences. The framework is intended to be used by different participants in different ways. From a designer perspective you use it to arrange your story in a story appropriate grammar, at the right level of semantic expression as suits storytelling. From a programmer perspective you define new behaviors that designers can leverage. From an asset creator perspective there are conventions for asset management. From a player perspective the framework loads and presents the experience to the player.
+
+# EVEN MORE TECHNICAL CONCEPTS
+
+A blox is intended to follow the Entity Component System model, where the base class is largely empty to start with, and all the capabilities are 'decorations' that come in later on. But, there is a tension between that idealized model and the practical day to day job of writing an application or game. When you're trying to quickly describe what you want something to do, you don't want to do a lot of fancy de-referencing. Imagine you have a blox that has a 3d model attached to it in the form of a mesh. You want to be able to cognitively say something like blox.position.x = 12 - not blox.mesh.position.x = 12 .
+
+What I'm doing that is slightly different is that I'm treating the blox itself as a namespace that can be overloaded with multiple kinds of named child properties. Child behaviors show up directly on the blox. So you have blox.mesh not blox.behaviors.mesh . And child functions also are promoted to the top, so that blox.on_tick() calls blox.mesh.on_tick() and blox.some_other_power.on_tick() rather than you having to call each one. Also, you can promote (by convention) any properties that you feel deserve to be in a top level namespace. Right now that means blox.position and blox.quaternion work, rather than having to dereference their parent mesh.
 
 # FILE FORMAT
 

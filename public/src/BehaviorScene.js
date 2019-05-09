@@ -6,6 +6,7 @@ export class BehaviorScene extends THREE.Scene {
 		let props = args.description || {}
 		let blox = args.blox
 		super()
+		this.blox = blox
 
 		// this is optional - just make it less work for users to setup scenes by declaring the renderer if it is not around yet
 		if(!blox.renderer) blox.addCapability({label:"renderer"})

@@ -156,7 +156,7 @@ export default class XREngine {
 	anchoredNodeRemoved(node) {}
 	
 	_handleAnchorDelete(details) {
-		let anchor = event.source
+		let anchor = details.source
 		throttledConsoleLog('Anchor deleted: uid', anchor.uid)
 
 		const anchoredNode = this._anchoredNodes.get(anchor.uid)

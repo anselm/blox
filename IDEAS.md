@@ -7,23 +7,35 @@
 
 	[ basics ]
 
-		* [example] a simple file that shows document based authoring, with variables, custom event handling and other basics
+		* [documents] a simple file that shows document based authoring, with variables, custom event handling and other basics
 
 		* [art] show that you can load art assets
 
-<<<		- [basics] can you move in VR - and orbit with a camera? <<< - i hate the default orbit camera - please replace it
+		* [sequencing] having bees move from flower to flower as an example
 
-<<<		- [basics] can you move in AR and move an avatar? Movement seems slow? Also it needs embodiment to trigger things
+		* [collisions] having flowers pop up when you get near them with a high fidelity of control
 
-<<<		- [collisions] having flowers pop up when you get near them <<< i need to introduce way of attaching an avatar to a camera
+->		* [infrontof/tagalong] [billboard/looksat] -> actually have an example piece of text, also should be able to set the tightness/rate
 
-		- [sequencing] having bees move from flower to flower - turn this back on <<<< the motion model could be refined a bit more
+		- test xr image and xr geo
+
+		- improve tightness/rate of movement
+
+		- high fidelity text
+
+		- vr movement and ar movement with a body
+
+		- desktop orbit camera
+
+	- recovering some of the arpersist powers; multi-player, editing, a map view, login?
+
+	- recruiting people to improve it
+
+	- a pass on small bug fixes and general featurizing; I've touched many things but not really filled them out as best I can
 
 		- [effects] having a big tree with particles coming from it <<<< effects need to emit more gracefully I need an emit start offset
 
-<<<		- [tagalong] have a menu that keeps floating to the front, or some kind of hovering avatar with helpful hints
-
-			- [text] -> show text that is ALWAYS legible, and ALWAYS in front of you -> maybe arrows also
+		- [text] -> show text that is ALWAYS legible, and ALWAYS in front of you -> maybe arrows also
 
 		- [tamagotchi] have a pet that you have to feed, and that hops around on the ground - stays on ground
 

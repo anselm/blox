@@ -287,7 +287,7 @@ export let cherry_blossoms = {
 			color:0xff0000,
 		},
 		actionKinetic:{},
-//		walk:{}, // walking behavior relies on actionKinetic
+		walk:{}, // walking behavior relies on actionKinetic
 		collide: {
 			gaze: true,
 			click: true,
@@ -300,7 +300,7 @@ export let cherry_blossoms = {
 	"imageanchor":{
 		mesh:"./art/hornet",
 		anchor:{
-			art:"hubs-image"
+			art:"./art/large_eye.jpg"
 		}
 	},
 

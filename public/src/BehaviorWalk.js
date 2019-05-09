@@ -7,10 +7,6 @@ export class BehaviorWalk {
 
 	constructor(args) {
 		document.addEventListener("keydown", this.onKeyDown.bind(this), false)
-
-		// kind of a hack - look for the camera
-		this.camera = args.blox.parent.renderer.camera // query({property:"isPerspectiveCamera"})
-		this.mesh = args.blox.query({instance:THREE.Object3D})
 	}
 
 	onKeyDown(event) {
@@ -44,19 +40,21 @@ export class BehaviorWalk {
 		let xrmode = typeof window.webkit !== 'undefined'
 		if(xrmode) return true
 
-		if(!this.camera || !this.mesh) {
+		// position camera behind the subject - TODO this could be a separate feature or behavior
+
+		let camera = document.blox_renderer.camera
+		let mesh = this.blox.mesh
+		if(!camera || !mesh) {
 			console.error("Needs its own camera and mesh for now")
 		}
 
-		//this.material.visible = false
-		//this.visible = false
 		// find a position behind the object
 		let v = new THREE.Vector3(0,3,-10)
-		v.applyMatrix4(this.mesh.matrixWorld)
-		this.camera.position.set(v.x,v.y,v.z)
-		// look at the target
-		this.camera.lookAt(this.mesh.position)
-		return true // allow event to be passed onwards
+		v.applyMatrix4(mesh.matrixWorld)
+		camera.matrixAutoUpdate = true
+		camera.position.set(v.x,v.y,v.z)
+		camera.lookAt(mesh.position)
+		return true
 	}
 }
 
