@@ -281,7 +281,7 @@ export let cherry_blossoms = {
 			provenance:[
 				"https://sketchfab.com/3d-models/low-poly-fox-by-pixelmannen-animated-371dea88d7e04a76af5763f2a36866bc",
 			],
-			art:"../art/pixelmannen_low_poly_fox",
+			art:"./art/pixelmannen_low_poly_fox",
 			position:{x:0,y:0,z:-7},
  			scale:{x:1,y:1,z:1},
 			color:0xff0000,
