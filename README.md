@@ -227,3 +227,5 @@ var blox = new Blox(myscene)
 	* Note that behaviors show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
 	* Note that only one of a kind of a behavior is allowed in one Blox at a time
 
+<div style="border:3px solid red">test</div>
+
