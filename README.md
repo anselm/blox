@@ -173,3 +173,10 @@ What I'm doing in this implementation that is slightly different is that I'm tre
 	* Note that behaviors show up in blox as immediate properties; so a BehaviorMesh can be referenced as simply blox.mesh
 	* Note that only one of a kind of a behavior is allowed in one Blox at a time
 
+{::nomarkdown}
+
+<!-- HTML CODE-->
+<div style="border:3px solid red">test</div>
+
+{:/}
+
