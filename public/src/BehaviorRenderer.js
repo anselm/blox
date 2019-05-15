@@ -26,6 +26,7 @@ export class XRSupport {
 						outputContext: this.xrContext,
 						worldSensing: true,
 						//computerVision: true,
+						geolocation: true,
 						alignEUS: true,
 					}
 				).then((xrSession)=>{
@@ -114,7 +115,7 @@ export class XRSupport {
 			let info = this.pendingAnchors.shift()
 			if(info.art) {
 				this.addImageAnchoredNode(info)
-			} else if(info.hasOwnProperty("latitude")) {
+			} else if(info.hasOwnProperty("cartographic")) {
 				this.addGeoAnchoredNode(info)
 			} else if(info.anchor) {
 				this.addAnchoredNode(info)
@@ -174,8 +175,8 @@ export class XRSupport {
 
 		console.log("adding a geo recognizer")
 
-		if(!info.node) {
-			console.error("Missing threejs node")
+		if(!info.node || !info.cartographic) {
+			console.error("Missing threejs node or cartographic details")
 			return
 		}
 
@@ -183,19 +184,25 @@ export class XRSupport {
 
 		// Preferentially use a supplied place if any
 
-		if(info.hasOwnProperty("latitude") && info.hasOwnProperty("longitude")) {
-
+		if(info.cartographic.hasOwnProperty("latitude") && info.cartographic.hasOwnProperty("longitude")) {
 			// use supplied altitude?
 
-			if(info.hasOwnProperty("useAltitude") && info.useAltitude) {
-				let lla = new Cesium.Cartographic(info.longitude, info.latitude, info.altitude )
+			if(info.cartographic.hasOwnProperty("altitude") && info.cartographic.altitude) {
+				let lla = new Cesium.Cartographic(info.cartographic.longitude*Math.PI/180, info.cartographic.latitude*Math.PI/180, info.cartographic.altitude )
+				console.log("adding geo anchor with explicit properties")
+				console.log(lla)
+				console.log(lla.latitude * 180 / Math.PI)
+				console.log(lla.longitude * 180 / Math.PI)
 				XRGeospatialAnchor.createGeoAnchor(lla).then(anchor => {
 						this.addAnchoredNode({anchor:anchor,node:node})
 				})
 			} else {
 				XRGeospatialAnchor.getDeviceElevation().then(altitude => {
-					console.log("device elevation: ", altitude)
-					let lla = new Cesium.Cartographic(info.longitude, info.latitude, altitude )
+					let lla = new Cesium.Cartographic(info.cartographic.longitude*Math.PI/180, info.cartographic.latitude*Math.PI/180, altitude )
+					console.log("found device elevation: ", altitude)
+					console.log(lla)
+					console.log(lla.latitude * 180 / Math.PI)
+					console.log(lla.longitude * 180 / Math.PI)
 					XRGeospatialAnchor.createGeoAnchor(lla).then(anchor => {
 						this.addAnchoredNode({anchor:anchor,node:node})
 					})
@@ -208,8 +215,12 @@ export class XRSupport {
 		else {
 			XRGeospatialAnchor.getDeviceCartographic().then(cartographic => {
 				XRGeospatialAnchor.getDeviceElevation().then(altitude => {
-					console.log("device elevation: ", altitude)
+					console.log(cartographic)
 					let lla = new Cesium.Cartographic(cartographic.longitude, cartographic.latitude, altitude )
+					console.log("found everything and using altitude " + altitude)
+					console.log(lla)
+					console.log(lla.latitude * 180 / Math.PI)
+					console.log(lla.longitude * 180 / Math.PI)
 					XRGeospatialAnchor.createGeoAnchor(lla).then(anchor => {
 						this.addAnchoredNode({anchor:anchor,node:node})
 					})
@@ -229,6 +240,8 @@ export class XRSupport {
 		node.matrixAutoUpdate = false
 		node.matrix.fromArray(anchor.modelMatrix)
 		node.updateMatrixWorld(true)
+		// TODO this may fail on nested objects - should compute pose relative to parent
+		node.matrixWorld.decompose(node.position,node.quaternion,node.scale)
 		anchor.addEventListener("update", this._handleAnchorUpdate.bind(this))
 		anchor.addEventListener("removed", this._handleAnchorDelete.bind(this))
 	}
@@ -250,6 +263,8 @@ export class XRSupport {
 			const node = anchoredNode.node
 			node.matrix.fromArray(anchor.modelMatrix)
 			node.updateMatrixWorld(true)
+			// TODO this may fail on nested objects - should compute pose relative to parent
+			node.matrixWorld.decompose(node.position,node.quaternion,node.scale)
 		}
 	}
 
@@ -291,7 +306,7 @@ export class XRSupport {
 					anchor: myanchor
 				}
 			}
-			let fresh = this.blox.group.push(description)
+			let fresh = this.blox.children.push(description)
 
 		}).catch(err => {
 			console.error('Error adding anchor', err)
@@ -400,6 +415,7 @@ export class BehaviorRenderer {
 		this.camera.matrix.fromArray(viewMatrix)
 		this.camera.matrixWorldNeedsUpdate = true
 		this.camera.updateMatrixWorld()
+		this.camera.matrixWorld.decompose(this.camera.position,this.camera.quaternion,new THREE.Vector3())
 		this.camera.projectionMatrix.fromArray(projectionMatrix)
 		this.animate()
 	}

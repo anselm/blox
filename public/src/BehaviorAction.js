@@ -130,9 +130,9 @@ export class BehaviorActionKinetic {
 				let e = new THREE.Euler(value.x * Math.PI/180.0, value.y * Math.PI/180.0, value.z * Math.PI/180.0 )
 				let q = new THREE.Quaternion()
 				q.setFromEuler(e)
-				blox.quaternion.multiply(q)
+				blox.rotation = q
 			} else {
-				args.rotation = 0
+				blox.rotation = 0
 			}
 		}
 
@@ -198,6 +198,8 @@ export class BehaviorActionKinetic {
 			blox.velocity = v
 		}
 
+		if(args.lookat)
+
 		return true
 	}
 
@@ -256,7 +258,7 @@ export class BehaviorActionKinetic {
 			// rotate current orientation by angular forces
 			// TODO is not considering the angular friction over time
 			// TODO angular forces are not damping - TODO maybe we should do these in euler space? also could test for 0
-			//	this.quaternion.multiply(blox.rotation)
+			blox.quaternion.multiply(blox.rotation)
 		}
 
 		return true
@@ -425,7 +427,7 @@ const center = box.getCenter(new THREE.Vector3());
 
 		if(blox.target) {
 
-			let pos = (typeof blox.target === THREE.Vector3) ? blox.target : blox.target.position
+			let pos = blox.target.hasOwnProperty("x") ? blox.target : blox.target.position
 			if(!pos) {
 				console.error("illegal position")
 				return true
@@ -469,7 +471,7 @@ const center = box.getCenter(new THREE.Vector3());
 
 		if(blox.lookat) {
 			// orient to face something that may itself be moving
-			let pos = (typeof blox.lookat === THREE.Vector3) ? blox.lookat : blox.lookat.position
+			let pos = blox.lookat.hasOwnProperty("x") ? blox.lookat : blox.lookat.position
 			var mx = new THREE.Matrix4().lookAt(blox.position,pos,new THREE.Vector3(0,1,0))
 			let quat = new THREE.Quaternion().setFromRotationMatrix(mx)
 			blox.quaternion.rotateTowards(quat,lapsedTimeSlice)

@@ -6,6 +6,7 @@ import {BehaviorRenderer} from './BehaviorRenderer.js'
 import {BehaviorScene} from './BehaviorScene.js'
 import {BehaviorCamera} from './BehaviorCamera.js'
 import {BehaviorLight} from './BehaviorLight.js'
+import {BehaviorGroup} from './BehaviorGroup.js'
 import {BehaviorMesh} from './BehaviorMesh.js'
 
 // Some graphics
@@ -62,12 +63,12 @@ let UUID = 0
 let global_blox_namespace = {}
 
 ///
-/// BehaviorGroup
+/// BehaviorChildren
 ///
 /// Manages children related to a blox
 ///
 
-export class BehaviorGroup {
+export class BehaviorChildren {
 
 	///
 	/// props = a json ARRAY describing a set of children
@@ -81,9 +82,9 @@ export class BehaviorGroup {
 			console.error("Error: must have a parent blox")
 			return
 		}
-		// hack; normally these fields are set after but I set it early so that children can rely on group.blox.query()
+		// hack; normally these fields are set after but I set it early so that children can rely on children.blox.query()
 		this.blox = blox
-		blox.group = blox.behaviors.group = this
+		blox.children = blox.behaviors.children = this
 		// this behavior manages a set of children - set that up
 		this.children = []
 		// load each one from the property definition and save it
@@ -249,17 +250,17 @@ class BehaviorFunctions {
 ///		- a parent, which may be 0
 ///		- a description which is used to produce the blox from scratch
 ///		- a set of behaviors... this is the main job of this class
-///		- a behavior that is a group of children blox (this could be optional but for now I hard-code it)
-///		- a behavior that is a group of function callbacks for event support (also hard coded)
+///		- a behavior that is a collection of children blox (this could be optional but for now I hard-code it)
+///		- a behavior that is a collection of function callbacks for event support (also hard coded)
 ///
 /// Most behaviors are generic, but I make a couple for myself that are built-in effectively
 ///		- BehaviorLoad -> let's me work around an async issue and lets me implement packages
-///		- BehaviorGroup -> manages children
+///		- BehaviorChildren -> manages children
 ///		- BehaviorFunctions -> manages events and callbacks
 ///
 ///	The document loader has a series of steps
 ///		- if the child property is a behavior, then it asserts the behavior exists once only
-///		- if the child property is a child blox (it can tell these apart) it adds it to its own group
+///		- if the child property is a child blox (it can tell these apart) it adds it to its own children
 ///		- if the child property is a naked function it adds it to its own functions
 ///
 
@@ -294,13 +295,8 @@ export class Blox {
 		// don't do it this way because i don't want to propagate on_event to myself
 		// this.add({label:"functions"})
 
-		// add children powers now - convenient to hardcode this - but see below for a nicer way
-		// this.behaviors.group = new BehaviorGroup({blox:this})
-		// this.behaviors.group.blox = this
-		// this.functions.push({label:"on_event",handler:this.behaviors.group.on_event,owner:this.behaviors.group})
-
-		// might as well use the local machinery to do the above work
-		this.addCapability({label:"group"})
+		// add a children behavior
+		this.addCapability({label:"children"})
 
 		// inject properties - a blox generally consists of a bucket of behaviors, go ahead and populate this blox
 		this.on_behaviors({description:this.description,parent:this.parent})
@@ -461,10 +457,10 @@ export class Blox {
 		// Try find a class constructor for what appears to be a behavior
 		if(!classInst) {
 			try {
-				if(className != "BehaviorGroup") {
-					// i would like to allow user defined behaviors to be dynamically inhaled - do i need a registry? TODO
-		//			let module = await importModule(behaviors)
-		//			let results = await import("./"+className+".js")
+				if(className != "BehaviorChildren") {
+					// not enabled yet: i would like to allow user defined behaviors to be dynamically inhaled - do i need a registry? TODO
+					// let module = await importModule(behaviors)
+					// let results = await import("./"+className+".js")
 				}
 				classRef = eval(className)
 			} catch(e) {
@@ -528,19 +524,19 @@ export class Blox {
 				console.error("Unrecognized child " + description )
 				return 0
 			} else {
-				// New feature - let you directly inject entire children blox without having to declare group[]
+				// New feature - let you directly inject entire children blox without having to declare children[]
 				description.name = label
-				if(!this.behaviors.group) {
-					console.error("Blox:: injecting children directly is missing a group")
+				if(!this.behaviors.children) {
+					console.error("Blox:: trying to add a child behavior but is missing having children behavior")
 				}
-				let blox = this.behaviors.group.push(description)
+				let blox = this.behaviors.children.push(description)
 				return blox
 			}
 		}
 	}
 
 	///
-	/// Moderately fancy query support for blox OR behaviors of a blox - always returning a group of behaviors
+	/// Moderately fancy query support for blox OR behaviors of a blox - always returning a children set of behaviors
 	///
 	/// args may be a string, in which case a global namespace is searched for the blox.name
 	/// args may be hash containing a 'property' in which case the assumption is to look for children behaviors with that field

@@ -65,17 +65,6 @@ export let cherry_blossoms = {
 		},
 	},
 
-	// a demonstration of loading a blox off disk
-	// note each child has to be named uniquely if they are included in this way
-	//tree1:{
-	//	load:"../blox/cherry_tree.js", // test loading a package and then changing it exploiting on_reset()
-	//	mesh:{
-	//		provenance:"https://sketchfab.com/3d-models/cherry-tree-2dc7230267bd4de781db5f22c35d5876",
-	//		position:{x:30,y:10,z:-15},
-	//		scale:{x:5,y:5,z:5},
-	//	},
-	//},
-
 	// a tree
 	tree: {
 		mesh:{
@@ -160,119 +149,6 @@ export let cherry_blossoms = {
 	},
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Some text
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// text floating
-	mytext: {
-		text:{
-			color:0x00FFFF,
-			scale:{x:10,y:10,z:1},
-			position:{x:0,y:5,z:-20},
-			say:"Critter World"
-		}
-	},
-
-	// text panel
-	mytext2: {
-		textPanel:{
-			color:0x00FFFF,
-			scale:{x:10,y:10,z:10},
-			position:{x:-10,y:5,z:-10},
-			say:"I have eaten the plums that were in the icebox and which you were probably saving for breakfast. Forgive me they were delicious, so sweet, and so cold"
-		}
-	},
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// flower patch and bee
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// a child blox
-	// as a scripting hack I am searching for anything that starts with the word "flower" for the bumblebee to visit
-	"flower":{
-		// a typical behavior for a mesh
-		// randomize art - a bit nicer if this is declared before the mesh to be invoked
-		on_behavior_will_add: function(args) {
-			// is it a mesh being added?
-			if(!args.description.art) return
-			// change the art if so
-			let provenance = [
-				"https://sketchfab.com/3d-models/flower-3d-model-8792070e9ee942078c26ca44a670a902",
-				"https://sketchfab.com/3d-models/margarita-flower-58ce34c65642408cb92eab784af2bd6c",
-				"https://sketchfab.com/3d-models/lupine-plant-bf30f1110c174d4baedda0ed63778439",
-				"https://sketchfab.com/3d-models/snapdragon-b4a95a86f35d48fd9a5020372d44539f",
-				"https://sketchfab.com/3d-models/white-flower-9e025b18a39741a4a38b197cee3cdcac",
-			]
-			let random_art = [
-				"./art/flowers/animium_3d_model_flower_3d_model",
-				"./art/flowers/blujay_margarita_flower",
-				"./art/flowers/rufusrockwell_lupine_plant",
-				"./art/flowers/rufusrockwell_snap_dragon",
-				"./art/flowers/tojamerlin_white_flower",
-			]
-			args.description.art = random_art[ Math.floor(Math.random()*random_art.length) ]
-		},
-		mesh:{
-			art:"sphere",
-			position:{x:0,y:0,z:0},
-			scale:{x:1,y:1,z:1},
-			color:0xff0212,
-		},
-		actionKinetic: {
-			// adjust the position at startup - make it randomized over an area
-			disperse:{radius:{x:20,y:0,z:20}},
-		},
-		// a collision behavior with specialized event support
-		collide: {
-			gaze: true,
-			click: true,
-			proximity: 1, // TODO this should be computed from the primitive, things should have collision hulls
-			layer:1, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
-			filter:2, // do not send me any messages unless the other party is in this layer also (layer is a bitmask)
-		},
-		on_overlap: function(args) { // TODO could pull this out to general scope
-			if(!args || !args.blox || !args.blox.mesh) return
-			if(args.blox.mesh.position.y < 3) args.blox.mesh.position.y += 0.1
-		},
-		//on_enter: function() { console.log("enter") }, // TODO it would be nice to fire off messages as well
-		on_exit: function(args) {
-			args.blox.mesh.position.y = 0
-		},
-		// animate art
-		on_tick: function(args) {
-			args.blox.mesh.rotateY(0.01)
-		},
-	},
-
-	// an emitter is a behavior that subclasses a mesh
-	// it can make a bunch of children from a reference object and it puts the children inside itself
-	// as a scripting hack I am looking for anything that starts with the word "flower" - these are all prefixed with that word
-	"emitterofflowers": {
-		emitter:{
-			art:"box",
-			color:0x0000FF,
-			visible:false,
-			target:"flower",
-			name:"flowerpower",
-			radius:10,
-			count:15
-		}
-	},
-
-	// a bee - unfortunately it targets the petals often... maybe there's a way to do wildcard search options TODO
-	"bettybumblebee":{
-		mesh:"./art/hornet",
-		actionTarget:{},
-		actionKinetic:{},
-		action:[
-			{ time:  6, actionTarget:{ target:"regex:flower",height:3, forward: 1} },
-			{ time:  9, actionTarget:{ target:"regex:flower",height:3} },
-			{ time: 12, actionTarget:{ target:"regex:flower",height:3} },
-			{ time: 15, actionTarget:{ target:"tree",height:5} },
-		]
-	},
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// controls - vr controls to control a fox, and ar controls to place objects
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -295,29 +171,6 @@ export let cherry_blossoms = {
 			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
 			filter:0
 		},
-	},
-
-	"imageanchor":{
-		mesh:"./art/hornet",
-		anchor:{
-			art:"./art/large_eye.jpg"
-		}
-	},
-
-	"infobox":{
-		mesh:"./art/hornet",
-		actionTarget:{
-			target:"foxy",
-			lookat:"foxy",
-			infrontof:4,
-			height:2
-		},
-		actionKinetic:{},
-	},
-
-	someux: {
-		placementUX: {
-		}
 	},
 
 }

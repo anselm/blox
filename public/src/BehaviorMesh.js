@@ -1,9 +1,18 @@
 
 ///
-/// A mesh manager
+/// A basic node of various flavors
 ///
 /// TODO support active or inactive
 /// TODO should material properties be more detailed?
+/// TODO may wish to insert a group concept and generalize this and remove BehaviorGroup
+/// then, children could translate but ignore orientation of this object if they wished
+/// the kinetic forces would have to be smart enough to act locally or globally
+///
+/// - ok the idea is that everything is a group
+/// - and there can be a children that are art or other kinds of things at will
+/// - when we are rotating something i think i want to rotate the child
+/// - when i translate something i want to translate the parent
+/// - targeting should solve for the transform of the object, ignoring orientation
 ///
 
 export class BehaviorMesh extends THREE.Mesh {
@@ -18,12 +27,10 @@ export class BehaviorMesh extends THREE.Mesh {
 
 		// force set these properties on the blox; by convention these become reserved for this role
 		let blox = args.blox
-		if(blox) { // TODO remove this check once behaviorparticles is removed)
-			if(blox.mesh) console.error("Warning: mesh already assigned")
-			blox.mesh = this
-			blox.position = this.position
-			blox.quaternion = this.quaternion
-		}
+		if(blox.mesh) console.error("Warning: mesh already assigned")
+		blox.mesh = this
+		blox.position = this.position
+		blox.quaternion = this.quaternion
 
 	}
 
@@ -121,8 +128,8 @@ export class BehaviorMesh extends THREE.Mesh {
 			return this.geometry
 		}
 
-		// actually i don't want to see it
-		if(this.material) this.material.visible = false
+		// i don't want to see it
+		// if(this.material) this.material.visible = false
 
 		// load the gltf
 		let url = str + "/scene.gltf"
@@ -175,13 +182,12 @@ export class BehaviorMesh extends THREE.Mesh {
 	///
 
 	on_blox_added(args) {
-		console.log("*******  mesh named " + args.blox.name + " adding child named " + args.child.name)
-		return false
 		let blox = args.blox
 		let child = args.child
 		let mesh = this
 		let children = child.query({instance:THREE.Object3D,all:true})
 		children.forEach((value)=>{
+			console.log("*******  mesh named " + args.blox.name + " adding child named " + args.child.name)
 			mesh.add(value)
 		})
 		return false // don't continue to pass this fact on

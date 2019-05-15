@@ -62,7 +62,7 @@ export class BehaviorPlacementUX extends HTMLElement {
 			art:"./art/hornet",
 			anchor:0
 		}
-		let fresh = this.blox.parent.group.push(description)
+		let fresh = this.blox.parent.children.push(description)
 	}
 }
 

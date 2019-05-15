@@ -1,23 +1,52 @@
-<!-- html -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Blox: Rollup Example</title>
+<title>Blox Examples</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<link rel="stylesheet" href="common.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body {
+	font-family: Verdana, Geneva, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+span {
+	width:100px;
+	height:100px;
+	border:2px solid grey;
+	display: block;
+	float:left;
+	padding:4px;
+	margin:4px;
+	border-radius:7px;
+}
+</style>
+
 </head>
+
 <body>
-<!-- a link to the declarative source -->
-<a href="https://github.com/anselm/blox/blob/master/public/examples/cherry_blossoms.js" style="border:3px solid gray; position:absolute;top:0;right:0;background:white;font-size:1em;text-decoration:none;border-radius:8px;margin:4px;padding:3px">View Source</a>
-<!-- optionally ask the user if they want to go into XR mode or not; disabled for now -->
-<button style="display:none;padding:20px; margin: 20px; font-size:2em; border:3px solid green;" id="go-button">Use XR Mode?</button>
+<div id="help" style="position:absolute;top:20px;right:0;display:none">
+<a id="source" href="" style="border:3px solid gray;background:white;font-size:1em;text-decoration:none;border-radius:8px;margin:4px;padding:3px">View Source</a>
+<a id="source" href="?file=" style="border:3px solid gray;background:white;font-size:1em;text-decoration:none;border-radius:8px;margin:4px;padding:3px">Back</a>
+</div>
 
-
-<div id="hubs" style="width: 100px; display: none">
-	<img id="hubs-image" src="hubs.png" >
+<div id="options" style="display:none">
+<h1>A collection of Blox examples</h1>
+<a class="helpitem" href="?file=./examples/helloworld.js"><span>Hello World</span></a>
+<a class="helpitem" href="?file=./examples/controls.js"><span>Navigating around</span></a>
+<a class="helpitem" href="?file=./examples/cloning.js"><span>Creating Flowers</span></a>
+<a class="helpitem" href="?file=./examples/collisions.js"><span>Colliding with Flowers</span></a>
+<a class="helpitem" href="?file=./examples/sequencing.js"><span>Bees visiting flowers</span></a>
+<a class="helpitem" href="?file=./examples/infrontof.js"><span>Bee staying in front of you</span></a>
+<a class="helpitem" href="?file=./examples/particles.js"><span>Cherry Blossoms Particle Effects</span></a>
+<a class="helpitem" href="?file=./examples/physics.js"><span>Simple Physics</span></a>
+<a class="helpitem" href="?file=./examples/image_anchor.js"><span>Image Anchors</span></a>
+<a class="helpitem" href="?file=./examples/geo_anchor.js"><span>Geo Markers</span></a>
 </div>
 
 </body>
+
 </html>
 
 <!-- libraries -->
@@ -46,10 +75,26 @@
 <!-- for geospatial xr support -->
 <script src="./lib/Cesium.js"></script>
 
-<!-- make a blox -->
+<!-- load file -->
 <script type=module>
+
 import {Blox} from "./src/Blox.js"
- //document.getElementById("go-button").addEventListener('click',(e)=>{
-let blox = new Blox({description:"./examples/cherry_blossoms.js"})
-//})
+
+window.onload = function() {
+
+	const params = new URLSearchParams(window.location.search)
+	const file = params.get("file")
+	if(file && file.length > 0) {
+		document.getElementById("options").style.display = "none"
+		document.getElementById("help").style.display = "block"
+		document.getElementById("source").href = "https://github.com/anselm/blox/blob/master/public/"+file
+		let blox = new Blox({description:file})
+	} else {
+		document.getElementById("options").style.display = "block"
+		document.getElementById("help").style.display = "none"
+	}
+
+}
 </script>
+
+

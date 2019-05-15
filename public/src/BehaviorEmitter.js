@@ -29,7 +29,7 @@ export class BehaviorEmitter extends BehaviorMesh {
 			// arguably all the named objects could be children of this object? TODO
 			target.description.name = props.name + i
 			// copy
-			let fresh = blox.parent.group.push(target.description)
+			let fresh = blox.parent.children.push(target.description)
 		}
 		return true
 	}

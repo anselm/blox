@@ -1,23 +1,29 @@
 
-# STORIES
+# BASIC EXAMPLES
 
-	What is a good fun story that I can tell? That shows how it is easy and useful to tell rich stories?
-	Can I put this in the hands of experimenters? What do I need to do to show the utility? Maybe a medium post on this?
-	I need more feedback, content, art and support for this work.
+- general editor - destructors
+- general editor - property sheet editor for geo
 
-	[ basics ]
+	- beabove: -> write a separate action power that can be on a child -> beabove:0 would be the ground
+	- face towards: -> test i guess that can also be on a child - test that concept
+	- xrcamera -> write / decorate an object with this capability so that we can do real collisions in xr space
+	- make sure i can texture cubes etc; the basics - add several basic examples
 
-		* [documents] a simple file that shows document based authoring, with variables, custom event handling and other basics
+	- minor
+		- examine on_tick event propagation closely
+		- handle resizing
 
-		* [art] show that you can load art assets
+	- xr support
 
-		* [sequencing] having bees move from flower to flower as an example
+		- xr camera has to move a real object; ieed some concept of a real object
 
-		* [collisions] having flowers pop up when you get near them with a high fidelity of control
+		- the xr picking needs to be moved out of the behaviorrenderer
 
-->		* [infrontof/tagalong] [billboard/looksat] -> actually have an example piece of text, also should be able to set the tightness/rate
+		- xrcamera: makes the object go to the camera - or maybe on the ground at the camera?
 
-		- test xr image and xr geo
+		- [xr anchors] image, geo, user created
+
+		- xr placement edit move
 
 		- improve tightness/rate of movement
 
