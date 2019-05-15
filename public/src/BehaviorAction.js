@@ -73,7 +73,7 @@ export class BehaviorActionKinetic {
 
 			// orientation, rotation and angular friction
 			blox.rotation = new THREE.Quaternion()
-			blox.angular = 0.9
+			blox.angular = 0.95
 
 			// general kinetic forces
 			blox.forces = {}
@@ -130,6 +130,7 @@ export class BehaviorActionKinetic {
 				let e = new THREE.Euler(value.x * Math.PI/180.0, value.y * Math.PI/180.0, value.z * Math.PI/180.0 )
 				let q = new THREE.Quaternion()
 				q.setFromEuler(e)
+				blox.original_rotation_euler = e
 				blox.rotation = q
 			} else {
 				blox.rotation = 0
@@ -259,6 +260,15 @@ export class BehaviorActionKinetic {
 			// TODO is not considering the angular friction over time
 			// TODO angular forces are not damping - TODO maybe we should do these in euler space? also could test for 0
 			blox.quaternion.multiply(blox.rotation)
+
+			if(blox.original_rotation_euler && blox.angular) {
+				let e = blox.original_rotation_euler
+				e._x = e._x * blox.angular
+				e._y = e._y * blox.angular
+				e._z = e._z * blox.angular
+				blox.rotation.setFromEuler(e)
+			}
+
 		}
 
 		return true

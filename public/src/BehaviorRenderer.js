@@ -50,6 +50,12 @@ export class XRSupport {
 		this.headFrameOfReference = 0
 		this.eyeLevelFrameOfReference = 0
 
+		// typically users will want to use estimates rather than their own values
+		XRGeospatialAnchor.useEstimatedElevation(true)
+
+		// enable smooth tracking of image targets
+		this.session.nonStandard_setNumberOfTrackedImages(4)
+
 		// head-model is the coordinate system that tracks the position of the display
 		this.session.requestFrameOfReference('head-model').then(frameOfReference =>{
 			this.headFrameOfReference = frameOfReference
