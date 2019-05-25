@@ -16,6 +16,17 @@ export let  my_example = {
 		}
 	},
 
+	// some ground that is hidden in xr mode
+	"myground":	{
+		mesh:{
+			art:"sphere",
+			position:{x:0,y:-2,z:0},
+			scale:{x:300,y:0.1,z:300},
+			color:0xccffee,
+			xr:false
+		},
+	},
+
 	// a tree
 	mygroup: {
 		name: "mygroup",
@@ -29,22 +40,6 @@ export let  my_example = {
 				scale:{x:5,y:5,z:5},
 				color:0xffffff,
 			},
-		},
-	},
-
-	// some ground that is hidden in xr mode
-	"myground":	{
-		mesh:{
-			art:"sphere",
-			position:{x:0,y:-2,z:0},
-			scale:{x:300,y:0.1,z:300},
-			color:0xccffee,
-			visible:false
-		},
-		on_behavior_added: function(args) {
-			// hack - only show if not in xr mode
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.visible = args.blox.mesh.material.visible = true
-			return true
 		},
 	},
 

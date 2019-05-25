@@ -101,38 +101,53 @@ export let myscene = {
 		}
 	},
 
-	"foxy": {
-		mesh:{
-			provenance:[
-				"https://sketchfab.com/3d-models/low-poly-fox-by-pixelmannen-animated-371dea88d7e04a76af5763f2a36866bc",
-			],
-			art:"../art/pixelmannen_low_poly_fox",
-			position:{x:0,y:0,z:-7},
- 			scale:{x:1,y:1,z:1},
-			color:0xff0000,
-		},
-		actionKinetic:{},
-		walk:{}, // walking behavior relies on actionKinetic
-		collide: {
-			gaze: true,
-			click: true,
-			proximity:1,
-			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
-		},
-	},
-
 	"bettybumblebee":{
 		mesh:"../art/hornet",
 
 		actionKinetic:{},
 
 		action:[
-			{ time:  2, actionTarget:{ target:"foxy",height:1,forward:1} },
+			{ time:  2, actionTarget:{ target:"player_hand",height:1,forward:1} },
 			{ time:  6, actionTarget:{ target:"*",height:1} },
 			{ time:  9, actionTarget:{ target:"*",height:1} },
 			{ time: 12, actionTarget:{ target:"*",height:1} },
 			{ time: 15, actionTarget:{ target:"tree",height:5} },
 		]
-	}
+	},
+
+	"player": {
+		camera:{
+			position:{x:0,y:2,z:-32},
+			lookat:{x:0,y:2,z:0},
+		},
+		actionKinetic:{},
+		walk:{}
+	},
+
+	"player_hand":{
+		group:{},
+		"right_hand":{
+			mesh:{
+				position:{x:-1,y:0,z:0},
+				orientation:{x:-90,y:90,z:-20},
+				art:"./art/hand_low_poly",
+			}
+		},
+		actionTarget:{
+			target:"player",
+			lookat:"player",
+			infrontof:-8,
+			height:0
+		},
+		actionKinetic:{},
+		collide: {
+			gaze: true,
+			click: true,
+			proximity:1,
+			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
+			filter:0
+		},
+	},
+
 }
 

@@ -45,13 +45,7 @@ export let cherry_blossoms = {
 	"myskybox":	{
 		sky:{
 			art:"./art/eso0932a.jpg",
-			visible:false
-		},
-		on_behavior_added: function(args) {
-			// hack - only show if not in xr mode
-			console.log("detect xr")
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.material.visible = args.blox.mesh.visible = true
-			return true
+			xr:false
 		},
 	},
 
@@ -61,13 +55,7 @@ export let cherry_blossoms = {
 			position:useful_place,
 			scale:{x:300,y:0.1,z:300},
 			color:0xccffee,
-			visible:false
-		},
-		on_behavior_added: function(args) {
-			// hack - only show if not in xr mode
-			console.log("detect xr")
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.material.visible = args.blox.mesh.visible = true
-			return true
+			xr:false
 		},
 	},
 

@@ -363,11 +363,20 @@ export class BehaviorRenderer {
 		this.renderer.setPixelRatio(1)
 		this.renderer.setSize(width,height) // TODO this may not be needed? test
 
+		//this.renderTarget = new THREE.WebGLRenderTarget( width, height,{
+		//	minFilter: THREE.LinearFilter,
+		//	magFilter: THREE.LinearFilter,
+		//	format: THREE.RGBFormat,
+		//	stencilBuffer: true
+		//})
+		//this.composer = new THREE.EffectComposer( this.renderer, this.renderTarget )
+
 		this.composer = new THREE.EffectComposer( this.renderer )
 		this.composer.setSize( width, height ) // TODO this may not be needed?
 
 		this.renderPass = new THREE.RenderPass( this.scene, this.camera )
 		this.composer.addPass( this.renderPass )
+		//this.renderPass.clear = false
 
 		let outlinePass = this.outlinePass = new THREE.OutlinePass( new THREE.Vector2( width, height ), this.scene, this.camera )
 		// outlinePass.edgeStrength = Number( 5 );
@@ -392,6 +401,72 @@ export class BehaviorRenderer {
 		this.composer.addPass( this.effectFXAA );
 	}
 
+	/*
+	test_stencil_buffers() {
+		let camera = this.camera
+		let composer = this.composer
+
+	// currently
+	// - render a mask
+	// - render main scene -> unfortunately the mask is too good
+
+	// approaches
+	// - render the back scene
+	// - and clear z depth
+	// - and render a z depth of the portal itself
+	// - now render as usual
+
+	// or
+	// - mask the portal
+	// - render the back scene
+	// - and render a z depth of the portal itself
+	// - now render as usual
+
+		// first clear the screen
+		composer.addPass( new THREE.ClearPass() )
+
+		// portal
+		let portal1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 4, 8, 0.1 ) )
+		let portal2 = new THREE.Mesh( new THREE.BoxBufferGeometry( 4, 8, 0.1 ) )
+
+		// Mask - so that nothing outside the mask can be painted
+		var scene1 = new THREE.Scene()
+		scene1.add( portal1 )
+		let mask = new THREE.MaskPass( scene1, camera )
+		composer.addPass( mask )
+
+		// Now render some geometry in the inner secret room
+		let scene2 = new THREE.Scene()
+		let m = new THREE.Mesh( new THREE.SphereGeometry(1,32,32) ) 
+		m.position.z = 10
+		scene2.add( m )
+		this.renderPass2 = new THREE.RenderPass( scene2, this.camera )
+		this.composer.addPass( this.renderPass2 )
+		this.renderPass2.clear = false
+
+		// remove mask
+		composer.addPass( new THREE.ClearMaskPass() )
+
+		// Make an inverse mask so that the insides are not touched
+		var scene1 = new THREE.Scene()
+		scene1.add( portal2 )
+		let mask2 = new THREE.MaskPass( scene1, camera )
+		mask2.inverse = true
+		composer.addPass( mask2 )
+
+		// render main scene on the outside of the room
+		this.renderPass = new THREE.RenderPass( this.scene, this.camera )
+		this.composer.addPass( this.renderPass )
+		this.renderPass.clear = false
+
+		// remove mask
+		composer.addPass( new THREE.ClearMaskPass() )
+
+		// copy to main
+		composer.addPass( new THREE.ShaderPass( THREE.CopyShader ) )
+	}
+	*/
+
 	set_scene(scene) {
 		this.scene = scene
 	}
@@ -410,10 +485,20 @@ export class BehaviorRenderer {
 
 	animate() {
 		if(!this.scene || !this.camera) return
+
 		this.blox.on_event({blox:this.blox,name:"on_tick",interval:this.clock.getElapsedTime()})
-		this.outlinePass.renderScene = this.renderPass.scene = this.scene
-		this.outlinePass.renderCamera = this.renderPass.camera = this.camera
-		this.composer.render()
+
+		if(this.renderPass) {
+			this.renderPass.scene = this.scene
+			this.renderPass.camera = this.camera
+		}
+		if(this.outlinePass) {
+			this.outlinePass.renderScene = this.renderPass.scene = this.scene // works around a bug with changeable camera TODO
+			this.outlinePass.renderCamera = this.renderPass.camera = this.camera
+		}
+
+		this.renderer.clear();
+		this.composer.render(performance.now() * 0.001)
 	}
 
 	animateWithCamera(bounds,projectionMatrix,viewMatrix,modelMatrix) {

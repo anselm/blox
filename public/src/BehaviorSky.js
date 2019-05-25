@@ -1,5 +1,6 @@
 export class BehaviorSky extends THREE.Mesh {
 	constructor(args) {
+
 		let props = args.description
 		let blox = args.blox
 		let sky_vertex = `
@@ -37,7 +38,15 @@ export class BehaviorSky extends THREE.Mesh {
 		blox.mesh = this
 		blox.position = this.position
 		blox.quaternion = this.quaternion
-		this.visible = props.visible ? true : false
+
+		// special feature - do not show if xr mode
+		if(args.description.hasOwnProperty("xr") && !args.description.xr) {
+			this.visible = false
+		}
+
+		if(props.hasOwnProperty("visible")) {
+			this.visible = props.visible ? true : false
+		}
 
 	}
 }

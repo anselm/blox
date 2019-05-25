@@ -8,17 +8,23 @@ export class BehaviorScene extends THREE.Scene {
 		super()
 		this.blox = blox
 
-		// this is optional - just make it less work for users to setup scenes by declaring the renderer if it is not around yet
-		if(!blox.renderer) blox.addCapability({label:"renderer"})
-
-		// also go ahead and inject a camera behavior directly on the root of the scene graph as well; TODO this is a bit more hacky
-		if(blox.renderer && !blox.renderer.camera) blox.addCapability({label:"camera"})
-
+		// add a renderer behavior to the current blox if none present
 		if(!blox.renderer) {
-			console.error("renderer must be attached first")
-			return
+			blox.addCapability({label:"renderer"})
 		}
+
 		blox.renderer.set_scene(this)
+
+		// add a blox containing a camera to the scene if none preseant
+		if(!blox.renderer.camera) {
+			let camera_blox = blox.addBlox({
+				name:"camera",
+				camera:{},
+			})
+			// since this scene is not 100% initialized, go ahead and add this by hand
+			this.on_blox_added({blox:args.blox,child:camera_blox})
+		}
+
 	}
 	on_blox_added(args) {
 		let blox = args.blox

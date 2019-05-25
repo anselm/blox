@@ -8,6 +8,7 @@ import {BehaviorCamera} from './BehaviorCamera.js'
 import {BehaviorLight} from './BehaviorLight.js'
 import {BehaviorGroup} from './BehaviorGroup.js'
 import {BehaviorMesh} from './BehaviorMesh.js'
+import {BehaviorPortal} from './BehaviorPortal.js'
 
 // Some graphics
 import {BehaviorSky} from './BehaviorSky.js'
@@ -533,6 +534,15 @@ export class Blox {
 				return blox
 			}
 		}
+	}
+
+	///
+	/// Convenience - also addCapability does the same
+	///
+
+	addBlox(description) {
+		let blox = this.behaviors.children.push(description)
+		return blox
 	}
 
 	///

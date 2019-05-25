@@ -38,13 +38,7 @@ export let cherry_blossoms = {
 	"myskybox":	{
 		sky:{
 			art:"./art/eso0932a.jpg",
-			visible:false
-		},
-		on_behavior_added: function(args) {
-			// hack - only show if not in xr mode
-			console.log("detect xr")
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.visible = args.blox.mesh.material.visible = true
-			return true
+			xr:false,
 		},
 	},
 
@@ -55,13 +49,8 @@ export let cherry_blossoms = {
 			scale:{x:300,y:0.1,z:300},
 			color:0xccffee,
 			//texture:"./art/carnations.jpg"
-			visible:false
-		},
-		on_behavior_added: function(args) {
-			// hack - only show if not in xr mode
-			console.log("detect xr")
-			if(!window.webkit && args.blox.mesh) args.blox.mesh.visible = args.blox.mesh.material.visible = true
-			return true
+			visible:false,
+			xr:false
 		},
 	},
 
@@ -69,7 +58,7 @@ export let cherry_blossoms = {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// controls - vr controls to control a fox, and ar controls to place objects
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 	"foxy": {
 		mesh:{
 			provenance:[
@@ -82,6 +71,40 @@ export let cherry_blossoms = {
 		},
 		actionKinetic:{},
 		walk:{}, // walking behavior relies on actionKinetic
+		collide: {
+			gaze: true,
+			click: true,
+			proximity:1,
+			layer:3, // do not test for collisions at all unless both parties are in this layer (layer is a bitmask)
+			filter:0
+		},
+	},
+*/
+	"player": {
+		camera:{
+			position:{x:0,y:2,z:-32},
+			lookat:{x:0,y:2,z:0},
+		},
+		actionKinetic:{},
+		walk:{}
+	},
+
+	"player_hand":{
+		group:{},
+		"right_hand":{
+			mesh:{
+				position:{x:-1,y:0,z:0},
+				orientation:{x:-90,y:90,z:-20},
+				art:"./art/hand_low_poly",
+			}
+		},
+		actionTarget:{
+			target:"player",
+			lookat:"player",
+			infrontof:-8,
+			height:0
+		},
+		actionKinetic:{},
 		collide: {
 			gaze: true,
 			click: true,

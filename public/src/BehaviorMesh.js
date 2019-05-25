@@ -32,6 +32,11 @@ export class BehaviorMesh extends THREE.Mesh {
 		blox.position = this.position
 		blox.quaternion = this.quaternion
 
+		// special feature - do not show if xr mode
+		if(args.description.hasOwnProperty("xr") && !args.description.xr) {
+			this.visible = false
+		}
+
 	}
 
 	/// set or reset qualities of this mesh

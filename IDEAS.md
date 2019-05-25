@@ -1,101 +1,61 @@
+Small things to tidy up
 
-# BASIC EXAMPLES
+	* xr improvement: the system makes a "camera" blox on the root that is a real object! super useful
+	* xr improvement: things can mark themselves as not visible during XR mode to keep code simpler
+	* xr improvement: walking controls have an orbit control built in - and also turn off during XR mode
 
-- general editor - destructors
-- general editor - property sheet editor for geo
+	- xr improvement: test collision with the xr camera now -> have to register the camera as a collidant
 
-	- beabove: -> write a separate action power that can be on a child -> beabove:0 would be the ground
-	- face towards: -> test i guess that can also be on a child - test that concept
-	- xrcamera -> write / decorate an object with this capability so that we can do real collisions in xr space
-	- make sure i can texture cubes etc; the basics - add several basic examples
+- would be handy to package blox up as packages and load them - try harder
+- also would be nice to load behaviors from a file or scan
+- and a tiny server would be handy too, especially if it hosted content and had login / auth support
 
-	- minor
-		- examine on_tick event propagation closely
-		- handle resizing
+	- motion
+		- i kinda think the fox should strive to be in front of the camera in either xr or other mode
+		- (so we move the camera not the fox directly)
+		- and in desktop mode we can also orbit the camera
+		- i think we should just move the ground to kinda always be 1.6 feet beneath us? or detect crouch versus move?
 
-	- xr support
+	- right now there is a purple sphere when things are loading up; maybe it could be a sparkle effect
+	- test portal -> make it do transitions too
+	- also test image anchors
+	- also test geo anchors
+	- test a trivial spin power
+	- i like the trick of making a qrcode url
+	- a few basic behaviors such as xr geo anchors that are always at eye level, and a basic spin behavior
+	- i'd like to be able to cut and paste and reference snippets to reduce duplicate example json
+	- xr basics; embodiment of a hand, gaze based picking, gaze based dragging, gaze based editing panel
+			placing an anchor at an absolute position and attaching an object to it
+			also xr picking is inside of behaviorrenderer and it should not be
+			right now it's a bit of a mess, just tidy up
 
-		- xr camera has to move a real object; ieed some concept of a real object
+Other less important small details
 
-		- the xr picking needs to be moved out of the behaviorrenderer
+	- i think maybe meshes should implicitly have an xr property or not so i can throw them away in xr mode
+	- pull in the latest 3js
+	- pull in the latest webxr
+	- look at how the canvas and the like is being setup now in mred
+	- look at how the geo anchors and image anchors are beng setup
 
-		- xrcamera: makes the object go to the camera - or maybe on the ground at the camera?
+	- maybe could elaborate more on in app scripting, and maybe also being able to load up scriptlets separately
+	- maybe could really get around to loading behaviors separately, maybe from a text file or something
+	- it might make sense to have a tiny server
+	- it might make sense to test this on glitch
 
-		- [xr anchors] image, geo, user created
+	- sound support
+	- examining on_tick carefully in terms of invocations and cpu time
 
-		- xr placement edit move
+	- effects engine improvement; the initial spray of flowers is ugly from the tree
 
-		- improve tightness/rate of movement
-
-		- high fidelity text
-
-		- vr movement and ar movement with a body
-
-		- desktop orbit camera
-
-	- recovering some of the arpersist powers; multi-player, editing, a map view, login?
-
-	- recruiting people to improve it
-
-	- a pass on small bug fixes and general featurizing; I've touched many things but not really filled them out as best I can
-
-		- [effects] having a big tree with particles coming from it <<<< effects need to emit more gracefully I need an emit start offset
-
-		- [text] -> show text that is ALWAYS legible, and ALWAYS in front of you -> maybe arrows also
-
-		- [tamagotchi] have a pet that you have to feed, and that hops around on the ground - stays on ground
-
-		- [image tag] have something attached to an image, have an image force a scene transition
-
-		- [transition] have a scene transition -> ie, recognizing an image sends a message that can be used to force a transition
-
-		- *[multiplayer] *[hosted on glitch]
-
-	[WebXR Powers]
-
-		- [gazed based placement with ray - test more]
-
-		- [gaze based highlighting]
-
-		- [gaze based dragging]
-
-		- [gaze based editing]
-
-		- https://www.npmjs.com/package/three-web-layer
+	- the text layout engine should use that embeddable html thing and we should test helpful popup text billboards
 
 
-# OTHER
-
-	- can i take a sentence and turn it into letters and then turn those letters into particles and then blow it up?
-	- sound! can i also do sound synthesis and wire sound things together?
-
-	- scene startup; blair says scenes should start in front of player but that fights multiplayer ideas
-	- multiplayer; think harder about this
-
-	- need a virtual hand
-	- need some real world placement of objects; can i make a demo of that? pull in arpersist power?
-
-	- demonstrate a smart card, templated, super rich and super beautiful; examine lifecards
-	- make a powerpoint on this whole app
-
-	- animate the gltfs
-	- i would like an orbit camera than can attach to other kinds of cameras
-	- i would like to fix up the camera so it does not flicker
-
-
-
-****
+Other even less important ideas:
 
 
 	x try load behaviors by name -> revisit this idea later... some issues right now with paths or something
 
-	- right now camera pose does get overridden by webxr, but i would also it to control a physical object like me for proximity
-		- letting you use the camera pose to also position an object
-		- letting you have a hand on the front of the camera; i guess this is similar...
-
-	- [search and namespaces] consider renaming all objects into a named hierachy
-
-	- right now collision is a built in feature, could it be made something more specialized?
+	- [search and namespaces] consider renaming all objects into a named hierachy? as well as a flat hierarchy
 
 	- webxr
 		- only send messages in general and on_tick to active objects, so have a deeper concept of active or not
@@ -123,12 +83,43 @@
 
 	 - could shorten the name to the various BehaviorAction* utilities... and also maybe not pollute Blox namespace so much
 
-	 - change behaviorwalk to use new impulse method and remove impulse hacks from behavioraction
-
 	 - kinematic motion model improvements
 		- tends to keep sliding sideways; i really want something that feels more precise for the pov movement; like set destination
 		- destinations tend to be overshot in the ik model
 		- should really use real physics engine again; and integrate physics with my motion model too
+
+	 - gltf load consolidation to avoid duplicate loads?
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// done
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# - [DONE] choreographed sequencing at the grammar level (not actually having to write code)
+
+	the approach i used was to add a behavioraction concept that has an array of timed messages
+	those messages fire off to objects, and it'll spontaneously decorate the object with a new behavior
+	or reset an existing behavior... works well.
+
+	 - choreography of groups [ LOWER PRIORITY RIGHT NOW ]
+
+		- the easiest way to time things is just write code..
+		- i don't want to replace javascript, but i want to pull out or emphasize the timeline itself
+		- so where appropriate a grammar can be story level?
+		- i want to separate verbs from nouns, so they can be applied to anything or i can group or find similar things
+		- mass or group behavior - make 50 things do one dance together
+		- any reasonable separation of behavior from being overly bound to objects
+		- I'd like to be able to have a sequence or program made up out of successive intentions; a choreography
+		- maybe i can give these little sequences names and save them the same way i save meshes and then refer to them like macros
+		- although branching and turning completeness is risky, maybe events and resets are reasonable so a thing can loop behavior
+
+		// a live query
+
+		group = blox.query({monsters,all})
+		group.add_behavior(intent) // - if i could save behaviors for later, and then apply them by reference this is 
 
 	 - continue to improve semantic choreography
 
@@ -167,72 +158,6 @@
 
 			- other ideas -> waddle, tilt, spin, follow nearest person, avoid each other
 
-
-	 - choreography of groups [ LOWER PRIORITY RIGHT NOW ]
-
-		- the easiest way to time things is just write code
-		- i don't want to replace javascript, but i want to pull out or emphasize the timeline itself
-		- so where appropriate a grammar can be story level?
-		- i want to separate verbs from nouns, so they can be applied to anything or i can group or find similar things
-		- mass or group behavior - make 50 things do one dance together
-		- any reasonable separation of behavior from being overly bound to objects
-		- I'd like to be able to have a sequence or program made up out of successive intentions; a choreography
-		- maybe i can give these little sequences names and save them the same way i save meshes and then refer to them like macros
-		- although branching and turning completeness is risky, maybe events and resets are reasonable so a thing can loop behavior
-
-		// a live query
-
-		group = blox.query({monsters,all})
-		group.add_behavior(intent) // - if i could save behaviors for later, and then apply them by reference this is doable
-
-
-	 - gltf load consolidation to avoid duplicate loads?
-
-
-
-
-# - a a story to try
-
-	- the turtle story
-		- a person appears on the ground, in front of you
-		- can you help me find my turtle
-		- you have to tap on the text box
-		- here’s a picture!
-		- he wandered off!
-		- and then you can look around and try find it? i guess?
-		- and if you tap it then you get some end sequence? 
-
-# - DOCS -> should put these somewhere
-
-		Blox
-			behaviors
-			functions
-			group
-			<- behaviors also appear directly in the namespace - a blox with a BehaviorScene can be dereferenced blox.scene
-			<- variables also get added here, there are some conventions
-
-		Behaviors
-
-			Scene
-			Camera
-			Light
-			Mesh
-			Audio
-
-			Sky
-			Heart
-			Text
-			* halfdome tbd
-
-			Hand
-
-			Anchor
-
-			Action
-			Physics
-			Bounce
-			Collide
-			Emitter
 
 
 
@@ -289,7 +214,7 @@
 		but it would be nice to have directed events
 
 
-# [ DONE ] Usability feature - make it so that users don't have to declare a child group at all
+# [ DONE ] implicit children - Usability feature - make it so that users don't have to declare a child group at all
 
 	at the moment the parent blox namespace is directly polluted with behaviors and functions
 	it might be nice to pollute it with children blox as well because this would make it easier for users to work in text
@@ -387,7 +312,7 @@
 
 	- packages?- does not really handle children though? maybe it does?
 
-# [DONE] 2d UX (good enough for now)
+# [DONE] 2d UX (removed, we actually want everything to be absolutely pure 3d)
 
 UX capabilities - Design Thoughts May 1 2019
 

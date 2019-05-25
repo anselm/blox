@@ -6,7 +6,22 @@
 export class BehaviorWalk {
 
 	constructor(args) {
+
+		let xrmode = typeof window.webkit !== 'undefined'
+		if(xrmode) return 
+
+
 		document.addEventListener("keydown", this.onKeyDown.bind(this), false)
+
+		// attach to camera
+		this.camera = args.blox.query("camera")
+		if(!this.camera || !this.camera.camera) alert("no cam")
+		this.orbit = new THREE.OrbitControls(this.camera.camera)
+
+		// attach to blox position
+		// TODO maybe I need a group above the actual real target
+//		this.orbit.target = args.blox.position
+//		this.orbit.maxDistance = 20
 	}
 
 	onKeyDown(event) {
@@ -16,10 +31,10 @@ export class BehaviorWalk {
 			return
 		}
 	    switch(event.key) {
-	    	case 'w': // up
+	    	case 's': // up
 	    		blox.on_event({name:"on_move",forward_impulse:{x:0,y:0,z:1}}) // TODO support blox.on_move
 	    		break
-	    	case 's': // down
+	    	case 'w': // down
 	    		blox.on_event({name:"on_move",forward_impulse:{x:0,y:0,z:-1}})
 	    		break
 	    	case 'a': // left
@@ -40,20 +55,12 @@ export class BehaviorWalk {
 		let xrmode = typeof window.webkit !== 'undefined'
 		if(xrmode) return true
 
+		this.orbit.update()
+
 		// position camera behind the subject - TODO this could be a separate feature or behavior
 
-		let camera = document.blox_renderer.camera
 		let mesh = this.blox.mesh
-		if(!camera || !mesh) {
-			console.error("Needs its own camera and mesh for now")
-		}
 
-		// find a position behind the object
-		let v = new THREE.Vector3(0,3,-10)
-		v.applyMatrix4(mesh.matrixWorld)
-		camera.matrixAutoUpdate = true
-		camera.position.set(v.x,v.y,v.z)
-		camera.lookAt(mesh.position)
 		return true
 	}
 }

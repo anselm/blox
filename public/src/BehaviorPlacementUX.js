@@ -6,6 +6,8 @@ export class BehaviorPlacementUX {
 
 /*
 
+this is removed because the system won't have a dom at screen level eventually
+
 export class BehaviorPlacementUX extends HTMLElement {
 
 	content() {
