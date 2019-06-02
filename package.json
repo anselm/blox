@@ -1,21 +1,37 @@
 {
   "name": "blox",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A pattern library for 3d behaviors",
+  "author": "@anselm",
+  "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
     "url": "https://github.com/anselm/blox.git"
   },
-  "main": "needs_a_server.js",
+  "main": "node server.js",
   "scripts": {
-    "start": "cd public; http-server -c 0"
+    "start": "node server.js"
   },
-  "author": "@anselm",
-  "license": "BSD-3-Clause",
   "devDependencies": {
-    "express": "^4.16.3"
+    "express": "^4.17.1"
   },
   "dependencies": {
-    "three": "^0.103.0"
+    "three": "^0.103.0",
+    "async-request": "^1.2.0",
+    "bip32": "^1.0.2",
+    "bip39": "^2.5.0",
+    "bitcoin": "^3.0.1",
+    "bitcoinjs-lib": "^4.0.2",
+    "bitcoinjs-message": "^2.0.0",
+    "blob": "0.0.5",
+    "express-http-proxy": "^1.5.0",
+    "form-data": "^2.3.3",
+    "ip": "^1.1.5",
+    "multer": "^1.4.0",
+    "node-fetch": "^2.2.1",
+    "pouchdb": "^7.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "socket.io": "^2.1.1"
   }
 }

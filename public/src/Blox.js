@@ -54,6 +54,9 @@ import {BehaviorPlacementUX} from './BehaviorPlacementUX.js'
 // webxr support
 import {BehaviorAnchor} from './BehaviorAnchor.js'
 
+// webxr
+import {BehaviorXRWorldInfo} from "./BehaviorXRWorldInfo.js"
+
 //
 // This is a list of blox in a single flat namespace
 // TODO at some point refine this to support returning all the blox with the same name

@@ -1,3 +1,49 @@
+
+
+- my goal is to find the floor
+- and there is floor data available
+- and i can paint that to the screen; probably mostly from a user land script if i feel like it
+
+- also a reticule can be painted if i wish as well, and that is pretty easy too
+
+- from there i can do whatever i want really
+
+*
+
+
+
+*
+
+
+- remove the xrinputhandler and get it somewhere sane
+
+- add whatever implicit support is needed for planes
+- make a behavior that tests showing them
+- make a behavior that tests showing a reticule
+- make a behavior that lets things drop onto surfaces
+- port to joshes code too
+
+
+	- where is the origin of the scene? 
+
+
+for 1) to be useful, these things need to be built in.  In particular, we would want to add options to the scene to say where the origin is.  Right now it’s “device” or “whatever the previous scene used”.  Adding “floor” (under user) and “ask user” would be obvious ones.  I agree “floor” needs to be smart and change over time, and thus needs to be built “on top” of existing webxr anchors but not use them directly (like XRGeospatialAnchor does).  “ask user” take a name as an option, and would trigger some sort of “pick a point” UI that uses WebXR hittesting (akin to the reticles in the webxr examples)  and creates an anchor with that name that could be used later (implying a way to specify that anchor).
+
+I don’t see the use case for 2), I’m probably being dense.  Can you tell me a compelling one?  This isn’t about designers tweeking things (that would be an immersiveAREditor), but an experience where we’d _want_ users tweeking things.
+Regardless, we have no ability to modify existing “Graph” content from runtime scripts.  We can obviously go in and mess with internal data structures, but I filled an issue a while ago about manipulating (change, delete, duplicate, etc) graph nodes.  We don’t want to start mucking around with the threejs scene graph without having a spec’d want of manipulating the project graph as well, because lots of things assume the structure, and we’ll end up breaking things at runtime.
+We also have not exposed the idea of arbitrary anchors to script-land.  Again, issues filed.
+
+
+
+Here's an idea for a lightweight social experience:
+
+	+ Each player starts out with some number of tokens
+	+ When you meet another person you can collect them, and collect one of their tokens
+	+ The place that you meet them is important; and if other people go there they can see that you met there.
+	+ There could be incentives to have larger latch parties of token trading, or concentrations
+	+ Maybe it is the places themselves that get the tokens or get energized
+	+ As you are more and more popular your tokens are worth more.
+
 Small things to tidy up
 
 	* xr improvement: the system makes a "camera" blox on the root that is a real object! super useful
@@ -5,6 +51,8 @@ Small things to tidy up
 	* xr improvement: walking controls have an orbit control built in - and also turn off during XR mode
 
 	- xr improvement: test collision with the xr camera now -> have to register the camera as a collidant
+
+
 
 - would be handy to package blox up as packages and load them - try harder
 - also would be nice to load behaviors from a file or scan
