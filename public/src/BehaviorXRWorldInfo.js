@@ -26,6 +26,8 @@ export class BehaviorXRWorldInfo extends THREE.Group {
 
     constructor(session) {
 
+		super()
+
         // run as a singleton
         if(singleton) {
             console.error("XRWorldInfo called more than once")
@@ -65,7 +67,19 @@ export class BehaviorXRWorldInfo extends THREE.Group {
         reticleParent.visible = false
         this.scene.add(reticleParent)
 
+xxx
+		// force set these properties on the blox; by convention these become reserved for this role
+		let blox = args.blox
+		if(blox.mesh) console.error("Warning: mesh already assigned")
+		blox.mesh = this
+		blox.position = this.position
+		blox.quaternion = this.quaternion
+
     }
+
+	on_tick(args) {
+xxx		// 
+	}
 
     refreshWorldInfo(frame) {
         let worldInfo = frame.worldInformation

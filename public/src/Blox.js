@@ -10,6 +10,8 @@ import {BehaviorGroup} from './BehaviorGroup.js'
 import {BehaviorMesh} from './BehaviorMesh.js'
 import {BehaviorPortal} from './BehaviorPortal.js'
 
+import {BehaviorBuilding} from './BehaviorBuilding.js'
+
 // Some graphics
 import {BehaviorSky} from './BehaviorSky.js'
 import {BehaviorHeart} from './BehaviorHeart.js' // TODO this may go away - it's an idea
